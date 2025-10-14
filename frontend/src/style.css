@@ -1,0 +1,1124 @@
+/* 微软风格的全局样式 */
+:root {
+  /* 统一设计变量 */
+  --radius-lg: 16px;
+  --radius-pill: 9999px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  --card-max-width: 840px;
+  --border-color: #edebe9;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
+  color: #323130;
+  line-height: 1.5;
+  letter-spacing: 0.2px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 居中页面与简洁卡片布局 */
+.page-center {
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xxl) 16px;
+}
+
+.card.page-card {
+  width: 100%;
+  max-width: var(--card-max-width);
+  margin: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.card.page-card.narrow {
+  max-width: 420px;
+}
+
+.card.page-card .card-header {
+  text-align: center;
+}
+
+.card.page-card .card-body {
+  padding: 28px;
+}
+
+.title-stable {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.text-friendly {
+  color: #605e5c;
+}
+
+/* 按钮样式 */
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 400;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+.btn-primary {
+  background-color: #0078d4;
+  color: white;
+  border-color: #0078d4;
+}
+
+.btn-primary:hover {
+  background-color: #106ebe;
+  border-color: #106ebe;
+}
+
+.btn-secondary {
+  background-color: #f3f2f1;
+  color: #323130;
+  border-color: #8a8886;
+}
+
+.btn-secondary:hover {
+  background-color: #edebe9;
+}
+
+.btn-danger {
+  background-color: #d13438;
+  color: white;
+  border-color: #d13438;
+}
+
+.btn-danger:hover {
+  background-color: #b02e31;
+}
+
+/* 表单样式 */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: #323130;
+}
+
+.form-control {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #8a8886;
+  border-radius: 2px;
+  font-size: 14px;
+  background-color: white;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #0078d4;
+  box-shadow: 0 0 0 1px #0078d4;
+}
+
+/* 卡片样式 */
+.card {
+  background-color: white;
+  border: 1px solid #edebe9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132), 0 0.3px 0.9px 0 rgba(0, 0, 0, 0.108);
+  margin-bottom: 20px;
+}
+
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #edebe9;
+  background-color: #faf9f8;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #323130;
+}
+
+/* 导航栏样式 */
+.navbar {
+  background-color: white;
+  border-bottom: 1px solid #edebe9;
+  padding: 0 20px;
+  box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132);
+}
+
+.navbar-brand {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0078d4;
+  text-decoration: none;
+}
+
+.navbar-nav {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.nav-item {
+  margin-left: 20px;
+}
+
+.nav-link {
+  color: #323130;
+  text-decoration: none;
+  padding: 16px 0;
+  display: block;
+  transition: color 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+  color: #0078d4;
+}
+
+.nav-link.active {
+  color: #0078d4;
+  font-weight: 600;
+}
+
+/* 表格样式 */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #edebe9;
+}
+
+.table th {
+  background-color: #faf9f8;
+  font-weight: 600;
+  color: #323130;
+}
+
+.table tbody tr:hover {
+  background-color: #f8f8f8;
+}
+
+/* 文件上传区域 */
+.upload-area {
+  border: 2px dashed #8a8886;
+  border-radius: 4px;
+  padding: 40px;
+  text-align: center;
+  background-color: #faf9f8;
+  transition: border-color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.upload-area:hover {
+  border-color: #0078d4;
+}
+
+.upload-area.dragover {
+  border-color: #0078d4;
+  background-color: #f3f9fd;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .navbar {
+    padding: 0 10px;
+  }
+  
+  .navbar-nav {
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border-top: 1px solid #edebe9;
+    display: none;
+  }
+  
+  .nav-item {
+    margin: 0;
+    border-bottom: 1px solid #edebe9;
+  }
+  
+  .nav-link {
+    padding: 12px 20px;
+  }
+}
+
+/* 加载动画 */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #0078d4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 消息提示 */
+.alert {
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+}
+
+.alert-success {
+  color: #0d5e0d;
+  background-color: rgba(16, 124, 16, 0.10);
+  border-color: #107c10;
+}
+
+.alert-error {
+  color: #a3282b;
+  background-color: rgba(209, 52, 56, 0.10);
+  border-color: #d13438;
+}
+
+.alert-info {
+  color: #0078d4;
+  background-color: #f3f9fd;
+  border-color: #0078d4;
+}
+
+/* 徽章样式 */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 2px;
+  background-color: #f3f2f1;
+  color: #323130;
+  border: 1px solid #8a8886;
+}
+
+/* 文件图标样式 */
+.file-icon {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+/* 表格响应式 */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 按钮禁用状态 */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 进度条样式 */
+.progress {
+  width: 100%;
+  height: 8px;
+  background-color: #edebe9;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #0078d4;
+  transition: width 0.3s ease;
+}
+
+/* 对话框样式 */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background-color: white;
+  border-radius: 2px;
+  box-shadow: 0 6.4px 14.4px 0 rgba(0, 0, 0, 0.132), 0 1.2px 3.6px 0 rgba(0, 0, 0, 0.108);
+  max-width: 400px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.dialog-header {
+  padding: 20px 24px 0;
+}
+
+.dialog-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #323130;
+  margin: 0;
+}
+
+.dialog-body {
+  padding: 16px 24px;
+  color: #605e5c;
+}
+
+.dialog-footer {
+  padding: 0 24px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* 统计卡片样式 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background-color: white;
+  border: 1px solid #edebe9;
+  border-radius: 2px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132);
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 600;
+  color: #0078d4;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  color: #605e5c;
+  font-size: 14px;
+}
+
+/* 动画效果 */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+/* 改进的悬停效果 */
+.card:hover {
+  box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
+  transform: translateY(-1px);
+  transition: all 0.2s ease-in-out;
+}
+
+/* 改进的焦点样式 */
+.btn:focus,
+.form-control:focus {
+  outline: 2px solid #0078d4;
+  outline-offset: 2px;
+}
+
+/* 深灰主题与品牌色覆盖（追加在文件末尾以确保覆盖生效） */
+:root {
+  --bg-dark: #1b1c1e; /* 接近深灰，比 #111 更柔和 */
+  --text-warm-gray: #d7d3c8; /* 暖米灰正文 */
+  --title-warm: #e8e2d8; /* 暖米灰标题色 */
+  --brand-accent: #e76f51; /* 暖橙/珊瑚 */
+  --brand-accent-hover: #d65f45;
+  --brand-accent-active: #c7543d;
+  --danger: #c23b3f; /* 友好但明确的危险色 */
+  --btn-text: #3a3a3a; /* 非纯黑的中深色按钮文字 */
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-warm-gray);
+}
+
+.navbar-brand {
+  color: var(--brand-accent);
+}
+
+/* 白底、大圆角、触控友好的按钮 */
+.btn {
+  padding: 12px 20px;
+  border: 1px solid #d1d1d1;
+  border-radius: var(--radius-pill);
+  font-size: 15px;
+  background-color: white;
+  color: var(--btn-text);
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+              color 0.15s ease, background-color 0.15s ease,
+              border-color 0.15s ease;
+}
+
+.btn:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.btn:active {
+  transform: scale(0.98);
+  background-color: #f7f7f7; /* 轻微压感 */
+}
+
+.btn-primary {
+  background-color: white;
+  color: var(--brand-accent);
+  border-color: var(--brand-accent);
+}
+
+.btn-primary:hover {
+  background-color: #fff7f3; /* 珊瑚色轻微提示 */
+  color: var(--brand-accent-hover);
+  border-color: var(--brand-accent-hover);
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #4a4a48;
+  border-color: #8a8886;
+}
+
+.btn-secondary:hover {
+  background-color: #f8f8f8;
+  border-color: #767676;
+}
+
+.btn-danger {
+  background-color: white;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  background-color: #fff5f5;
+  color: #a32f33;
+  border-color: #a32f33;
+}
+
+/* 卡片悬停动效调整到 100–200ms 范围 */
+.card:hover {
+  transition: all 0.15s ease-in-out;
+}
+
+/* 标题使用暖米灰，提高层次与对比 */
+h1, h2, h3 {
+  color: var(--title-warm);
+}
+
+/* 登录/注册卡片中的链接使用品牌色提示交互 */
+.page-card a:not(.btn) {
+  color: var(--brand-accent);
+  text-decoration: none;
+}
+
+.page-card a:not(.btn):hover {
+  color: var(--brand-accent-hover);
+  text-decoration: underline;
+}
+
+/* 焦点高亮使用品牌色，统一交互反馈 */
+.btn:focus,
+.form-control:focus {
+  outline: 2px solid var(--brand-accent);
+  outline-offset: 2px;
+}
+
+/* 白卡内容采用深色文字，提升可读性 */
+.card {
+  color: #323130;
+}
+
+/* =================== 暖深灰主题与层级排版覆盖 =================== */
+:root {
+  /* 颜色 */
+  --bg-warm-dark: #1B1A18; /* 或 #181716 */
+  --text-warm-gray: #E6E0D9;
+  --title-warm: #E6E0D9;
+  --subtitle-gray: #D9D5CF;
+  --hint-gray: #CFCBC6;
+  --brand-accent: #D97355;
+  --brand-accent-hover: #C55F44;
+  --brand-accent-active: #B9513A;
+  --card-bg-warm: #F8F5F2; /* 或 #F5F1EC */
+  --card-shadow: 0 6px 24px rgba(0,0,0,0.12);
+
+  /* 圆角与尺寸 */
+  --radius-lg: 16px;
+  --radius-md: 14px; /* 按钮 12–16 取中间 */
+  --btn-height: 52px; /* 48–56 中位数 */
+
+  /* 排版 */
+  --line-height: 1.8;
+  --letter-tight: -0.2px;
+}
+
+/* 基础排版与背景 */
+body {
+  background-color: var(--bg-warm-dark);
+  color: var(--text-warm-gray);
+  line-height: var(--line-height);
+  letter-spacing: var(--letter-tight);
+  font-family: "Inter", "Lato", "PingFang SC", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 标题使用衬线，层级清晰 */
+h1, .h1, .card-title.title-stable {
+  font-family: "Playfair Display", "Noto Serif SC", serif;
+  font-size: 36px;
+  color: var(--title-warm);
+}
+
+h2, .h2 {
+  font-family: "Playfair Display", "Noto Serif SC", serif;
+  font-size: 28px;
+  color: var(--subtitle-gray);
+}
+
+h3, .h3 {
+  font-family: "Playfair Display", "Noto Serif SC", serif;
+  font-size: 20px;
+  color: var(--hint-gray);
+}
+
+.text-friendly { color: var(--hint-gray); }
+
+/* 页面卡片居中显示（整体略靠上，但下移一点） */
+.page-center {
+  min-height: calc(100vh - 180px);
+  padding: 64px 20px; /* 下移一点，增加顶部内边距 */
+  display: flex;
+  align-items: flex-start; /* 垂直靠上 */
+  justify-content: center; /* 水平居中 */
+}
+
+/* 使包含页眉的整个页面垂直居中：App 根容器作为列布局，主内容占满并居中 */
+#app.app-full-center {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#app.app-full-center > .container {
+  flex: 1 1 auto; /* 占满剩余空间，页眉固定在顶部 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 卡片：暖浅灰底、柔化阴影与软圆角 */
+.card {
+  background-color: var(--card-bg-warm);
+  border: 1px solid rgba(233, 230, 226, 0.7);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+}
+
+/* 顶部栏：暖米灰文字与更大 padding；品牌点缀标记 */
+.navbar {
+  background: transparent;
+  padding: 18px 0;
+}
+
+.navbar-brand {
+  color: var(--brand-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-brand::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--brand-accent);
+}
+
+.nav-link { color: #D0CBC4; }
+.nav-link:hover { color: var(--brand-accent); }
+
+/* 按钮统一尺寸、圆角与主次样式 */
+.btn {
+  height: var(--btn-height);
+  padding: 0 22px;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  line-height: calc(var(--btn-height) - 2px);
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+              color 0.15s ease, background-color 0.15s ease,
+              border-color 0.15s ease;
+}
+.btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.btn:active { transform: scale(0.98); }
+
+/* 主按钮：暖橙底白字 */
+.btn-primary {
+  background-color: var(--brand-accent);
+  color: #ffffff;
+  border-color: var(--brand-accent);
+}
+.btn-primary:hover {
+  background-color: var(--brand-accent-hover);
+  border-color: var(--brand-accent-hover);
+}
+
+/* 次按钮：白底 + 暖橙边框 + 暖橙文字 */
+.btn-secondary {
+  background-color: #ffffff;
+  color: var(--brand-accent);
+  border-color: var(--brand-accent);
+}
+.btn-secondary:hover {
+  background-color: #FFF6F3;
+  color: var(--brand-accent-hover);
+  border-color: var(--brand-accent-hover);
+}
+
+/* 登录/注册卡片中的链接使用品牌色 */
+.page-card a:not(.btn) { color: var(--brand-accent); text-decoration: none; }
+.page-card a:not(.btn):hover { color: var(--brand-accent-hover); text-decoration: underline; }
+
+/* =================== 现代蓝色调全局覆盖 =================== */
+:root {
+  /* 现代蓝品牌色变量 */
+  --brand-blue: #2563EB; /* 蓝-600 */
+  --brand-blue-hover: #1D4ED8; /* 蓝-700 */
+  --brand-blue-active: #1E40AF; /* 蓝-800 */
+  /* 将既有品牌色映射为现代蓝，以覆盖全站 */
+  --brand-accent: var(--brand-blue);
+  --brand-accent-hover: var(--brand-blue-hover);
+  --brand-accent-active: var(--brand-blue-active);
+}
+
+/* 信息提示统一为现代蓝 */
+.alert-info {
+  color: var(--brand-accent);
+  background-color: rgba(37, 99, 235, 0.08);
+  border-color: var(--brand-accent);
+}
+
+/* 加载动画的主色统一为现代蓝 */
+.loading {
+  border-top-color: var(--brand-accent);
+}
+
+/* 主按钮文字统一为白色，无论状态 */
+.btn-primary,
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus {
+  color: #ffffff;
+}
+
+/* 移除左上角品牌名前的圆点符号 */
+.navbar-brand::before {
+  content: none;
+  display: none;
+}
+
+/* =================== 色彩方案变量覆盖（用户提供） =================== */
+:root {
+  --bg: #0f1112;            /* 整体背景 */
+  --panel-bg: #fbfbfc;      /* 卡片背景（偏中性白） */
+  --muted-panel: #f4efed;   /* 卡片上浅分区 */
+  --primary: #2563eb;       /* 主色（蓝） */
+  --primary-600: #1e4fd6;
+  --text-dark: #0b1220;
+  --text-muted: #6b7280;
+  --card-radius: 12px;
+  --shadow: 0 8px 28px rgba(5,8,10,0.45);
+}
+
+/* 应用新色彩方案到背景、卡片和主按钮 */
+body {
+  background-color: var(--bg);
+}
+
+.card {
+  background-color: var(--panel-bg);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow);
+}
+
+.card-header {
+  background-color: var(--muted-panel);
+}
+
+.card-title,
+.title-stable {
+  color: var(--text-dark);
+}
+
+.text-friendly {
+  color: var(--text-muted);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--primary-600);
+  border-color: var(--primary-600);
+}
+
+/* =================== 布局规则（用户提供） =================== */
+/* 全局 body 覆盖为新字体与配色（已设置 var(--bg) 与 var(--text-dark)） */
+body {
+  background: var(--bg);
+  color: var(--text-dark);
+  font-family: "Inter", "Noto Sans SC", sans-serif;
+  margin: 0;
+}
+
+/* 头部：为 Navbar 添加 header 类的样式 */
+.header {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* 页面主容器：垂直居中卡片 */
+/* 注意：覆盖只用于页面主内容区域，避免影响导航内部 .container 布局 */
+main.container,
+.page-center.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 72px);
+  padding: 40px;
+}
+
+/* 首页卡片：渐变白底与较窄宽度 */
+.hero-card {
+  width: 100%;
+  max-width: 460px;
+  border-radius: var(--card-radius);
+  background: linear-gradient(180deg, var(--panel-bg) 0%, var(--muted-panel) 48%);
+  box-shadow: var(--shadow);
+  padding: 36px;
+}
+
+/* 登录/注册等认证页的更宽卡片 */
+.page-card.auth-wide {
+  max-width: 560px;
+}
+/* =================== 标题与引导文案（用户提供） =================== */
+h1 {
+  font-family: "Noto Serif SC", serif; /* 衬线字做大标题很有气质 */
+  font-size: 40px;      /* 桌面 */
+  line-height: 1.05;
+  margin: 0 0 18px 0;
+  color: var(--text-dark);
+}
+
+.lead {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-bottom: 22px;
+  line-height: 1.6;
+}
+
+/* =================== 按钮样式（用户提供） =================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: auto; /* 覆盖早前的固定高度，按内边距自适应 */
+  padding: 10px 18px;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  box-shadow: 0 6px 18px rgba(37,99,235,0.18);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid rgba(37,99,235,0.18);
+}
+
+/* Hover */
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(37,99,235,0.24);
+}
+
+.btn-outline:hover  {
+  background: rgba(37,99,235,0.04);
+  transform: translateY(-1px);
+}
+
+/* =================== 移动端媒体查询（用户提供） =================== */
+@media (max-width: 640px) {
+  .header { padding: 0 16px; height: 64px; }
+  .hero-card { padding: 24px; max-width: 92%; }
+  h1 { font-size: 28px; }
+  .lead { font-size: 15px; }
+  .btn { padding: 10px 14px; font-size: 15px; }
+}
+
+/* =================== 首页标题与标题区域覆盖 =================== */
+/* 将首页卡片标题改为纯黑，并去掉标题区域的背景填充与边框 */
+.hero-card .card-title,
+.hero-card h1 {
+  color: #000000;
+}
+
+.hero-card .card-header {
+  background: transparent;
+  border-bottom: none;
+}
+/* =================== 卡片统一尺寸与上移（用户要求） =================== */
+/* 统一首页与认证卡片宽度，提升一致性 */
+.hero-card,
+.card.page-card,
+.page-card.auth-wide,
+.card.page-card.narrow {
+  max-width: 720px;
+}
+
+/* 上移页面主容器，减少垂直居中带来的下移感 */
+main.container,
+.page-center,
+.page-center.container {
+  align-items: flex-start;
+  justify-content: center;
+  min-height: calc(100vh - 72px);
+  padding: 24px 20px;
+}
+
+/* 增加卡片内容内边距，增强视觉体量 */
+.hero-card {
+  padding: 44px;
+}
+.card-body,
+.card.page-card .card-body {
+  padding: 32px;
+}
+
+/* =================== 扁平按钮样式（降低高度与圆角） =================== */
+.btn-flat {
+  padding: 4px 10px !important;
+  border-radius: 4px !important;
+  font-size: 13px;
+  height: auto !important;
+  line-height: 1.2;
+  box-shadow: none !important;
+  border-width: 1px !important;
+}
+.btn-flat:hover { box-shadow: none !important; transform: none !important; }
+.btn-flat:active { transform: none !important; }
+
+/* 红字无底的危险按钮（仅文字变红，无填充背景） */
+.btn-danger-text {
+  background: transparent !important;
+  color: #7C0F2A !important; /* 更暗红 */
+  border: none !important;
+  box-shadow: none !important;
+  font: inherit; /* 继承导航文字的字体设置 */
+  font-size: inherit; /* 继承大小，与旁边文字一致 */
+}
+.btn-danger-text:hover {
+  color: #5A0B1A !important; /* 悬停更深红 */
+  text-decoration: none; /* 与导航链接一致，不加下划线 */
+}
+/* 提高优先级，避免 .nav-link:hover 将颜色改成蓝色 */
+.nav-link.btn-danger-text:hover {
+  color: #5A0B1A !important;
+}
+
+/* =================== 去卡片化的网页端风格覆盖 =================== */
+.card,
+.card.page-card,
+.hero-card {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.card.page-card,
+.hero-card {
+  max-width: var(--card-max-width);
+}
+
+.card-header {
+  background: transparent !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+  margin-bottom: 16px; /* 标题与内容的自然间距 */
+}
+
+.card-title,
+.title-stable {
+  color: inherit !important; /* 与页面文本保持一致 */
+  font-weight: 600;
+}
+
+.card-body,
+.card.page-card .card-body {
+  padding: 0 !important; /* 移除卡片内容内边距，由页面布局控制 */
+}
+
+/* 页面主体的通用间距（适度增加） */
+main.container,
+.page-center,
+.page-center.container {
+  padding: 24px !important;
+}
+
+/* 分块之间的垂直间距（卡片去边后需要更自然的间距） */
+.card { margin-bottom: 24px; }
+
+/* 统一的白色文本工具类（用于标题或强调文案） */
+.text-white { color: #ffffff !important; }
+
+/* =================== 登录页空间优化（缓解紧凑） =================== */
+/* 仅作用于登录页的宽卡片，提高内边距与字段间距 */
+.card.page-card.auth-wide .card-header {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 0 8px 0 !important; /* 缩小标题与内容间距 */
+}
+
+.card.page-card.auth-wide .card-title {
+  margin: 0 0 8px 0 !important; /* 缩小标题下方留白 */
+}
+
+.card.page-card.auth-wide .card-body {
+  padding: 36px 32px !important; /* 增加整体内边距，缓解紧凑感 */
+}
+
+.card.page-card.auth-wide .form-group {
+  margin-bottom: 20px !important; /* 字段间距从 16px 提升到 20px */
+}
+
+.card.page-card.auth-wide .form-label {
+  margin-bottom: 8px !important; /* 标签与输入框间距从 4px 提升到 8px */
+}
+
+.card.page-card.auth-wide .form-control {
+  padding: 12px 14px !important; /* 输入框内边距略增，提升舒适度 */
+  font-size: 15px !important; /* 字号微增，增强可读性 */
+}
+
+.card.page-card.auth-wide .btn {
+  padding: 12px 18px !important; /* 提升按钮内边距以匹配整体节奏 */
+  font-size: 15px !important;
+}
+
+/* =================== 页面元素大圆角覆盖（文件列表、上传、个人资料） =================== */
+/* 文件列表页：统计卡片、表格、徽章、按钮与输入框采用大圆角 */
+.file-list .stat-card,
+.file-list .table,
+.file-list .badge,
+.file-list .btn,
+.file-list .form-control,
+.file-list .card,
+.file-list .modal-dialog {
+  border-radius: var(--radius-lg) !important;
+}
+
+/* 上传页：上传区域、最近文件项、按钮与输入框采用大圆角 */
+.file-upload .upload-area,
+.file-upload .recent-file-item,
+.file-upload .btn,
+.file-upload .form-control,
+.file-upload .badge,
+.file-upload .upload-progress,
+.file-upload .progress,
+.file-upload .progress-bar,
+.file-upload .card {
+  border-radius: var(--radius-lg) !important;
+}
+
+/* 个人资料页：统计项、按钮与输入框采用大圆角 */
+.profile .stat-item,
+.profile .btn,
+.profile .form-control,
+.profile .card {
+  border-radius: var(--radius-lg) !important;
+}
+
+/* 个人资料页：统计文字改为黑色 */
+.profile .stat-label,
+.profile .stat-number {
+  color: #000000 !important;
+}
