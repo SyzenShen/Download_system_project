@@ -22,7 +22,6 @@
           <h3 class="text-white" style="margin-bottom: 15px;">快速操作</h3>
           <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 24px;">
             <router-link to="/files" class="btn btn-primary">查看我的文件</router-link>
-            <router-link to="/upload" class="btn btn-secondary">上传新文件</router-link>
             <router-link to="/profile" class="btn btn-secondary">个人资料</router-link>
           </div>
         </div>

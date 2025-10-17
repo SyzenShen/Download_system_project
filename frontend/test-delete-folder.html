@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件夹删除功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.danger {
+            background: #dc3545;
+        }
+        .test-button.danger:hover {
+            background: #c82333;
+        }
+        .test-button.success {
+            background: #28a745;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .folder-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .folder-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .folder-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .folder-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .api-result {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .test-scenario {
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin: 10px 0;
+            padding: 15px;
+        }
+        .test-scenario h4 {
+            margin-top: 0;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <h1>🗑️ 文件夹删除功能测试</h1>
+    
+    <div class="test-section">
+        <h2>🎯 测试目标</h2>
+        <p>测试和调试文件夹删除功能，识别删除失败的原因并提供解决方案。</p>
+        
+        <div class="status info">
+            <strong>常见删除失败原因：</strong>
+            <ul>
+                <li>文件夹不为空（包含子文件夹或文件）</li>
+                <li>权限不足</li>
+                <li>文件夹不存在</li>
+                <li>网络连接问题</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 当前文件夹列表</h2>
+        <button class="test-button" onclick="loadFolders()">🔄 刷新文件夹列表</button>
+        <div id="folder-list"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🧪 删除测试场景</h2>
+        
+        <div class="test-scenario">
+            <h4>场景1: 删除空文件夹</h4>
+            <button class="test-button" onclick="createEmptyFolder()">📁 创建空文件夹</button>
+            <button class="test-button danger" onclick="deleteLastCreatedFolder()">🗑️ 删除最后创建的文件夹</button>
+            <div id="empty-folder-result"></div>
+        </div>
+        
+        <div class="test-scenario">
+            <h4>场景2: 删除非空文件夹</h4>
+            <button class="test-button" onclick="createFolderWithContent()">📁 创建包含内容的文件夹</button>
+            <button class="test-button danger" onclick="deleteNonEmptyFolder()">🗑️ 尝试删除非空文件夹</button>
+            <div id="non-empty-folder-result"></div>
+        </div>
+        
+        <div class="test-scenario">
+            <h4>场景3: 删除不存在的文件夹</h4>
+            <button class="test-button danger" onclick="deleteNonExistentFolder()">🗑️ 尝试删除不存在的文件夹</button>
+            <div id="non-existent-folder-result"></div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 手动测试工具</h2>
+        <input type="text" id="folder-id-input" placeholder="输入文件夹ID" style="padding: 8px; margin: 5px; border: 1px solid #ccc; border-radius: 4px;">
+        <button class="test-button danger" onclick="deleteSpecificFolder()">🗑️ 删除指定文件夹</button>
+        <button class="test-button" onclick="openFilesPage()">📂 打开文件管理页面</button>
+        <div id="manual-test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 测试结果和错误日志</h2>
+        <button class="test-button" onclick="clearLogs()">🧹 清空日志</button>
+        <div id="test-logs"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8001';
+        let testFolders = []; // 存储测试创建的文件夹
+        let allFolders = []; // 存储所有文件夹
+        
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('test-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logsDiv.innerHTML += `<div class="status ${type}">[${timestamp}] ${message}</div>`;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function clearLogs() {
+            document.getElementById('test-logs').innerHTML = '';
+        }
+        
+        function openFilesPage() {
+            window.open('http://localhost:5173/files', '_blank');
+        }
+        
+        async function getAuthHeaders() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('请先登录！请在文件管理页面登录后再进行测试。');
+            }
+            return { 'Authorization': `Token ${token}`, 'Content-Type': 'application/json' };
+        }
+        
+        async function createFolder(name, parentId = null) {
+            try {
+                const headers = await getAuthHeaders();
+                const data = { name };
+                if (parentId) {
+                    data.parent = parentId;
+                }
+                
+                const response = await fetch(`${API_BASE}/api/files/folders/`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const folder = await response.json();
+                    testFolders.push(folder);
+                    log(`✅ 文件夹创建成功: ${folder.name} (ID: ${folder.id})`, 'success');
+                    return folder;
+                } else {
+                    const errorText = await response.text();
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch {
+                        errorData = { error: errorText };
+                    }
+                    throw new Error(`创建文件夹失败 (${response.status}): ${errorData.error || errorData.message || errorText}`);
+                }
+            } catch (error) {
+                log(`❌ 创建文件夹失败: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+        
+        async function deleteFolder(folderId) {
+            try {
+                const headers = await getAuthHeaders();
+                
+                log(`🗑️ 尝试删除文件夹 ID: ${folderId}`, 'info');
+                
+                const response = await fetch(`${API_BASE}/api/files/folders/${folderId}/`, {
+                    method: 'DELETE',
+                    headers
+                });
+                
+                if (response.ok || response.status === 204) {
+                    log(`✅ 文件夹删除成功 ID: ${folderId}`, 'success');
+                    return { success: true, message: '文件夹删除成功' };
+                } else {
+                    const errorText = await response.text();
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch {
+                        errorData = { error: errorText };
+                    }
+                    
+                    const errorMessage = errorData.error || errorData.message || errorData.detail || errorText;
+                    log(`❌ 文件夹删除失败 (${response.status}): ${errorMessage}`, 'error');
+                    
+                    return { 
+                        success: false, 
+                        error: errorMessage,
+                        status: response.status,
+                        details: errorData
+                    };
+                }
+            } catch (error) {
+                log(`❌ 删除文件夹时发生错误: ${error.message}`, 'error');
+                return { success: false, error: error.message };
+            }
+        }
+        
+        async function getFolders() {
+            try {
+                const headers = await getAuthHeaders();
+                const response = await fetch(`${API_BASE}/api/files/`, { headers });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    allFolders = data.folders || [];
+                    return allFolders;
+                } else {
+                    throw new Error(`获取文件夹列表失败: ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ 获取文件夹列表失败: ${error.message}`, 'error');
+                return [];
+            }
+        }
+        
+        async function getFolderContents(folderId) {
+            try {
+                const headers = await getAuthHeaders();
+                const response = await fetch(`${API_BASE}/api/files/?folder_id=${folderId}`, { headers });
+                
+                if (response.ok) {
+                    return await response.json();
+                } else {
+                    throw new Error(`获取文件夹内容失败: ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ 获取文件夹内容失败: ${error.message}`, 'error');
+                return null;
+            }
+        }
+        
+        async function loadFolders() {
+            log('🔄 正在加载文件夹列表...', 'info');
+            const folders = await getFolders();
+            
+            const folderListDiv = document.getElementById('folder-list');
+            if (folders.length === 0) {
+                folderListDiv.innerHTML = '<div class="status info">没有找到文件夹</div>';
+                return;
+            }
+            
+            let html = '<div class="folder-list">';
+            for (const folder of folders) {
+                // 检查文件夹是否为空
+                const contents = await getFolderContents(folder.id);
+                const isEmpty = contents && contents.folders.length === 0 && contents.files.length === 0;
+                const statusText = isEmpty ? '(空)' : '(非空)';
+                const statusClass = isEmpty ? 'success' : 'warning';
+                
+                html += `
+                    <div class="folder-item">
+                        <div class="folder-info">
+                            <span>📁</span>
+                            <span><strong>${folder.name}</strong> (ID: ${folder.id})</span>
+                            <span class="status ${statusClass}" style="padding: 2px 6px; font-size: 12px;">${statusText}</span>
+                        </div>
+                        <div class="folder-actions">
+                            <button class="test-button danger" onclick="testDeleteFolder(${folder.id}, '${folder.name}')">🗑️ 删除</button>
+                        </div>
+                    </div>
+                `;
+            }
+            html += '</div>';
+            folderListDiv.innerHTML = html;
+            
+            log(`📋 加载了 ${folders.length} 个文件夹`, 'success');
+        }
+        
+        async function testDeleteFolder(folderId, folderName) {
+            if (!confirm(`确定要删除文件夹 "${folderName}" (ID: ${folderId}) 吗？`)) {
+                return;
+            }
+            
+            const result = await deleteFolder(folderId);
+            if (result.success) {
+                await loadFolders(); // 刷新列表
+            } else {
+                // 显示详细错误信息
+                const errorDetails = result.details ? JSON.stringify(result.details, null, 2) : '';
+                log(`删除失败详情:\n状态码: ${result.status}\n错误信息: ${result.error}\n${errorDetails}`, 'error');
+            }
+        }
+        
+        async function createEmptyFolder() {
+            try {
+                const folderName = `空文件夹_${Date.now()}`;
+                await createFolder(folderName);
+                await loadFolders();
+                showResult('empty-folder-result', '✅ 空文件夹创建成功', 'success');
+            } catch (error) {
+                showResult('empty-folder-result', `❌ 创建失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testDeleteEmptyFolder() {
+            log('🗑️ 开始测试删除空文件夹...');
+            
+            // 首先创建一个空文件夹
+            const createResult = await createFolder('测试空文件夹_' + Date.now());
+            if (!createResult.success) {
+                log('❌ 创建测试文件夹失败: ' + createResult.error, 'error');
+                return;
+            }
+            
+            const folderId = createResult.data.id;
+            log('📁 创建测试文件夹成功，ID: ' + folderId);
+            
+            // 删除空文件夹
+            const deleteResult = await deleteFolder(folderId);
+            if (deleteResult.success) {
+                log('✅ 删除空文件夹成功', 'success');
+            } else {
+                log('❌ 删除空文件夹失败: ' + deleteResult.error, 'error');
+            }
+        }
+        
+        async function deleteLastCreatedFolder() {
+            if (testFolders.length === 0) {
+                showResult('empty-folder-result', '❌ 没有可删除的测试文件夹', 'error');
+                return;
+            }
+            
+            const lastFolder = testFolders[testFolders.length - 1];
+            const result = await deleteFolder(lastFolder.id);
+            
+            if (result.success) {
+                testFolders.pop();
+                await loadFolders();
+                showResult('empty-folder-result', '✅ 空文件夹删除成功', 'success');
+            } else {
+                showResult('empty-folder-result', `❌ 删除失败: ${result.error}`, 'error');
+            }
+        }
+        
+        async function createFolderWithContent() {
+            try {
+                const parentFolderName = `非空文件夹_${Date.now()}`;
+                const parentFolder = await createFolder(parentFolderName);
+                
+                // 在父文件夹中创建子文件夹
+                const subFolderName = `子文件夹_${Date.now()}`;
+                await createFolder(subFolderName, parentFolder.id);
+                
+                await loadFolders();
+                showResult('non-empty-folder-result', '✅ 包含内容的文件夹创建成功', 'success');
+            } catch (error) {
+                showResult('non-empty-folder-result', `❌ 创建失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function deleteNonEmptyFolder() {
+            // 找到最后一个非空的测试文件夹
+            let nonEmptyFolder = null;
+            for (let i = testFolders.length - 1; i >= 0; i--) {
+                const contents = await getFolderContents(testFolders[i].id);
+                if (contents && (contents.folders.length > 0 || contents.files.length > 0)) {
+                    nonEmptyFolder = testFolders[i];
+                    break;
+                }
+            }
+            
+            if (!nonEmptyFolder) {
+                showResult('non-empty-folder-result', '❌ 没有找到非空的测试文件夹', 'error');
+                return;
+            }
+            
+            const result = await deleteFolder(nonEmptyFolder.id);
+            
+            if (result.success) {
+                await loadFolders();
+                showResult('non-empty-folder-result', '⚠️ 非空文件夹竟然删除成功了！这可能是个问题', 'warning');
+            } else {
+                showResult('non-empty-folder-result', `✅ 正确行为: 非空文件夹删除被拒绝 - ${result.error}`, 'success');
+            }
+        }
+        
+        async function deleteNonExistentFolder() {
+            const fakeId = 99999;
+            const result = await deleteFolder(fakeId);
+            
+            if (result.success) {
+                showResult('non-existent-folder-result', '⚠️ 删除不存在的文件夹竟然返回成功！', 'warning');
+            } else {
+                showResult('non-existent-folder-result', `✅ 正确行为: 删除不存在的文件夹被拒绝 - ${result.error}`, 'success');
+            }
+        }
+        
+        async function deleteSpecificFolder() {
+            const folderId = document.getElementById('folder-id-input').value.trim();
+            if (!folderId) {
+                showResult('manual-test-result', '❌ 请输入文件夹ID', 'error');
+                return;
+            }
+            
+            const result = await deleteFolder(parseInt(folderId));
+            
+            if (result.success) {
+                await loadFolders();
+                showResult('manual-test-result', '✅ 文件夹删除成功', 'success');
+            } else {
+                showResult('manual-test-result', `❌ 删除失败: ${result.error}`, 'error');
+            }
+        }
+        
+        // 页面加载时检查登录状态并加载文件夹
+        window.onload = async function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                log('⚠️ 未登录，请先在文件管理页面登录', 'warning');
+                return;
+            }
+            
+            log('✅ 已登录，开始加载文件夹列表', 'success');
+            await loadFolders();
+        };
+    </script>
+</body>
+</html>

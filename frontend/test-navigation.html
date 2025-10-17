@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件夹导航功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .feature-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .feature-list li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+        }
+        .test-steps {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .test-steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .test-steps li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>文件夹导航功能测试</h1>
+    
+    <div class="test-section">
+        <h2>🎯 新功能概览</h2>
+        <ul class="feature-list">
+            <li>文件夹单击进入（原来是双击）</li>
+            <li>返回上一级目录按钮</li>
+            <li>面包屑导航显示当前路径</li>
+            <li>点击面包屑可快速跳转</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>🧪 测试步骤</h2>
+        <div class="test-steps">
+            <h3>1. 基础导航测试</h3>
+            <ol>
+                <li>点击下方按钮打开文件管理页面</li>
+                <li>确认页面显示文件夹列表</li>
+                <li><strong>单击</strong>任意文件夹（不是双击）</li>
+                <li>验证是否成功进入文件夹</li>
+            </ol>
+        </div>
+        
+        <div class="test-steps">
+            <h3>2. 返回按钮测试</h3>
+            <ol>
+                <li>进入任意文件夹后</li>
+                <li>查看导航栏左侧是否出现"← 返回"按钮</li>
+                <li>点击返回按钮</li>
+                <li>验证是否返回到上一级目录</li>
+            </ol>
+        </div>
+        
+        <div class="test-steps">
+            <h3>3. 面包屑导航测试</h3>
+            <ol>
+                <li>进入多层嵌套的文件夹</li>
+                <li>观察面包屑导航：🏠 全部文件 > 文件夹1 > 文件夹2</li>
+                <li>点击面包屑中的任意层级</li>
+                <li>验证是否能快速跳转到对应目录</li>
+            </ol>
+        </div>
+        
+        <div class="test-steps">
+            <h3>4. 创建测试文件夹</h3>
+            <ol>
+                <li>点击"新建文件夹"按钮</li>
+                <li>创建几个嵌套的文件夹用于测试</li>
+                <li>测试在不同层级间的导航</li>
+            </ol>
+        </div>
+        
+        <button class="test-button" onclick="openFilesPage()">🚀 打开文件管理页面开始测试</button>
+        <button class="test-button" onclick="createTestFolders()">📁 创建测试文件夹结构</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 测试检查清单</h2>
+        <div id="checklist">
+            <label><input type="checkbox"> 文件夹可以单击进入</label><br>
+            <label><input type="checkbox"> 进入文件夹后显示返回按钮</label><br>
+            <label><input type="checkbox"> 返回按钮功能正常</label><br>
+            <label><input type="checkbox"> 面包屑导航显示正确路径</label><br>
+            <label><input type="checkbox"> 面包屑导航可点击跳转</label><br>
+            <label><input type="checkbox"> 在根目录时不显示返回按钮</label><br>
+            <label><input type="checkbox"> 删除按钮不会触发文件夹进入</label><br>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 API测试工具</h2>
+        <button class="test-button" onclick="testAPI()">测试API连接</button>
+        <button class="test-button" onclick="checkAuth()">检查登录状态</button>
+        <div id="api-status"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8001';
+        
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function openFilesPage() {
+            window.open('http://localhost:5173/files', '_blank');
+        }
+        
+        async function createTestFolders() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('请先登录！');
+                return;
+            }
+            
+            try {
+                // 创建主测试文件夹
+                const mainFolder = await createFolder('导航测试文件夹');
+                if (!mainFolder) return;
+                
+                // 创建子文件夹
+                const subFolder1 = await createFolder('子文件夹1', mainFolder.id);
+                const subFolder2 = await createFolder('子文件夹2', mainFolder.id);
+                
+                if (subFolder1) {
+                    // 在子文件夹1中创建更深层的文件夹
+                    await createFolder('深层文件夹', subFolder1.id);
+                }
+                
+                alert('测试文件夹结构创建完成！\\n请刷新页面查看。');
+                
+            } catch (error) {
+                alert('创建测试文件夹失败：' + error.message);
+            }
+        }
+        
+        async function createFolder(name, parentId = null) {
+            const token = localStorage.getItem('token');
+            const data = { name };
+            if (parentId) {
+                data.parent_folder = parentId;
+            }
+            
+            const response = await fetch(`${API_BASE}/api/files/folders/`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            if (response.ok) {
+                return await response.json();
+            } else {
+                throw new Error(`创建文件夹失败: ${response.status}`);
+            }
+        }
+        
+        async function testAPI() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showStatus('api-status', '请先登录', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/files/`, {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('api-status', `
+                        <strong>API连接正常</strong><br>
+                        文件数量：${data.files?.length || 0}<br>
+                        文件夹数量：${data.folders?.length || 0}
+                    `, 'success');
+                } else {
+                    showStatus('api-status', `API调用失败：${response.status}`, 'error');
+                }
+            } catch (error) {
+                showStatus('api-status', `网络错误：${error.message}`, 'error');
+            }
+        }
+        
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (token && user) {
+                try {
+                    const userData = JSON.parse(user);
+                    showStatus('api-status', `
+                        <strong>已登录</strong><br>
+                        用户：${userData.username}<br>
+                        Token：${token.substring(0, 20)}...
+                    `, 'success');
+                } catch (e) {
+                    showStatus('api-status', '用户数据解析失败', 'error');
+                }
+            } else {
+                showStatus('api-status', '未登录，请先登录', 'error');
+            }
+        }
+        
+        // 页面加载时检查登录状态
+        window.onload = function() {
+            checkAuth();
+        };
+    </script>
+</body>
+</html>

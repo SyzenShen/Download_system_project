@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件夹创建位置测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.success {
+            background: #28a745;
+        }
+        .test-button.error {
+            background: #dc3545;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .test-steps {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .test-steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .test-steps li {
+            margin: 5px 0;
+        }
+        .folder-tree {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-line;
+        }
+        .api-result {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>📁 文件夹创建位置测试</h1>
+    
+    <div class="test-section">
+        <h2>🎯 测试目标</h2>
+        <p>验证在文件夹内创建新文件夹时，新文件夹是否正确创建在当前文件夹内，而不是根目录。</p>
+        
+        <div class="test-steps">
+            <h3>修复内容</h3>
+            <ul>
+                <li>前端发送的字段名从 <code>parent_folder</code> 改为 <code>parent</code></li>
+                <li>匹配后端 FolderCreateSerializer 期望的字段名</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🧪 自动化测试</h2>
+        <button class="test-button" onclick="runFullTest()">🚀 运行完整测试</button>
+        <button class="test-button" onclick="clearTestData()">🗑️ 清理测试数据</button>
+        <div id="test-status"></div>
+        
+        <h3>测试步骤：</h3>
+        <div class="test-steps">
+            <ol>
+                <li>创建主测试文件夹 "位置测试主文件夹"</li>
+                <li>进入该文件夹</li>
+                <li>在该文件夹内创建子文件夹 "子文件夹A"</li>
+                <li>验证子文件夹是否在正确位置</li>
+                <li>进入子文件夹A</li>
+                <li>在子文件夹A内创建 "深层文件夹B"</li>
+                <li>验证深层文件夹是否在正确位置</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📊 测试结果</h2>
+        <div id="test-results"></div>
+        <div id="folder-structure"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 手动测试工具</h2>
+        <button class="test-button" onclick="openFilesPage()">📂 打开文件管理页面</button>
+        <button class="test-button" onclick="checkCurrentStructure()">🔍 检查当前文件夹结构</button>
+        <button class="test-button" onclick="testCreateInRoot()">📁 在根目录创建测试文件夹</button>
+        <div id="manual-test-results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8001';
+        let testFolders = []; // 存储测试创建的文件夹ID，用于清理
+        
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function appendResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML += `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function openFilesPage() {
+            window.open('http://localhost:5173/files', '_blank');
+        }
+        
+        async function getAuthHeaders() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('请先登录！');
+            }
+            return { 'Authorization': `Token ${token}`, 'Content-Type': 'application/json' };
+        }
+        
+        async function createFolder(name, parentId = null) {
+            const headers = await getAuthHeaders();
+            const data = { name };
+            if (parentId) {
+                data.parent = parentId;
+            }
+            
+            const response = await fetch(`${API_BASE}/api/files/folders/`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(data)
+            });
+            
+            if (response.ok) {
+                const folder = await response.json();
+                testFolders.push(folder.id);
+                return folder;
+            } else {
+                const error = await response.text();
+                throw new Error(`创建文件夹失败: ${response.status} - ${error}`);
+            }
+        }
+        
+        async function getFolderContents(folderId = null) {
+            const headers = await getAuthHeaders();
+            const url = folderId ? `${API_BASE}/api/files/?folder_id=${folderId}` : `${API_BASE}/api/files/`;
+            
+            const response = await fetch(url, { headers });
+            if (response.ok) {
+                return await response.json();
+            } else {
+                throw new Error(`获取文件夹内容失败: ${response.status}`);
+            }
+        }
+        
+        async function deleteFolder(folderId) {
+            const headers = await getAuthHeaders();
+            const response = await fetch(`${API_BASE}/api/files/folders/${folderId}/`, {
+                method: 'DELETE',
+                headers
+            });
+            
+            if (!response.ok && response.status !== 404) {
+                throw new Error(`删除文件夹失败: ${response.status}`);
+            }
+        }
+        
+        async function runFullTest() {
+            showStatus('test-status', '开始运行完整测试...', 'info');
+            document.getElementById('test-results').innerHTML = '';
+            
+            try {
+                // 步骤1: 创建主测试文件夹
+                appendResult('test-results', '步骤1: 创建主测试文件夹...', 'info');
+                const mainFolder = await createFolder('位置测试主文件夹');
+                appendResult('test-results', `✅ 主文件夹创建成功，ID: ${mainFolder.id}`, 'success');
+                
+                // 步骤2: 验证主文件夹在根目录
+                appendResult('test-results', '步骤2: 验证主文件夹在根目录...', 'info');
+                const rootContents = await getFolderContents();
+                const mainFolderInRoot = rootContents.folders.find(f => f.id === mainFolder.id);
+                if (mainFolderInRoot) {
+                    appendResult('test-results', '✅ 主文件夹正确创建在根目录', 'success');
+                } else {
+                    appendResult('test-results', '❌ 主文件夹未在根目录找到', 'error');
+                    return;
+                }
+                
+                // 步骤3: 在主文件夹内创建子文件夹
+                appendResult('test-results', '步骤3: 在主文件夹内创建子文件夹...', 'info');
+                const subFolderA = await createFolder('子文件夹A', mainFolder.id);
+                appendResult('test-results', `✅ 子文件夹A创建成功，ID: ${subFolderA.id}`, 'success');
+                
+                // 步骤4: 验证子文件夹在主文件夹内
+                appendResult('test-results', '步骤4: 验证子文件夹在主文件夹内...', 'info');
+                const mainFolderContents = await getFolderContents(mainFolder.id);
+                const subFolderInMain = mainFolderContents.folders.find(f => f.id === subFolderA.id);
+                if (subFolderInMain) {
+                    appendResult('test-results', '✅ 子文件夹A正确创建在主文件夹内', 'success');
+                } else {
+                    appendResult('test-results', '❌ 子文件夹A未在主文件夹内找到', 'error');
+                    
+                    // 检查是否错误创建在根目录
+                    const rootCheck = await getFolderContents();
+                    const subFolderInRoot = rootCheck.folders.find(f => f.id === subFolderA.id);
+                    if (subFolderInRoot) {
+                        appendResult('test-results', '❌ 子文件夹A错误地创建在了根目录！', 'error');
+                    }
+                    return;
+                }
+                
+                // 步骤5: 在子文件夹A内创建深层文件夹
+                appendResult('test-results', '步骤5: 在子文件夹A内创建深层文件夹...', 'info');
+                const deepFolderB = await createFolder('深层文件夹B', subFolderA.id);
+                appendResult('test-results', `✅ 深层文件夹B创建成功，ID: ${deepFolderB.id}`, 'success');
+                
+                // 步骤6: 验证深层文件夹在子文件夹A内
+                appendResult('test-results', '步骤6: 验证深层文件夹在子文件夹A内...', 'info');
+                const subFolderAContents = await getFolderContents(subFolderA.id);
+                const deepFolderInSub = subFolderAContents.folders.find(f => f.id === deepFolderB.id);
+                if (deepFolderInSub) {
+                    appendResult('test-results', '✅ 深层文件夹B正确创建在子文件夹A内', 'success');
+                } else {
+                    appendResult('test-results', '❌ 深层文件夹B未在子文件夹A内找到', 'error');
+                    return;
+                }
+                
+                // 显示文件夹结构
+                await showFolderStructure();
+                
+                appendResult('test-results', '🎉 所有测试通过！文件夹创建位置功能正常工作', 'success');
+                showStatus('test-status', '测试完成！所有功能正常', 'success');
+                
+            } catch (error) {
+                appendResult('test-results', `❌ 测试失败: ${error.message}`, 'error');
+                showStatus('test-status', `测试失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function showFolderStructure() {
+            try {
+                const rootContents = await getFolderContents();
+                let structure = '文件夹结构:\\n';
+                structure += '📁 根目录\\n';
+                
+                for (const folder of rootContents.folders) {
+                    if (folder.name.includes('位置测试')) {
+                        structure += `  📁 ${folder.name} (ID: ${folder.id})\\n`;
+                        
+                        // 获取子文件夹
+                        const subContents = await getFolderContents(folder.id);
+                        for (const subFolder of subContents.folders) {
+                            structure += `    📁 ${subFolder.name} (ID: ${subFolder.id})\\n`;
+                            
+                            // 获取深层文件夹
+                            const deepContents = await getFolderContents(subFolder.id);
+                            for (const deepFolder of deepContents.folders) {
+                                structure += `      📁 ${deepFolder.name} (ID: ${deepFolder.id})\\n`;
+                            }
+                        }
+                    }
+                }
+                
+                document.getElementById('folder-structure').innerHTML = 
+                    `<h3>📊 当前文件夹结构</h3><div class="folder-tree">${structure}</div>`;
+                    
+            } catch (error) {
+                document.getElementById('folder-structure').innerHTML = 
+                    `<div class="status error">获取文件夹结构失败: ${error.message}</div>`;
+            }
+        }
+        
+        async function clearTestData() {
+            showStatus('test-status', '清理测试数据...', 'info');
+            
+            try {
+                // 按创建顺序的逆序删除（先删除子文件夹）
+                for (let i = testFolders.length - 1; i >= 0; i--) {
+                    try {
+                        await deleteFolder(testFolders[i]);
+                    } catch (error) {
+                        console.warn(`删除文件夹 ${testFolders[i]} 失败:`, error);
+                    }
+                }
+                
+                testFolders = [];
+                document.getElementById('test-results').innerHTML = '';
+                document.getElementById('folder-structure').innerHTML = '';
+                showStatus('test-status', '测试数据清理完成', 'success');
+                
+            } catch (error) {
+                showStatus('test-status', `清理失败: ${error.message}`, 'error');
+            }
+        }
+        
+        async function checkCurrentStructure() {
+            showStatus('manual-test-results', '检查当前文件夹结构...', 'info');
+            await showFolderStructure();
+        }
+        
+        async function testCreateInRoot() {
+            try {
+                const folder = await createFolder('手动测试文件夹_' + Date.now());
+                showStatus('manual-test-results', `在根目录创建文件夹成功，ID: ${folder.id}`, 'success');
+            } catch (error) {
+                showStatus('manual-test-results', `创建失败: ${error.message}`, 'error');
+            }
+        }
+        
+        // 页面加载时检查登录状态
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showStatus('test-status', '请先登录后再进行测试', 'error');
+            } else {
+                showStatus('test-status', '已登录，可以开始测试', 'success');
+            }
+        };
+    </script>
+</body>
+</html>

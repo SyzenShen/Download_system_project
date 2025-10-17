@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>文件管理系统 - 完整功能测试</h1>
+    
+    <div class="test-section">
+        <h2>1. 认证状态检查</h2>
+        <button class="test-button" onclick="checkAuth()">检查认证状态</button>
+        <div id="auth-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. API连接测试</h2>
+        <button class="test-button" onclick="testFileListAPI()">测试文件列表API</button>
+        <button class="test-button" onclick="testCreateFolderAPI()">测试创建文件夹API</button>
+        <div id="api-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 前端页面测试</h2>
+        <button class="test-button" onclick="openFilesPage()">打开文件管理页面</button>
+        <button class="test-button" onclick="testLocalStorage()">检查本地存储</button>
+        <div id="frontend-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. 对话框功能测试</h2>
+        <p>请在文件管理页面测试以下功能：</p>
+        <ul>
+            <li>点击"上传文件"按钮，检查上传对话框是否显示</li>
+            <li>点击"新建文件夹"按钮，检查新建文件夹对话框是否显示</li>
+            <li>在新建文件夹对话框中输入名称并创建</li>
+            <li>检查文件列表是否正确更新</li>
+        </ul>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8001';
+        
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (token && user) {
+                try {
+                    const userData = JSON.parse(user);
+                    showStatus('auth-status', `
+                        <strong>认证状态：已登录</strong><br>
+                        用户：${userData.username}<br>
+                        Token：${token.substring(0, 20)}...<br>
+                        <pre>${JSON.stringify(userData, null, 2)}</pre>
+                    `, 'success');
+                } catch (e) {
+                    showStatus('auth-status', '用户数据解析失败', 'error');
+                }
+            } else {
+                showStatus('auth-status', '未登录，请先登录', 'error');
+            }
+        }
+        
+        async function testFileListAPI() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showStatus('api-status', '请先登录', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/files/`, {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('api-status', `
+                        <strong>文件列表API测试成功</strong><br>
+                        文件数量：${data.files?.length || 0}<br>
+                        文件夹数量：${data.folders?.length || 0}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, 'success');
+                } else {
+                    const errorData = await response.text();
+                    showStatus('api-status', `API调用失败：${response.status} - ${errorData}`, 'error');
+                }
+            } catch (error) {
+                showStatus('api-status', `网络错误：${error.message}`, 'error');
+            }
+        }
+        
+        async function testCreateFolderAPI() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                showStatus('api-status', '请先登录', 'error');
+                return;
+            }
+            
+            const folderName = `测试文件夹_${Date.now()}`;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/files/folders/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: folderName })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('api-status', `
+                        <strong>创建文件夹API测试成功</strong><br>
+                        文件夹名称：${data.name}<br>
+                        文件夹ID：${data.id}<br>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `, 'success');
+                } else {
+                    const errorData = await response.text();
+                    showStatus('api-status', `创建文件夹失败：${response.status} - ${errorData}`, 'error');
+                }
+            } catch (error) {
+                showStatus('api-status', `网络错误：${error.message}`, 'error');
+            }
+        }
+        
+        function openFilesPage() {
+            window.open('http://localhost:5173/files', '_blank');
+            showStatus('frontend-status', '已在新标签页打开文件管理页面', 'info');
+        }
+        
+        function testLocalStorage() {
+            const items = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                items.push(`${key}: ${value.substring(0, 100)}${value.length > 100 ? '...' : ''}`);
+            }
+            
+            showStatus('frontend-status', `
+                <strong>本地存储内容：</strong><br>
+                <pre>${items.join('\n')}</pre>
+            `, 'info');
+        }
+        
+        // 页面加载时自动检查认证状态
+        window.onload = function() {
+            checkAuth();
+        };
+    </script>
+</body>
+</html>

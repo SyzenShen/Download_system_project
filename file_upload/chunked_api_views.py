@@ -10,7 +10,7 @@ from django.core.files import File as DjangoFile
 import os
 import uuid
 
-from .models import UploadSession, File
+from .models import UploadSession, File, Folder
 from .serializers import FileSerializer
 
 
@@ -30,9 +30,18 @@ def chunked_upload_init(request):
     filename = smart_str(data.get('filename') or '')
     total_size = int(data.get('total_size') or 0)
     chunk_size = int(data.get('chunk_size') or (2 * 1024 * 1024))
+    parent_folder_id = data.get('parent_folder_id')
 
     if not filename or total_size <= 0:
         return Response({'message': '缺少必要参数'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # 验证父文件夹权限
+    parent_folder = None
+    if parent_folder_id:
+        try:
+            parent_folder = Folder.objects.get(id=parent_folder_id, user=request.user)
+        except Folder.DoesNotExist:
+            return Response({'message': '父文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
 
     tmp_dir = _get_tmp_dir(request.user.id)
     session_id = uuid.uuid4().hex
@@ -46,7 +55,8 @@ def chunked_upload_init(request):
         chunk_size=chunk_size,
         uploaded_size=0,
         temp_path=temp_path,
-        status='active'
+        status='active',
+        parent_folder=parent_folder
     )
 
     with open(temp_path, 'wb') as f:
@@ -124,7 +134,12 @@ def chunked_upload_complete(request, session_id):
     try:
         with open(session.temp_path, 'rb') as fp:
             django_file = DjangoFile(fp, name=session.original_filename)
-            file_obj = File(user=request.user, upload_method='Chunked Upload', original_filename=session.original_filename)
+            file_obj = File(
+                user=request.user, 
+                upload_method='Chunked Upload', 
+                original_filename=session.original_filename,
+                parent_folder=session.parent_folder
+            )
             file_obj.file.save(session.original_filename, django_file, save=True)
     except Exception:
         return Response({'message': '写入文件失败'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

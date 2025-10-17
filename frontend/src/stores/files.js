@@ -4,6 +4,9 @@ import axios from 'axios'
 export const useFilesStore = defineStore('files', {
   state: () => ({
     files: [],
+    folders: [],
+    currentFolder: null,
+    breadcrumb: [],
     isLoading: false,
     error: null,
     uploadProgress: 0,
@@ -18,23 +21,68 @@ export const useFilesStore = defineStore('files', {
     uploadUploadedSize: 0,
     uploadFileRef: null,
     uploadMethodRef: 'Vue Frontend',
+    currentFolderId: null, // 当前所在文件夹ID
     // 下载控制（按文件ID）
     downloadControllers: {},
     downloadPauseRequested: {},
     downloadCancelRequested: {},
     downloadPaused: {},
     downloadActive: {},
-    downloadHandles: {}
+    downloadHandles: {},
+    // 新增：界面控制
+    viewMode: 'list', // 'list' 或 'grid'
+    showUploadDialog: false,
+    showNewFolderDialog: false
   }),
 
+  getters: {
+    // 当前文件夹中的文件
+    currentFiles: (state) => {
+      return state.files.filter(file => {
+        if (state.currentFolderId === null) {
+          return !file.parent_folder
+        }
+        return file.parent_folder === state.currentFolderId
+      })
+    },
+    
+    // 当前文件夹中的子文件夹
+    currentFolders: (state) => {
+      return state.folders.filter(folder => {
+        if (state.currentFolderId === null) {
+          return !folder.parent
+        }
+        return folder.parent === state.currentFolderId
+      })
+    },
+    
+    // 根级文件夹
+    rootFolders: (state) => {
+      return state.folders.filter(folder => !folder.parent)
+    }
+  },
+
   actions: {
-    async fetchFiles() {
+    async fetchFiles(folderId = null) {
       this.isLoading = true
       this.error = null
       
       try {
-        const response = await axios.get('/api/files/')
-        this.files = response.data
+        const url = folderId ? `/api/files/?folder_id=${folderId}` : '/api/files/'
+        const response = await axios.get(url)
+        
+        // 更新状态
+        this.files = response.data.files || []
+        this.folders = response.data.folders || []
+        this.currentFolder = response.data.current_folder || null
+        this.currentFolderId = this.currentFolder ? this.currentFolder.id : null
+        
+        // 获取面包屑导航
+        if (folderId) {
+          await this.fetchBreadcrumb(folderId)
+        } else {
+          this.breadcrumb = []
+        }
       } catch (error) {
         this.error = error.response?.data?.message || '获取文件列表失败'
         console.error('Fetch files error:', error)
@@ -43,7 +91,7 @@ export const useFilesStore = defineStore('files', {
       }
     },
 
-    async uploadFile(file, uploadMethod = 'Vue Frontend') {
+    async uploadFile(file, uploadMethod = 'Vue Frontend', parentFolderId = null) {
       // 启用分片上传以支持真正暂停/继续
       this.isLoading = true
       this.error = null
@@ -63,10 +111,19 @@ export const useFilesStore = defineStore('files', {
 
       try {
         // 初始化分片会话
+        const initBody = { 
+          filename: file.name, 
+          total_size: file.size, 
+          chunk_size: this.uploadChunkSize 
+        }
+        if (parentFolderId) {
+          initBody.parent_folder_id = parentFolderId
+        }
+        
         const initRes = await fetch('/api/files/chunked/init/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...commonAuthHeader },
-          body: JSON.stringify({ filename: file.name, total_size: file.size, chunk_size: this.uploadChunkSize }),
+          body: JSON.stringify(initBody),
           signal: this.uploadController.signal
         })
         if (!initRes.ok) {
@@ -122,8 +179,8 @@ export const useFilesStore = defineStore('files', {
           throw new Error(txt || '完成上传失败')
         }
 
-        // 刷新文件列表
-        await this.fetchFiles()
+        // 刷新文件列表，保持在当前文件夹
+        await this.fetchFiles(this.currentFolderId)
 
         // 清理并返回成功
         this.isLoading = false
@@ -309,6 +366,81 @@ export const useFilesStore = defineStore('files', {
         }
         this.error = message
         return { success: false, error: message }
+      }
+    },
+
+    // 文件夹相关方法
+    async createFolder(name, parentFolderId = null) {
+      try {
+        const token = localStorage.getItem('token')
+        const headers = token ? { Authorization: `Token ${token}` } : {}
+        
+        const data = { name }
+        if (parentFolderId) {
+          data.parent = parentFolderId
+        }
+        
+        const response = await axios.post('/api/files/folders/', data, { headers })
+        
+        // 添加到本地状态
+        this.folders.push(response.data)
+        
+        return { success: true, folder: response.data }
+      } catch (error) {
+        const message = error.response?.data?.message 
+          || error.response?.data?.error 
+          || error.response?.data?.detail 
+          || '创建文件夹失败'
+        this.error = message
+        return { success: false, error: message }
+      }
+    },
+
+    async deleteFolder(folderId) {
+      try {
+        const token = localStorage.getItem('token')
+        const headers = token ? { Authorization: `Token ${token}` } : {}
+        
+        await axios.delete(`/api/files/folders/${folderId}/`, { headers })
+        
+        // 从本地状态中移除文件夹
+        this.folders = this.folders.filter(folder => folder.id !== folderId)
+        
+        return { success: true, message: '文件夹删除成功' }
+      } catch (error) {
+        const message = error.response?.data?.message 
+          || error.response?.data?.error 
+          || error.response?.data?.detail 
+          || '删除文件夹失败'
+        this.error = message
+        return { success: false, error: message }
+      }
+    },
+
+    async fetchBreadcrumb(folderId) {
+      try {
+        const token = localStorage.getItem('token')
+        const headers = token ? { Authorization: `Token ${token}` } : {}
+        
+        const response = await axios.get(`/api/files/folders/${folderId}/breadcrumb/`, { headers })
+        this.breadcrumb = response.data
+      } catch (error) {
+        console.error('获取面包屑导航失败:', error)
+        this.breadcrumb = []
+      }
+    },
+
+    // 导航到指定文件夹
+    async navigateToFolder(folderId) {
+      await this.fetchFiles(folderId)
+    },
+
+    // 返回上级目录
+    async navigateUp() {
+      if (this.currentFolder && this.currentFolder.parent) {
+        await this.fetchFiles(this.currentFolder.parent)
+      } else {
+        await this.fetchFiles(null) // 返回根目录
       }
     },
 
@@ -648,6 +780,24 @@ export const useFilesStore = defineStore('files', {
     async resumeDownload(fileId, filename, fileSize) {
       this.downloadPaused[fileId] = false
       return await this.downloadFile(fileId, filename, fileSize, { useExistingHandle: true })
+    },
+
+    // 新增：界面控制方法
+    setViewMode(mode) {
+      this.viewMode = mode
+    },
+
+    toggleUploadDialog() {
+      this.showUploadDialog = !this.showUploadDialog
+    },
+
+    toggleNewFolderDialog() {
+      this.showNewFolderDialog = !this.showNewFolderDialog
+    },
+
+    closeAllDialogs() {
+      this.showUploadDialog = false
+      this.showNewFolderDialog = false
     }
   }
 })

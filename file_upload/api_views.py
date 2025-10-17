@@ -8,8 +8,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import Http404, StreamingHttpResponse, FileResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-from .models import File
-from .serializers import FileSerializer, FileUploadSerializer
+from .models import File, Folder
+from .serializers import FileSerializer, FileUploadSerializer, FolderSerializer, FolderCreateSerializer
 import os
 import mimetypes
 
@@ -17,10 +17,34 @@ import mimetypes
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def file_list(request):
-    """获取当前用户的文件列表"""
-    files = File.objects.filter(user=request.user).order_by('-uploaded_at')
-    serializer = FileSerializer(files, many=True, context={'request': request})
-    return Response(serializer.data)
+    """获取当前用户的文件列表，支持按文件夹过滤"""
+    folder_id = request.GET.get('folder_id')
+    
+    # 获取文件夹信息
+    current_folder = None
+    if folder_id:
+        try:
+            current_folder = Folder.objects.get(id=folder_id, user=request.user)
+        except Folder.DoesNotExist:
+            return Response({'error': '文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
+    
+    # 获取当前文件夹下的子文件夹
+    if current_folder:
+        folders = Folder.objects.filter(user=request.user, parent=current_folder).order_by('name')
+        files = File.objects.filter(user=request.user, parent_folder=current_folder).order_by('-uploaded_at')
+    else:
+        # 根目录：获取没有父文件夹的文件夹和文件
+        folders = Folder.objects.filter(user=request.user, parent=None).order_by('name')
+        files = File.objects.filter(user=request.user, parent_folder=None).order_by('-uploaded_at')
+    
+    folder_serializer = FolderSerializer(folders, many=True, context={'request': request})
+    file_serializer = FileSerializer(files, many=True, context={'request': request})
+    
+    return Response({
+        'current_folder': FolderSerializer(current_folder, context={'request': request}).data if current_folder else None,
+        'folders': folder_serializer.data,
+        'files': file_serializer.data
+    })
 
 
 @csrf_exempt
@@ -139,11 +163,117 @@ def file_download(request, file_id):
 def user_stats(request):
     """获取用户文件统计信息"""
     user_files = File.objects.filter(user=request.user)
+    user_folders = Folder.objects.filter(user=request.user)
     total_files = user_files.count()
+    total_folders = user_folders.count()
     total_size = sum(f.file_size for f in user_files)
     
     return Response({
         'total_files': total_files,
+        'total_folders': total_folders,
         'total_size': total_size,
         'total_size_mb': round(total_size / (1024 * 1024), 2) if total_size > 0 else 0
+    })
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def folder_list_create(request):
+    """获取文件夹列表或创建新文件夹"""
+    if request.method == 'GET':
+        parent_id = request.GET.get('parent_id')
+        
+        if parent_id:
+            try:
+                parent_folder = Folder.objects.get(id=parent_id, user=request.user)
+                folders = Folder.objects.filter(user=request.user, parent=parent_folder).order_by('name')
+            except Folder.DoesNotExist:
+                return Response({'error': '父文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # 获取根目录下的文件夹
+            folders = Folder.objects.filter(user=request.user, parent=None).order_by('name')
+        
+        serializer = FolderSerializer(folders, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = FolderCreateSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            # 验证父文件夹权限
+            parent_folder = serializer.validated_data.get('parent')
+            if parent_folder and parent_folder.user != request.user:
+                return Response({'error': '无权限在此文件夹下创建子文件夹'}, status=status.HTTP_403_FORBIDDEN)
+            
+            folder = serializer.save()
+            response_serializer = FolderSerializer(folder, context={'request': request})
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def folder_detail(request, folder_id):
+    """获取、更新或删除文件夹"""
+    try:
+        folder = Folder.objects.get(id=folder_id, user=request.user)
+    except Folder.DoesNotExist:
+        return Response({'error': '文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        serializer = FolderSerializer(folder, context={'request': request})
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        serializer = FolderCreateSerializer(folder, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            # 验证父文件夹权限
+            parent_folder = serializer.validated_data.get('parent')
+            if parent_folder and parent_folder.user != request.user:
+                return Response({'error': '无权限移动到此文件夹'}, status=status.HTTP_403_FORBIDDEN)
+            
+            folder = serializer.save()
+            response_serializer = FolderSerializer(folder, context={'request': request})
+            return Response(response_serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        # 检查文件夹是否为空
+        if folder.subfolders.exists() or folder.files.exists():
+            return Response({'error': '文件夹不为空，无法删除'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        folder.delete()
+        return Response({'message': '文件夹删除成功'}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def folder_breadcrumb(request, folder_id):
+    """获取文件夹的面包屑导航路径"""
+    try:
+        folder = Folder.objects.get(id=folder_id, user=request.user)
+    except Folder.DoesNotExist:
+        return Response({'error': '文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
+    
+    breadcrumb = []
+    current = folder
+    while current:
+        breadcrumb.insert(0, {
+            'id': current.id,
+            'name': current.name,
+            'path': current.get_path()
+        })
+        current = current.parent
+    
+    return Response(breadcrumb)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def folder_all(request):
+    """获取当前用户的所有文件夹"""
+    folders = Folder.objects.filter(user=request.user).order_by('name')
+    folder_serializer = FolderSerializer(folders, many=True, context={'request': request})
+    
+    return Response({
+        'folders': folder_serializer.data
     })

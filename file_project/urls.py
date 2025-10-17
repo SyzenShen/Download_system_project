@@ -22,7 +22,7 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('file/', include("file_upload.urls")),
-    path('file/', include("file_download.urls")),
+    path('file_download/', include("file_download.urls")),
     path('api/auth/', include("authentication.urls")),
     path('api/files/', include("file_upload.api_urls")),
     # Redirect root to file list page to avoid 404 at '/'

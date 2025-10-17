@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按钮功能测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>文件管理功能测试</h1>
+        
+        <div class="test-section">
+            <h3>1. 测试localStorage中的token</h3>
+            <button class="test-button" onclick="checkToken()">检查Token</button>
+            <div id="token-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. 测试API连接</h3>
+            <button class="test-button" onclick="testAPI()">测试API</button>
+            <div id="api-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. 模拟按钮点击</h3>
+            <button class="test-button" onclick="simulateUploadClick()">模拟上传按钮</button>
+            <button class="test-button" onclick="simulateNewFolderClick()">模拟新建文件夹按钮</button>
+            <div id="click-result" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. 直接访问文件页面</h3>
+            <a href="http://localhost:5173/files" target="_blank" class="test-button" style="text-decoration: none; display: inline-block;">打开文件页面</a>
+        </div>
+    </div>
+
+    <script>
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            const result = document.getElementById('token-result');
+            if (token) {
+                result.innerHTML = `Token存在: ${token.substring(0, 20)}...`;
+                result.style.background = '#d4edda';
+            } else {
+                result.innerHTML = 'Token不存在，需要先登录';
+                result.style.background = '#f8d7da';
+            }
+        }
+        
+        async function testAPI() {
+            const result = document.getElementById('api-result');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                result.innerHTML = '没有token，无法测试API';
+                result.style.background = '#f8d7da';
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/files/', {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `API调用成功，获取到 ${data.files?.length || 0} 个文件，${data.folders?.length || 0} 个文件夹`;
+                    result.style.background = '#d4edda';
+                } else {
+                    result.innerHTML = `API调用失败: ${response.status} ${response.statusText}`;
+                    result.style.background = '#f8d7da';
+                }
+            } catch (error) {
+                result.innerHTML = `API调用错误: ${error.message}`;
+                result.style.background = '#f8d7da';
+            }
+        }
+        
+        function simulateUploadClick() {
+            const result = document.getElementById('click-result');
+            result.innerHTML = '模拟点击上传按钮...';
+            
+            // 模拟Vue组件的行为
+            setTimeout(() => {
+                result.innerHTML += '<br>如果是Vue应用，这里应该触发 filesStore.toggleUploadDialog()';
+            }, 500);
+        }
+        
+        function simulateNewFolderClick() {
+            const result = document.getElementById('click-result');
+            result.innerHTML = '模拟点击新建文件夹按钮...';
+            
+            // 模拟Vue组件的行为
+            setTimeout(() => {
+                result.innerHTML += '<br>如果是Vue应用，这里应该触发 filesStore.toggleNewFolderDialog()';
+            }, 500);
+        }
+        
+        // 页面加载时自动检查token
+        window.onload = function() {
+            checkToken();
+        };
+    </script>
+</body>
+</html>

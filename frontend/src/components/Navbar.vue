@@ -13,12 +13,6 @@
         
         <template v-if="isAuthenticated">
           <li class="nav-item">
-            <router-link to="/files" class="nav-link">我的文件</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link to="/upload" class="nav-link">上传文件</router-link>
-          </li>
-          <li class="nav-item">
             <router-link to="/profile" class="nav-link">个人资料</router-link>
           </li>
           <li class="nav-item">

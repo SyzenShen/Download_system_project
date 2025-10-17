@@ -204,7 +204,7 @@ export default {
       if (!selectedFile.value) return
       if (!validateSize(selectedFile.value)) return
       
-      const result = await filesStore.uploadFile(selectedFile.value, uploadMethod.value)
+      const result = await filesStore.uploadFile(selectedFile.value, uploadMethod.value, filesStore.currentFolderId)
       
       if (result.success) {
         successMessage.value = result.message

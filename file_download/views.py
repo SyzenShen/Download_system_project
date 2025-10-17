@@ -1,8 +1,10 @@
 import os
 import mimetypes
 import urllib.parse
+import zipfile
+import tempfile
 from django.http import HttpResponse, Http404, StreamingHttpResponse, FileResponse
-from file_upload.models import File
+from file_upload.models import File, Folder
 
 # Create your views here.
 # Case 1: simple file download, very bad
@@ -100,4 +102,79 @@ def file_download_by_id(request, file_id):
         return response
     except File.DoesNotExist:
         raise Http404("File not found")
+
+
+def folder_download_by_id(request, folder_id):
+    """
+    Download a folder as a ZIP archive containing all files and subfolders
+    """
+    try:
+        folder = Folder.objects.get(id=folder_id)
+        
+        # Create a temporary file for the ZIP
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+        temp_file.close()
+        
+        try:
+            # Create ZIP file
+            with zipfile.ZipFile(temp_file.name, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                _add_folder_to_zip(zipf, folder, folder.name)
+            
+            # Prepare response
+            folder_name = folder.name or f"folder_{folder_id}"
+            zip_filename = f"{folder_name}.zip"
+            
+            # RFC 5987: filename* using UTF-8 percent-encoding
+            utf8_name = urllib.parse.quote(zip_filename, safe='')
+            try:
+                ascii_fallback = zip_filename.encode('latin-1').decode('latin-1')
+            except UnicodeEncodeError:
+                ascii_fallback = ''.join(ch if ord(ch) < 128 else '_' for ch in zip_filename)
+            
+            response = FileResponse(
+                open(temp_file.name, 'rb'),
+                content_type='application/zip'
+            )
+            response['Content-Disposition'] = (
+                f"attachment; filename={ascii_fallback}; filename*=UTF-8''{utf8_name}"
+            )
+            
+            # Clean up temp file after response is sent
+            def cleanup():
+                try:
+                    os.unlink(temp_file.name)
+                except OSError:
+                    pass
+            
+            # Schedule cleanup when response is closed
+            response.close = cleanup
+            
+            return response
+            
+        except Exception as e:
+            # Clean up temp file on error
+            try:
+                os.unlink(temp_file.name)
+            except OSError:
+                pass
+            raise Http404(f"Error creating ZIP file: {str(e)}")
+            
+    except Folder.DoesNotExist:
+        raise Http404("Folder not found")
+
+
+def _add_folder_to_zip(zipf, folder, base_path=""):
+    """
+    Recursively add folder contents to ZIP file
+    """
+    # Add all files in this folder
+    for file_obj in folder.files.all():
+        if file_obj.file and os.path.exists(file_obj.file.path):
+            file_path_in_zip = os.path.join(base_path, file_obj.original_filename or os.path.basename(file_obj.file.path))
+            zipf.write(file_obj.file.path, file_path_in_zip)
+    
+    # Recursively add subfolders
+    for subfolder in folder.subfolders.all():
+        subfolder_path = os.path.join(base_path, subfolder.name)
+        _add_folder_to_zip(zipf, subfolder, subfolder_path)
 
