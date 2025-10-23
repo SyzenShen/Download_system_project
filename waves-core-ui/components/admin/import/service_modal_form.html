@@ -1,0 +1,68 @@
+{% if form %}
+    <form class="form-horizontal" id="form_import" method="post" action="{{ request.path }}">
+{% endif %}
+<div class="modal-header">
+    <h3>Import a Service from {{ context_object_name }}</h3>
+</div>
+<div class="modal-body">
+<style>
+    .helptext {
+        display: none;
+    }
+</style>
+        {% if messages %}
+            <ul id="form-message" class="messages messagelist">
+                {% for message in messages %}
+                    <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if form %}
+        <div id="form_import_content" style="z-index: 5" align="center">
+            {% csrf_token %}
+            <div id="form_import_fields">
+                <table>
+                {{ form.as_table }}
+                </table>
+            </div>
+        </div>
+        {% endif %}
+</div>
+<div class="modal-footer">
+    <button type="button" class="button" data-dismiss="modal">Close</button>
+    <button name="launch-import" class="button" id="launch-import" type="submit">
+        Import selected
+    </button>
+
+    <script type="text/javascript">
+        (function ($) {
+            var form_import = $('#form_import')
+            form_import.submit(function (e) {
+                $.ajax({
+                    type: form_import.attr('method'),
+                    url: form_import.attr('action'),
+                    data: form_import.serialize(),
+                    // dataType: 'json',
+                    beforeSend: function () {
+                        $('#launch-import').attr('disabled', 'disabled');
+                        $('#id_tool_list').attr('disabled', 'disabled');
+                    },
+                }).complete(function () {
+                    $('#launch-import').removeAttr('disabled');
+                    $('#id_tool_list').removeAttr('disabled');
+                }).always(function (data) {
+                    // handle response errors here
+                    window.location.replace(data.url_redirect);
+                    $('#form-modal').modal('toggle');
+                });
+                return false;
+            });
+        })(jQuery || django.jQuery)
+    </script>
+
+</div>
+{% if form %}
+    </form>
+{% endif %}

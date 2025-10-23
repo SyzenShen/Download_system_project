@@ -61,13 +61,14 @@ class FolderSerializer(serializers.ModelSerializer):
     parent_name = serializers.SerializerMethodField()
     subfolders_count = serializers.SerializerMethodField()
     files_count = serializers.SerializerMethodField()
+    folder_size = serializers.SerializerMethodField()
 
     class Meta:
         model = Folder
         fields = ('id', 'name', 'parent', 'parent_name', 'folder_path', 
-                 'created_at', 'updated_at', 'subfolders_count', 'files_count')
+                 'created_at', 'updated_at', 'subfolders_count', 'files_count', 'folder_size')
         read_only_fields = ('id', 'created_at', 'updated_at', 'folder_path', 
-                           'parent_name', 'subfolders_count', 'files_count')
+                           'parent_name', 'subfolders_count', 'files_count', 'folder_size')
 
     def get_folder_path(self, obj):
         return obj.get_path()
@@ -80,6 +81,19 @@ class FolderSerializer(serializers.ModelSerializer):
 
     def get_files_count(self, obj):
         return obj.files.count()
+
+    def get_folder_size(self, obj):
+        """计算文件夹总大小（包括子文件夹）"""
+        def calculate_folder_size(folder):
+            # 计算当前文件夹中所有文件的大小
+            files_size = sum(file.file_size or 0 for file in folder.files.all())
+            
+            # 递归计算子文件夹的大小
+            subfolders_size = sum(calculate_folder_size(subfolder) for subfolder in folder.subfolders.all())
+            
+            return files_size + subfolders_size
+        
+        return calculate_folder_size(obj)
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user

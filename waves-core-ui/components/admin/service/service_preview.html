@@ -1,0 +1,29 @@
+{% load waves_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% service_inc "css" %}
+</head>
+<body>
+<div class="container-fluid">
+    {% for message in messages %}
+        <div class="messages alert alert-{{ message.tags }} alert-dismissible fade in">  <!-- singular -->
+            <a class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span></a>
+            {{ message|safe }}
+        </div>
+    {% empty %}
+        <div class="messages alert alert-danger" align="center">
+            <strong>Warning</strong> Submitting form will create a new job
+        </div>
+    {% endfor %}
+<hr/>
+    {% submission_form %}
+<hr/>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+{% service_inc "js" %}
+</body>
+</html>

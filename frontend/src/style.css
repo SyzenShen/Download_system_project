@@ -1,12 +1,66 @@
-/* 微软风格的全局样式 */
+/* 微软风格 + WAVES企业级统一设计系统 */
 :root {
-  /* 统一设计变量 */
-  --radius-lg: 16px;
+  /* ========================================
+     基础设计令牌 (微软风格)
+     ======================================== */
+  /* 统一圆角系统 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
   --radius-pill: 9999px;
+  
+  /* WAVES圆角系统 (与基础系统保持一致) */
+  --waves-radius-sm: var(--radius-sm);
+  --waves-radius-md: var(--radius-md);
+  --waves-radius-lg: var(--radius-lg);
+  --waves-radius-xl: var(--radius-xl);
+  
+  /* 边框圆角系统 (兼容性) */
+  --waves-border-radius: var(--radius-md);
+  --waves-border-radius-sm: var(--radius-sm);
+  --waves-border-radius-md: var(--radius-md);
+  --waves-border-radius-lg: var(--radius-lg);
+  --waves-border-radius-xl: var(--radius-xl);
+  --waves-border-radius-full: var(--radius-pill);
+  
   --spacing-xl: 32px;
   --spacing-xxl: 48px;
   --card-max-width: 840px;
   --border-color: #edebe9;
+
+  /* ========================================
+     WAVES企业级变量
+     ======================================== */
+  
+  /* 企业级背景系统 */
+  --waves-corporate-bg: #ffffff;
+  --waves-corporate-gradient: #ffffff;
+  --waves-banner-image: url('./assets/images/banner.png');
+  --waves-corporate-text-shadow: none;
+  --waves-corporate-overlay: rgba(255, 255, 255, 0.8);
+  
+  /* 导航栏系统 */
+  --waves-navbar-transparent-bg: rgba(255, 255, 255, 0.95);
+  --waves-navbar-transparent-border: rgba(0, 0, 0, 0.1);
+  --waves-navbar-logo-shadow: 2px 2px 5px #888888;
+  --waves-navbar-logo-size: 50px;
+  
+  /* 企业级颜色系统 */
+  --waves-corporate-text: #1a1a1a;
+  --waves-corporate-text-light: #333333;
+  --waves-corporate-well-bg: rgba(245, 245, 245, 0.7);
+  --waves-contact-banner-bg: #e0e0e0;
+  
+  /* 表单和交互元素 */
+  --waves-btn-no-image: none;
+  --waves-fieldset-min-width: 1px;
+  
+  /* 布局和间距 */
+  --waves-corporate-padding: 2rem 0;
+  --waves-starter-padding: 40px 15px;
+  --waves-footer-border: 1px solid #eee;
+  --waves-contact-padding: 60px 0;
 }
 * {
   margin: 0;
@@ -16,8 +70,8 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f5f5;
-  color: #323130;
+  background-color: #ffffff;
+  color: var(--text-primary);
   line-height: 1.5;
   letter-spacing: 0.2px;
 }
@@ -64,13 +118,13 @@ body {
 }
 
 .text-friendly {
-  color: #605e5c;
+  color: var(--text-secondary);
 }
 
 /* 按钮样式 */
 .btn {
   display: inline-block;
-  padding: 8px 16px;
+  padding: 6px 16px;
   border: 1px solid transparent;
   border-radius: var(--radius-pill);
   font-size: 14px;
@@ -95,7 +149,7 @@ body {
 
 .btn-secondary {
   background-color: #f3f2f1;
-  color: #323130;
+  color: var(--text-primary);
   border-color: #8a8886;
 }
 
@@ -121,8 +175,8 @@ body {
 .form-label {
   display: block;
   margin-bottom: 4px;
-  font-weight: 600;
-  color: #323130;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .form-control {
@@ -131,6 +185,7 @@ body {
   border: 1px solid #8a8886;
   border-radius: 2px;
   font-size: 14px;
+  color: var(--text-primary);
   background-color: white;
   transition: border-color 0.2s ease-in-out;
 }
@@ -179,10 +234,14 @@ body {
 .navbar-brand {
   font-size: 20px;
   font-weight: 600;
-  color: #0078d4;
+  color: var(--text-secondary);
   text-decoration: none;
 }
 
+a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
 .navbar-nav {
   display: flex;
   list-style: none;
@@ -196,7 +255,7 @@ body {
 }
 
 .nav-link {
-  color: #323130;
+  color: var(--text-secondary);
   text-decoration: none;
   padding: 16px 0;
   display: block;
@@ -468,7 +527,6 @@ body {
 /* 改进的悬停效果 */
 .card:hover {
   box-shadow: 0 3.2px 7.2px 0 rgba(0, 0, 0, 0.132), 0 0.6px 1.8px 0 rgba(0, 0, 0, 0.108);
-  transform: translateY(-1px);
   transition: all 0.2s ease-in-out;
 }
 
@@ -479,31 +537,36 @@ body {
   outline-offset: 2px;
 }
 
-/* 深灰主题与品牌色覆盖（追加在文件末尾以确保覆盖生效） */
+/* 浅色主题与品牌色覆盖（追加在文件末尾以确保覆盖生效） */
 :root {
-  --bg-dark: #1b1c1e; /* 接近深灰，比 #111 更柔和 */
-  --text-warm-gray: #d7d3c8; /* 暖米灰正文 */
-  --title-warm: #e8e2d8; /* 暖米灰标题色 */
-  --brand-accent: #e76f51; /* 暖橙/珊瑚 */
-  --brand-accent-hover: #d65f45;
-  --brand-accent-active: #c7543d;
-  --danger: #c23b3f; /* 友好但明确的危险色 */
-  --btn-text: #3a3a3a; /* 非纯黑的中深色按钮文字 */
+  --bg-light: #ffffff; /* 纯白背景 */
+  --bg-secondary: #f8f9fa; /* 次要背景色 */
+  --text-dark: #212529; /* 深色正文 */
+  --text-secondary: #495057; /* 次要文字颜色 */
+  --text-muted: #6c757d; /* 弱化文字颜色 */
+  --brand-accent: #0d6efd; /* 现代蓝色 */
+  --brand-accent-hover: #0b5ed7;
+  --brand-accent-active: #0a58ca;
+  --danger: #dc3545; /* 标准危险色 */
+  --success: #198754; /* 成功色 */
+  --warning: #ffc107; /* 警告色 */
+  --btn-text: #212529; /* 深色按钮文字 */
+  --border-light: #dee2e6; /* 浅色边框 */
 }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--text-warm-gray);
+  background-color: var(--bg-light);
+  color: var(--text-dark);
 }
 
 .navbar-brand {
   color: var(--brand-accent);
 }
 
-/* 白底、大圆角、触控友好的按钮 */
+/* 现代、简洁的按钮样式 */
 .btn {
-  padding: 12px 20px;
-  border: 1px solid #d1d1d1;
+  padding: 8px 20px;
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-pill);
   font-size: 15px;
   background-color: white;
@@ -519,30 +582,30 @@ body {
 
 .btn:active {
   transform: scale(0.98);
-  background-color: #f7f7f7; /* 轻微压感 */
+  background-color: var(--bg-secondary); /* 轻微压感 */
 }
 
 .btn-primary {
-  background-color: white;
-  color: var(--brand-accent);
+  background-color: var(--brand-accent);
+  color: white;
   border-color: var(--brand-accent);
 }
 
 .btn-primary:hover {
-  background-color: #fff7f3; /* 珊瑚色轻微提示 */
-  color: var(--brand-accent-hover);
+  background-color: var(--brand-accent-hover);
+  color: white;
   border-color: var(--brand-accent-hover);
 }
 
 .btn-secondary {
   background-color: white;
-  color: #4a4a48;
-  border-color: #8a8886;
+  color: var(--text-secondary);
+  border-color: var(--border-light);
 }
 
 .btn-secondary:hover {
-  background-color: #f8f8f8;
-  border-color: #767676;
+  background-color: var(--bg-secondary);
+  border-color: var(--text-muted);
 }
 
 .btn-danger {
@@ -552,9 +615,9 @@ body {
 }
 
 .btn-danger:hover {
-  background-color: #fff5f5;
-  color: #a32f33;
-  border-color: #a32f33;
+  background-color: #f8d7da;
+  color: var(--danger);
+  border-color: var(--danger);
 }
 
 /* 卡片悬停动效调整到 100–200ms 范围 */
@@ -562,9 +625,9 @@ body {
   transition: all 0.15s ease-in-out;
 }
 
-/* 标题使用暖米灰，提高层次与对比 */
+/* 标题使用深色，提高层次与对比 */
 h1, h2, h3 {
-  color: var(--title-warm);
+  color: var(--text-dark);
 }
 
 /* 登录/注册卡片中的链接使用品牌色提示交互 */
@@ -585,24 +648,24 @@ h1, h2, h3 {
   outline-offset: 2px;
 }
 
-/* 白卡内容采用深色文字，提升可读性 */
+/* 卡片内容采用深色文字，提升可读性 */
 .card {
-  color: #323130;
+  color: var(--text-dark);
 }
 
-/* =================== 暖深灰主题与层级排版覆盖 =================== */
+/* =================== 浅色主题与层级排版覆盖 =================== */
 :root {
   /* 颜色 */
-  --bg-warm-dark: #1B1A18; /* 或 #181716 */
-  --text-warm-gray: #E6E0D9;
-  --title-warm: #E6E0D9;
-  --subtitle-gray: #D9D5CF;
-  --hint-gray: #CFCBC6;
-  --brand-accent: #D97355;
-  --brand-accent-hover: #C55F44;
-  --brand-accent-active: #B9513A;
-  --card-bg-warm: #F8F5F2; /* 或 #F5F1EC */
-  --card-shadow: 0 6px 24px rgba(0,0,0,0.12);
+  --bg-warm-light: #ffffff; /* 纯白背景 */
+  --text-dark-gray: #212529;
+  --title-dark: #212529;
+  --subtitle-gray: #495057;
+  --hint-gray: #6c757d;
+  --brand-accent: #0d6efd;
+  --brand-accent-hover: #0b5ed7;
+  --brand-accent-active: #0a58ca;
+  --card-bg-light: #ffffff; /* 纯白卡片 */
+  --card-shadow: 0 4px 12px rgba(0,0,0,0.15);
 
   /* 圆角与尺寸 */
   --radius-lg: 16px;
@@ -616,8 +679,8 @@ h1, h2, h3 {
 
 /* 基础排版与背景 */
 body {
-  background-color: var(--bg-warm-dark);
-  color: var(--text-warm-gray);
+  background-color: var(--bg-warm-light);
+  color: var(--text-dark-gray);
   line-height: var(--line-height);
   letter-spacing: var(--letter-tight);
   font-family: "Inter", "Lato", "PingFang SC", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -627,7 +690,7 @@ body {
 h1, .h1, .card-title.title-stable {
   font-family: "Playfair Display", "Noto Serif SC", serif;
   font-size: 36px;
-  color: var(--title-warm);
+  color: var(--title-dark);
 }
 
 h2, .h2 {
@@ -714,7 +777,7 @@ h3, .h3 {
 .btn:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
 .btn:active { transform: scale(0.98); }
 
-/* 主按钮：暖橙底白字 */
+/* 主按钮：蓝色底白字 */
 .btn-primary {
   background-color: var(--brand-accent);
   color: #ffffff;
@@ -725,14 +788,14 @@ h3, .h3 {
   border-color: var(--brand-accent-hover);
 }
 
-/* 次按钮：白底 + 暖橙边框 + 暖橙文字 */
+/* 次按钮：白底 + 蓝色边框 + 蓝色文字 */
 .btn-secondary {
   background-color: #ffffff;
   color: var(--brand-accent);
   border-color: var(--brand-accent);
 }
 .btn-secondary:hover {
-  background-color: #FFF6F3;
+  background-color: #f0f8ff;
   color: var(--brand-accent-hover);
   border-color: var(--brand-accent-hover);
 }
@@ -741,17 +804,7 @@ h3, .h3 {
 .page-card a:not(.btn) { color: var(--brand-accent); text-decoration: none; }
 .page-card a:not(.btn):hover { color: var(--brand-accent-hover); text-decoration: underline; }
 
-/* =================== 现代蓝色调全局覆盖 =================== */
-:root {
-  /* 现代蓝品牌色变量 */
-  --brand-blue: #2563EB; /* 蓝-600 */
-  --brand-blue-hover: #1D4ED8; /* 蓝-700 */
-  --brand-blue-active: #1E40AF; /* 蓝-800 */
-  /* 将既有品牌色映射为现代蓝，以覆盖全站 */
-  --brand-accent: var(--brand-blue);
-  --brand-accent-hover: var(--brand-blue-hover);
-  --brand-accent-active: var(--brand-blue-active);
-}
+/* 现代蓝色调已整合到主要浅色主题中 */
 
 /* 信息提示统一为现代蓝 */
 .alert-info {
@@ -781,15 +834,24 @@ h3, .h3 {
 
 /* =================== 色彩方案变量覆盖（用户提供） =================== */
 :root {
-  --bg: #0f1112;            /* 整体背景 */
-  --panel-bg: #fbfbfc;      /* 卡片背景（偏中性白） */
-  --muted-panel: #f4efed;   /* 卡片上浅分区 */
-  --primary: #2563eb;       /* 主色（蓝） */
-  --primary-600: #1e4fd6;
-  --text-dark: #0b1220;
-  --text-muted: #6b7280;
+  --bg: #ffffff;            /* 整体背景 */
+  --panel-bg: #ffffff;      /* 卡片背景（纯白） */
+  --muted-panel: #f8f9fa;   /* 卡片上浅分区 */
+  --primary: #0d6efd;       /* 主色（蓝） */
+  --primary-600: #0b5ed7;
+  --text-dark: #212529;
+  --text-muted: #6c757d;
   --card-radius: 12px;
-  --shadow: 0 8px 28px rgba(5,8,10,0.45);
+  --shadow: 0 4px 12px rgba(0,0,0,0.15);
+  
+  /* 浅色主题CSS变量 */
+  --bg-primary: #ffffff;    /* 主要背景色 */
+  --bg-secondary: #f8f9fa;  /* 次要背景色 */
+  --bg-card: #ffffff;       /* 卡片背景色 */
+  --text-primary: #212529;  /* 主要文字颜色（深色） */
+  --text-secondary: #495057; /* 次要文字颜色（深色） */
+  --text-muted: #6c757d;    /* 弱化文字颜色（深色） */
+  --border-color: #dee2e6;  /* 边框颜色 */
 }
 
 /* 应用新色彩方案到背景、卡片和主按钮 */
@@ -809,7 +871,7 @@ body {
 
 .card-title,
 .title-stable {
-  color: var(--text-dark);
+  color: var(--text-primary);
 }
 
 .text-friendly {
@@ -831,7 +893,7 @@ body {
 /* 全局 body 覆盖为新字体与配色（已设置 var(--bg) 与 var(--text-dark)） */
 body {
   background: var(--bg);
-  color: var(--text-dark);
+  color: var(--text-primary);
   font-family: "Inter", "Noto Sans SC", sans-serif;
   margin: 0;
 }
@@ -843,7 +905,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 40px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid var(--border-color);
 }
 
 /* 页面主容器：垂直居中卡片 */
@@ -877,7 +939,7 @@ h1 {
   font-size: 40px;      /* 桌面 */
   line-height: 1.05;
   margin: 0 0 18px 0;
-  color: var(--text-dark);
+  color: var(--text-primary);
 }
 
 .lead {
@@ -915,13 +977,11 @@ h1 {
 
 /* Hover */
 .btn-primary:hover {
-  transform: translateY(-2px);
   box-shadow: 0 10px 28px rgba(37,99,235,0.24);
 }
 
 .btn-outline:hover  {
   background: rgba(37,99,235,0.04);
-  transform: translateY(-1px);
 }
 
 /* =================== 移动端媒体查询（用户提供） =================== */
@@ -1088,6 +1148,111 @@ main.container,
 /* 文件列表页：统计卡片、表格、徽章、按钮与输入框采用大圆角 */
 .file-list .stat-card,
 .file-list .table,
+
+/* =================== WAVES企业级核心样式 =================== */
+/* 企业级背景系统 */
+.waves-corporate-bg {
+  background: var(--waves-corporate-gradient), var(--waves-banner-image);
+  background-size: cover;
+  background-position: center bottom;
+  background-attachment: fixed;
+  color: var(--waves-corporate-text);
+  text-shadow: var(--waves-corporate-text-shadow);
+  padding: var(--waves-corporate-padding);
+  min-height: 100vh;
+  position: relative;
+}
+
+.waves-corporate-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--waves-corporate-overlay);
+  z-index: 0;
+}
+
+.waves-corporate-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 导航栏透明样式 */
+.navbar.waves-transparent {
+  background: var(--waves-navbar-transparent-bg);
+  border-bottom: 1px solid var(--waves-navbar-transparent-border);
+}
+
+.navbar.waves-transparent .navbar-brand {
+  text-shadow: var(--waves-navbar-logo-shadow);
+  font-size: var(--waves-navbar-logo-size);
+}
+
+/* 企业级内容区域 */
+.waves-well {
+  background: var(--waves-corporate-well-bg);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+/* 联系页面样式 */
+.waves-contact-banner {
+  background: var(--waves-contact-banner-bg);
+  padding: var(--waves-contact-padding);
+}
+
+/* 启动页面样式 */
+.waves-starter {
+  padding: var(--waves-starter-padding);
+}
+
+/* 页脚样式 */
+.waves-footer {
+  border-top: var(--waves-footer-border);
+  padding: 20px 0;
+  margin-top: 40px;
+}
+
+/* 企业级按钮覆盖 */
+.btn.waves-no-bg {
+  background-image: var(--waves-btn-no-image);
+}
+
+/* 表单字段集 */
+fieldset.waves-fieldset {
+  min-width: var(--waves-fieldset-min-width);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* 企业级文本样式 */
+.waves-text-light {
+  color: var(--waves-corporate-text-light);
+}
+
+.waves-text-corporate {
+  color: var(--waves-corporate-text);
+}
+
+/* 响应式企业级布局 */
+@media (max-width: 768px) {
+  .waves-corporate-bg {
+    padding: 60px 15px;
+  }
+  
+  .waves-contact-banner {
+    padding: 60px 0;
+  }
+  
+  .navbar.waves-transparent .navbar-brand {
+    font-size: calc(var(--waves-navbar-logo-size) * 0.8);
+  }
+}
 .file-list .badge,
 .file-list .btn,
 .file-list .form-control,
@@ -1117,8 +1282,21 @@ main.container,
   border-radius: var(--radius-lg) !important;
 }
 
-/* 个人资料页：统计文字改为黑色 */
+/* 个人资料页：统计文字改为深色 */
 .profile .stat-label,
 .profile .stat-number {
-  color: #000000 !important;
+  color: var(--text-primary) !important;
+}
+
+/* WAVES企业级导航栏全局样式 */
+/* 确保导航栏固定定位时页面内容不被遮挡 */
+body {
+  padding-top: 0;
+}
+
+/* 为企业级背景页面调整导航栏样式 */
+.waves-corporate-bg .navbar.waves-transparent {
+  background: var(--waves-navbar-transparent-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }

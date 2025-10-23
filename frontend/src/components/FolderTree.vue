@@ -1,7 +1,7 @@
 <template>
   <div class="folder-tree">
     <div class="tree-header">
-      <h3>📁 我的文件</h3>
+      <h3>我的文件</h3>
     </div>
     
     <div class="tree-content">
@@ -11,7 +11,6 @@
         :class="{ active: currentFolderId === null }"
         @click="navigateToRoot"
       >
-        <span class="node-icon">🏠</span>
         <span class="node-label">全部文件</span>
       </div>
       
@@ -138,23 +137,23 @@ onMounted(async () => {
 .folder-tree {
   width: 250px;
   height: 100%;
-  background: #f8f9fa;
-  border-right: 1px solid #e9ecef;
+  background: #ffffff;
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
 }
 
 .tree-header {
   padding: 16px;
-  border-bottom: 1px solid #e9ecef;
-  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+  background: #ffffff;
 }
 
 .tree-header h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: #323130;
 }
 
 .tree-content {
@@ -168,21 +167,26 @@ onMounted(async () => {
   align-items: center;
   padding: 8px 16px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   user-select: none;
+  color: #605e5c;
+  border-radius: var(--waves-radius-sm);
+  margin: 2px 8px;
 }
 
 .tree-node:hover {
-  background-color: #e9ecef;
+  background-color: #f3f2f1;
+  color: #323130;
 }
 
 .tree-node.active {
-  background-color: #007bff;
+  background-color: #0078d4;
   color: white;
+  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
 }
 
 .tree-node.active:hover {
-  background-color: #0056b3;
+  background-color: #106ebe;
 }
 
 .root-node {
@@ -213,15 +217,15 @@ onMounted(async () => {
 }
 
 .tree-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #ffffff;
 }
 
 .tree-content::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+  background: #c8c6c4;
+  border-radius: var(--waves-radius-sm);
 }
 
 .tree-content::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #a19f9d;
 }
 </style>

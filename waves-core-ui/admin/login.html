@@ -1,0 +1,32 @@
+{% extends 'admin/login.html' %}
+{% load static %}
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        html {
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.1),
+            rgba(255, 255, 255, 0.2),
+            rgba(255, 255, 255, 0)),
+            url('{% static 'waves/img/banner.png' %}') no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+            padding: 15em 0;
+            margin-bottom: 0;
+            height: 100%;
+        }
+        .login {
+            background: transparent!important;
+        }
+        #branding {
+            float: none!important;
+        }
+
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div align="center" style="margin: 5px"><i>Welcome to WAVES</i></div>
+{% endblock %}
+

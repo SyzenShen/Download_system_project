@@ -1,0 +1,307 @@
+/*
+ * WAVES-Core 核心样式提取
+ * 用于渐进式集成到其他项目
+ * 
+ * 包含以下核心组件：
+ * 1. 导航栏样式
+ * 2. 企业级背景
+ * 3. 页面布局
+ * 4. 表单和按钮
+ * 5. 消息提示
+ */
+
+/* ========================================
+   基础布局样式
+   ======================================== */
+
+html, body {
+    height: 100%; /* For full height images */
+}
+
+.starter-template {
+    padding: 40px 15px;
+    text-align: center;
+}
+
+.footer {
+    border-top: 1px solid #eee;
+}
+
+.footer a:hover {
+    text-decoration: none;
+}
+
+/* ========================================
+   导航栏样式
+   ======================================== */
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.navbar-brand > img {
+    float: left;
+    margin-right: 10px;
+}
+
+#navbar-logo {
+    box-shadow: 2px 2px 5px #888888;
+    width: 50px;
+}
+
+div.collapse.navbar-collapse > ul.nav.navbar-nav.navbar-right > li.dropdown {
+    padding-right: 1em;
+}
+
+#nav-bar-user:last-child {
+    margin-right: 1em;
+}
+
+.navbar-form {
+    margin-right: 0;
+}
+
+.navbar-nav > .btn {
+    margin-top: 10px;
+    margin-right: 1.7em;
+}
+
+body > .navbar-transparent {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+}
+
+.navbar-transparent .navbar-nav > .active > a {
+    background-color: transparent;
+}
+
+/* ========================================
+   企业级背景样式 (核心特色)
+   ======================================== */
+
+.corporate-jumbo {
+    background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)),
+    url("/static/waves/img/banner.png") no-repeat fixed 80% center;
+    -webkit-background-size: cover;
+    background-size: cover;
+    color: #f5f5f5;
+    padding: 10em 0;
+    margin-bottom: 0;
+    height: 100%;
+}
+
+.corporate-jumbo .well {
+    background-color: rgba(245, 245, 245, .7);
+}
+
+.corporate-jumbo p, .corporate-jumbo h1 {
+    color: #eee;
+    text-shadow: 0 0 2px black;
+}
+
+.corporate-jumbo p {
+    font-weight: 500;
+}
+
+.corporate-jumbo .well legend {
+    color: #333;
+}
+
+.corporate-jumbo > .container {
+    display: block;
+    position: absolute;
+    bottom: 2em;
+    left: 15px;
+}
+
+/* ========================================
+   按钮和表单样式
+   ======================================== */
+
+.btn {
+    background-image: none;
+}
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    background: red;
+    cursor: inherit;
+    display: block;
+}
+
+/* Authentication forms */
+.form-box form,
+.form-box .form-message {
+    max-width: 550px;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+.form-box form .checkbox {
+    margin-bottom: 10px;
+    font-weight: normal;
+}
+
+.form-box form .form-control {
+    position: relative;
+    height: auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.form-box form .form-control:focus {
+    z-index: 2;
+}
+
+input[readonly] {
+    background-color: white !important;
+    cursor: text !important;
+}
+
+fieldset {
+    min-width: 1px;
+}
+
+/* ========================================
+   消息提示样式
+   ======================================== */
+
+.messages {
+    width: 50%;
+    margin-top: 75px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 500;
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+/* ========================================
+   页面内容区域
+   ======================================== */
+
+#sec1 {
+    padding-top: 50px;
+    min-height: 100px;
+}
+
+#sec2 {
+    padding: 30px 0;
+}
+
+.text-page {
+    padding: 50px 0 0 0;
+}
+
+.contact-banner {
+    padding: 100px 0;
+    background: #e0e0e0;
+    margin-top: 100px;
+}
+
+/* ========================================
+   文件内容显示
+   ======================================== */
+
+.file_content {
+    max-height: 600px;
+    max-lines: 100;
+    overflow: auto;
+}
+
+.file_content pre {
+    white-space: pre-line;
+}
+
+/* ========================================
+   输入输出样式
+   ======================================== */
+
+.input_output {
+    margin-right: 0;
+    margin-left: 0;
+    border-radius: 4px 4px 0 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+/* ========================================
+   帮助文本
+   ======================================== */
+
+.help-block {
+    text-align: left;
+}
+
+/* ========================================
+   响应式设计
+   ======================================== */
+
+@media (min-width: 768px) {
+    .modal-dialog {
+        width: 70%;
+        max-width: 80%;
+        height: 90%
+    }
+}
+
+/* ========================================
+   侧边栏导航 (可选)
+   ======================================== */
+
+@media (min-width: 768px) {
+    .sidebar-nav .navbar .navbar-collapse {
+        max-height: none;
+        padding: 0 0 15px;
+    }
+
+    .sidebar-nav .navbar ul {
+        float: none;
+    }
+
+    .sidebar-nav .navbar ul:not {
+        display: block;
+    }
+
+    .sidebar-nav .navbar li {
+        float: none;
+        display: block;
+    }
+
+    .sidebar-nav .navbar li a {
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+}
+
+/* ========================================
+   标签页内容
+   ======================================== */
+
+.tab-content.panel-body {
+    border-right: 1px solid #ecf0f1;
+    border-left: 1px solid #ecf0f1;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+div[id^="tab_pane_"] {
+    margin-bottom: 5px;
+}

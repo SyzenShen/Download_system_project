@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="WAVES-Core 渐进式集成示例"/>
+    <title>WAVES-Core 渐进式集成示例</title>
+    
+    <!-- Bootstrap 3.3.7 -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+    
+    <!-- WAVES-Core 核心样式 -->
+    <link href="css/core.css" rel="stylesheet"/>
+    
+    <style>
+        /* 自定义样式示例 */
+        .integration-demo {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .step-indicator {
+            background-color: #337ab7;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- 第一阶段：导航栏集成 -->
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">
+            <img src="img/logo.png" alt="logo" id="navbar-logo"/>
+            渐进式集成示例
+        </a>
+    </div>
+    <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-left">
+            <li class="active"><a href="/">Home</a></li>
+            <li><a href="#">文件管理</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    文件上传 <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">普通上传</a></li>
+                    <li><a href="#">表单上传</a></li>
+                    <li><a href="#">AJAX上传</a></li>
+                </ul>
+            </li>
+            <li><a href="#">文件下载</a></li>
+        </ul>
+        <ul id="nav-bar-user" class="nav navbar-nav navbar-right">
+            <li><a href="#">Admin</a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- 第二阶段：企业级背景集成 -->
+<div class="jumbotron jumbotron-carousel corporate-jumbo">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-sm-6">
+                <p>WAVES-Core UI</p>
+            </div>
+            <div class="col-md-6 col-sm-6">
+                <p>渐进式集成演示</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 主要内容区域 -->
+<div class="container">
+    
+    <!-- 集成步骤说明 -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="starter-template">
+                <h1>WAVES-Core 渐进式集成</h1>
+                <p class="lead">逐步应用 WAVES-Core 的设计风格到你的项目中</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 第一阶段演示 -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="integration-demo">
+                <h3><span class="step-indicator">第一阶段</span>核心样式迁移</h3>
+                <p>提取并应用 WAVES-Core 的核心 CSS 类：</p>
+                <ul>
+                    <li><strong>.corporate-jumbo</strong> - 企业级背景效果</li>
+                    <li><strong>.navbar-brand</strong> - 导航栏品牌样式</li>
+                    <li><strong>.starter-template</strong> - 页面模板样式</li>
+                    <li><strong>.footer</strong> - 页脚样式</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 第二阶段演示 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4><span class="step-indicator">第二阶段</span>组件级别集成</h4>
+                </div>
+                <div class="panel-body">
+                    <h5>导航栏统一</h5>
+                    <p>保持 WAVES-Core 的导航栏结构，同时集成项目特色功能。</p>
+                    
+                    <h5>页面布局</h5>
+                    <p>应用企业级背景和专业配色方案。</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <h4><span class="step-indicator">第三阶段</span>细节样式调整</h4>
+                </div>
+                <div class="panel-body">
+                    <h5>表单样式</h5>
+                    <div class="form-box">
+                        <form>
+                            <div class="form-group">
+                                <label>示例输入框</label>
+                                <input type="text" class="form-control" placeholder="WAVES-Core 样式">
+                            </div>
+                            <button type="button" class="btn btn-primary">提交</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 功能演示区域 -->
+    <div class="row">
+        <div class="col-md-12">
+            <h3>功能演示</h3>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">文件上传</h4>
+                        </div>
+                        <div class="panel-body">
+                            <div class="btn-file btn btn-primary">
+                                选择文件
+                                <input type="file" name="file">
+                            </div>
+                            <p class="help-block">支持多种文件格式</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">文件管理</h4>
+                        </div>
+                        <div class="panel-body">
+                            <ul class="list-unstyled">
+                                <li>📁 文档文件夹</li>
+                                <li>📄 示例文档.pdf</li>
+                                <li>🖼️ 图片.jpg</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">下载中心</h4>
+                        </div>
+                        <div class="panel-body">
+                            <button class="btn btn-success btn-block">下载文件</button>
+                            <div class="progress" style="margin-top: 10px;">
+                                <div class="progress-bar" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-3">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">系统状态</h4>
+                        </div>
+                        <div class="panel-body">
+                            <span class="label label-success">在线</span>
+                            <span class="label label-info">已连接</span>
+                            <span class="label label-warning">处理中</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 消息提示演示 -->
+    <div class="row">
+        <div class="col-md-12">
+            <h3>消息提示样式</h3>
+            <div class="alert alert-success">
+                <strong>成功！</strong> WAVES-Core 样式已成功应用。
+            </div>
+            <div class="alert alert-info">
+                <strong>提示：</strong> 这是一个信息提示消息。
+            </div>
+            <div class="alert alert-warning">
+                <strong>警告：</strong> 请注意检查配置设置。
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- 页脚 -->
+<div class="container">
+    <div class="footer">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <p>
+                    <a href="mailto:admin@example.com">Contact</a> | 
+                    Powered by WAVES-Core Design System
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+
+<script>
+// 演示交互效果
+$(document).ready(function() {
+    // 文件上传演示
+    $('input[type=file]').change(function() {
+        var fileName = $(this).val().split('\\').pop();
+        if (fileName) {
+            alert('已选择文件: ' + fileName);
+        }
+    });
+    
+    // 进度条动画
+    $('.progress-bar').animate({
+        width: '100%'
+    }, 3000);
+    
+    // 面板悬停效果
+    $('.panel').hover(
+        function() {
+            $(this).addClass('panel-hover');
+        },
+        function() {
+            $(this).removeClass('panel-hover');
+        }
+    );
+});
+</script>
+
+<style>
+.panel-hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+</style>
+
+</body>
+</html>

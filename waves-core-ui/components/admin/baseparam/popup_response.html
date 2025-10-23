@@ -1,0 +1,18 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% trans 'My Popup closing...' %}</title>
+</head>
+<body>
+<div id="django-waves-admin-inline-popup-response-constants"
+     data-popup-response="{{ data|escape }}">
+</div>
+<script language="JavaScript">
+    // TODO add a new inline within opening window related data retrieved from popup.
+    window.opener.location.reload();
+    window.close()
+</script>
+
+</body>
+</html>

@@ -20,8 +20,7 @@
       </span>
       <span v-else class="expand-placeholder"></span>
       
-      <!-- 文件夹图标 -->
-      <span class="folder-icon">📁</span>
+
       
       <!-- 文件夹名称 -->
       <span class="folder-name" :title="folder.name">
@@ -113,19 +112,23 @@ const handleToggle = () => {
   transition: background-color 0.2s;
   user-select: none;
   min-height: 32px;
+  color: var(--text-secondary);
 }
 
 .folder-node:hover {
-  background-color: #e9ecef;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .folder-node.active {
-  background-color: #007bff;
+  background-color: #0078d4;
   color: white;
+  border-radius: var(--waves-radius-sm);
+  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
 }
 
 .folder-node.active:hover {
-  background-color: #0056b3;
+  background-color: #106ebe;
 }
 
 .expand-icon {

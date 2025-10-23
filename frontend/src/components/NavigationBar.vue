@@ -18,8 +18,6 @@
           :class="{ active: currentFolderId === null }"
           @click="navigateToRoot"
         >
-          <span class="breadcrumb-icon">🏠</span>
-          全部文件
         </span>
         
         <template v-for="(folder, index) in breadcrumbPath" :key="folder.id">
@@ -63,14 +61,14 @@
           class="action-btn"
           @click="showUploadDialog"
         >
-          📤 上传文件
+          上传文件
         </button>
         
         <button 
           class="action-btn"
           @click="showNewFolderDialog"
         >
-          📁 新建文件夹
+          新建文件夹
         </button>
         
         <button 
@@ -78,7 +76,7 @@
           @click="refreshFiles"
           :disabled="isLoading"
         >
-          🔄 刷新
+          刷新
         </button>
       </div>
     </div>
@@ -137,8 +135,8 @@ const refreshFiles = () => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  background: #fff;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
   min-height: 60px;
 }
 
@@ -152,20 +150,31 @@ const refreshFiles = () => {
 
 .back-button {
   padding: 6px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #fff;
+  border: 1px solid #8a8886;
+  border-radius: var(--waves-radius-sm);
+  background: #ffffff;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   font-size: 14px;
-  color: #666;
+  color: #323130;
   white-space: nowrap;
+  font-weight: 400;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .back-button:hover {
-  background-color: #f8f9fa;
-  border-color: #bbb;
-  color: #333;
+  background-color: #f3f2f1;
+  border-color: #605e5c;
+  color: #201f1e;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-button:active {
+  background-color: #edebe9;
+  border-color: #323130;
 }
 
 .breadcrumb {
@@ -180,19 +189,19 @@ const refreshFiles = () => {
   display: flex;
   align-items: center;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--waves-radius-sm);
   cursor: pointer;
-  transition: background-color 0.2s;
-  color: #666;
+  transition: all 0.2s ease;
+  color: #605e5c;
 }
 
 .breadcrumb-item:hover {
-  background-color: #f8f9fa;
-  color: #333;
+  background-color: #f3f2f1;
+  color: #323130;
 }
 
 .breadcrumb-item.active {
-  color: #007bff;
+  color: #0078d4;
   font-weight: 500;
 }
 
@@ -203,7 +212,7 @@ const refreshFiles = () => {
 
 .breadcrumb-separator {
   margin: 0 8px;
-  color: #ccc;
+  color: #666666;
   font-size: 12px;
 }
 
@@ -215,27 +224,44 @@ const refreshFiles = () => {
 
 .view-toggle {
   display: flex;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #8a8886;
+  border-radius: var(--waves-radius-sm);
   overflow: hidden;
+  background: #ffffff;
 }
 
 .view-btn {
   padding: 8px 12px;
   border: none;
-  background: #fff;
+  background: transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   font-size: 16px;
+  color: #323130;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #8a8886;
+}
+
+.view-btn:last-child {
+  border-right: none;
 }
 
 .view-btn:hover {
-  background-color: #f8f9fa;
+  background-color: #f3f2f1;
+  color: #201f1e;
 }
 
 .view-btn.active {
-  background-color: #007bff;
+  background-color: #0078d4;
   color: white;
+  box-shadow: inset 0 2px 4px rgba(0, 120, 212, 0.3);
+}
+
+.view-btn.active:hover {
+  background-color: #106ebe;
 }
 
 .action-buttons {
@@ -245,34 +271,57 @@ const refreshFiles = () => {
 
 .action-btn {
   padding: 8px 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #fff;
+  border: 1px solid #8a8886;
+  border-radius: var(--waves-radius-sm);
+  background: #ffffff;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   font-size: 14px;
   white-space: nowrap;
+  color: #323130;
+  font-weight: 400;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-btn:hover {
-  background-color: #f8f9fa;
-  border-color: #bbb;
+  background-color: #f3f2f1;
+  border-color: #605e5c;
+  color: #201f1e;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn:active {
+  background-color: #edebe9;
+  border-color: #323130;
 }
 
 .action-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background-color: #f3f2f1;
+  color: #a19f9d;
+  border-color: #c8c6c4;
 }
 
 .action-btn.primary {
-  background-color: #007bff;
+  background-color: #0078d4;
   color: white;
-  border-color: #007bff;
+  border-color: #0078d4;
+  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
 }
 
 .action-btn.primary:hover {
-  background-color: #0056b3;
-  border-color: #0056b3;
+  background-color: #106ebe;
+  border-color: #106ebe;
+  box-shadow: 0 4px 8px rgba(0, 120, 212, 0.4);
+}
+
+.action-btn.primary:active {
+  background-color: #005a9e;
+  border-color: #005a9e;
 }
 
 /* 响应式设计 */
