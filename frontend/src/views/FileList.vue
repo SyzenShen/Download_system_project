@@ -185,7 +185,7 @@ export default {
 }
 
 .waves-sidebar {
-  width: 280px;
+  width: 240px;
   background: #ffffff;
   overflow: hidden;
   flex-shrink: 0;
@@ -197,7 +197,7 @@ export default {
   flex-direction: column;
   background: var(--waves-surface-primary);
   overflow: hidden;
-  padding: 1rem 1.5rem 1rem 1rem;
+  padding: 0;
 }
 
 .waves-file-display-container {

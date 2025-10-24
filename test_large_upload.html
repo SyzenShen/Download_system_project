@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大文件上传测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .upload-area.dragover {
+            border-color: #007bff;
+            background-color: #e3f2fd;
+        }
+        .file-input {
+            display: none;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #28a745;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .file-info {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            display: none;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .success {
+            color: #28a745;
+        }
+        .warning {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>大文件上传测试</h1>
+        <p>测试系统是否能正确处理大文件上传（支持拖拽和点击选择）</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <h3>📁 选择或拖拽大文件到此处</h3>
+            <p>支持任意大小的文件，系统配置最大100GB</p>
+            <input type="file" id="fileInput" class="file-input">
+        </div>
+        
+        <div class="file-info" id="fileInfo">
+            <h4>选中的文件：</h4>
+            <div id="fileDetails"></div>
+        </div>
+        
+        <div>
+            <button class="btn" onclick="selectFile()">选择文件</button>
+            <button class="btn" onclick="uploadFile()" id="uploadBtn" disabled>开始上传</button>
+            <button class="btn" onclick="pauseUpload()" id="pauseBtn" disabled>暂停</button>
+            <button class="btn" onclick="cancelUpload()" id="cancelBtn" disabled>取消</button>
+        </div>
+        
+        <div class="progress-container" id="progressContainer">
+            <h4>上传进度：</h4>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText">0%</div>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let uploadController = null;
+        let sessionId = null;
+        let uploadedSize = 0;
+        let chunkSize = 2 * 1024 * 1024; // 2MB
+        let isPaused = false;
+        
+        const token = '75e88a81871e4d6d5e0410630b9a21df6b6c76f8'; // 测试token
+        
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : '';
+            logElement.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function selectFile() {
+            document.getElementById('fileInput').click();
+        }
+        
+        function handleFileSelect(file) {
+            selectedFile = file;
+            const fileInfo = document.getElementById('fileInfo');
+            const fileDetails = document.getElementById('fileDetails');
+            
+            fileDetails.innerHTML = `
+                <p><strong>文件名：</strong>${file.name}</p>
+                <p><strong>文件大小：</strong>${formatFileSize(file.size)}</p>
+                <p><strong>文件类型：</strong>${file.type || '未知'}</p>
+                <p><strong>最后修改：</strong>${new Date(file.lastModified).toLocaleString()}</p>
+            `;
+            
+            fileInfo.style.display = 'block';
+            document.getElementById('uploadBtn').disabled = false;
+            
+            log(`选择文件: ${file.name} (${formatFileSize(file.size)})`);
+            
+            // 检查文件大小
+            if (file.size > 100 * 1024 * 1024 * 1024) { // 100GB
+                log('警告：文件大小超过100GB限制', 'warning');
+            } else if (file.size > 1024 * 1024 * 1024) { // 1GB
+                log('大文件检测：将使用分块上传', 'warning');
+            }
+        }
+        
+        async function uploadFile() {
+            if (!selectedFile) {
+                log('请先选择文件', 'error');
+                return;
+            }
+            
+            try {
+                log('开始上传流程...');
+                document.getElementById('uploadBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                document.getElementById('cancelBtn').disabled = false;
+                document.getElementById('progressContainer').style.display = 'block';
+                
+                // 初始化分块上传
+                log('初始化分块上传会话...');
+                const initResponse = await fetch('/api/files/chunked/init/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify({
+                        filename: selectedFile.name,
+                        total_size: selectedFile.size
+                    })
+                });
+                
+                if (!initResponse.ok) {
+                    throw new Error(`初始化失败: ${initResponse.status} ${initResponse.statusText}`);
+                }
+                
+                const initData = await initResponse.json();
+                sessionId = initData.session_id;
+                chunkSize = initData.chunk_size;
+                
+                log(`上传会话已创建: ${sessionId}`, 'success');
+                log(`分块大小: ${formatFileSize(chunkSize)}`);
+                
+                // 开始分块上传
+                await uploadChunks();
+                
+            } catch (error) {
+                log(`上传失败: ${error.message}`, 'error');
+                resetUploadState();
+            }
+        }
+        
+        async function uploadChunks() {
+            uploadController = new AbortController();
+            
+            while (uploadedSize < selectedFile.size && !isPaused) {
+                const start = uploadedSize;
+                const end = Math.min(start + chunkSize, selectedFile.size);
+                const chunk = selectedFile.slice(start, end);
+                
+                log(`上传分块: ${formatFileSize(start)} - ${formatFileSize(end)}`);
+                
+                try {
+                    const response = await fetch(`/api/files/chunked/${sessionId}/chunk/`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Token ${token}`,
+                            'Content-Range': `bytes ${start}-${end - 1}/${selectedFile.size}`
+                        },
+                        body: chunk,
+                        signal: uploadController.signal
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`分块上传失败: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const result = await response.json();
+                    uploadedSize = result.uploaded_size;
+                    
+                    // 更新进度
+                    const progress = Math.round((uploadedSize * 100) / selectedFile.size);
+                    document.getElementById('progressFill').style.width = progress + '%';
+                    document.getElementById('progressText').textContent = `${progress}% (${formatFileSize(uploadedSize)} / ${formatFileSize(selectedFile.size)})`;
+                    
+                } catch (error) {
+                    if (error.name === 'AbortError') {
+                        log('上传已暂停', 'warning');
+                        return;
+                    }
+                    throw error;
+                }
+            }
+            
+            if (uploadedSize >= selectedFile.size) {
+                // 完成上传
+                log('完成分块上传，正在合并文件...');
+                const completeResponse = await fetch(`/api/files/chunked/${sessionId}/complete/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!completeResponse.ok) {
+                    throw new Error(`完成上传失败: ${completeResponse.status} ${completeResponse.statusText}`);
+                }
+                
+                const result = await completeResponse.json();
+                log(`文件上传成功！文件ID: ${result.id}`, 'success');
+                log(`文件URL: ${result.file_url}`, 'success');
+                
+                resetUploadState();
+            }
+        }
+        
+        function pauseUpload() {
+            if (uploadController) {
+                isPaused = true;
+                uploadController.abort();
+                log('上传已暂停', 'warning');
+                document.getElementById('uploadBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+            }
+        }
+        
+        async function cancelUpload() {
+            if (uploadController) {
+                uploadController.abort();
+            }
+            
+            if (sessionId) {
+                try {
+                    await fetch(`/api/files/chunked/${sessionId}/cancel/`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Token ${token}`
+                        }
+                    });
+                    log('上传已取消', 'warning');
+                } catch (error) {
+                    log(`取消上传时出错: ${error.message}`, 'error');
+                }
+            }
+            
+            resetUploadState();
+        }
+        
+        function resetUploadState() {
+            uploadController = null;
+            sessionId = null;
+            uploadedSize = 0;
+            isPaused = false;
+            
+            document.getElementById('uploadBtn').disabled = selectedFile ? false : true;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('cancelBtn').disabled = true;
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressText').textContent = '0%';
+        }
+        
+        // 事件监听器
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+        
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('click', selectFile);
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // 初始化日志
+        log('大文件上传测试页面已加载');
+        log('系统配置：最大文件大小 100GB，分块大小 2MB');
+        log('请选择一个大文件进行测试');
+    </script>
+</body>
+</html>

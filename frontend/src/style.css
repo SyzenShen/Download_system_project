@@ -61,6 +61,50 @@
   --waves-starter-padding: 40px 15px;
   --waves-footer-border: 1px solid #eee;
   --waves-contact-padding: 60px 0;
+  
+  /* ========================================
+     WAVES UI组件变量 (FileUpload.vue需要)
+     ======================================== */
+  
+  /* 卡片系统 */
+  --waves-card-bg: #ffffff;
+  --waves-card-secondary-bg: #f8f9fa;
+  --waves-card-hover-bg: #f1f3f4;
+  
+  /* 边框系统 */
+  --waves-border-subtle: 1px solid #e5e7eb;
+  --waves-border-color: #d1d5db;
+  
+  /* 阴影系统 */
+  --waves-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --waves-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --waves-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --waves-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  
+  /* 渐变系统 */
+  --waves-gradient-subtle: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  --waves-gradient-primary: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  
+  /* 颜色系统 */
+  --waves-primary: #3b82f6;
+  --waves-primary-hover: #2563eb;
+  --waves-primary-bg: rgba(59, 130, 246, 0.1);
+  --waves-secondary: #6b7280;
+  --waves-secondary-hover: #4b5563;
+  --waves-success: #10b981;
+  --waves-success-hover: #059669;
+  --waves-success-bg: rgba(16, 185, 129, 0.1);
+  --waves-warning: #f59e0b;
+  --waves-warning-hover: #d97706;
+  --waves-danger: #ef4444;
+  --waves-danger-hover: #dc2626;
+  
+  /* 文本颜色 */
+  --waves-text-primary: #111827;
+  --waves-text-light: #6b7280;
+  
+  /* 背景滤镜 */
+  --waves-backdrop-filter: blur(10px);
 }
 * {
   margin: 0;
@@ -227,7 +271,7 @@ body {
 .navbar {
   background-color: white;
   border-bottom: 1px solid #edebe9;
-  padding: 0 20px;
+  padding: 0 8px;
   box-shadow: 0 1.6px 3.6px 0 rgba(0, 0, 0, 0.132);
 }
 
@@ -251,13 +295,13 @@ a {
 }
 
 .nav-item {
-  margin-left: 20px;
+  margin-left: 12px;
 }
 
 .nav-link {
   color: var(--text-secondary);
   text-decoration: none;
-  padding: 16px 0;
+  padding: 12px 0;
   display: block;
   transition: color 0.2s ease-in-out;
 }

@@ -192,3 +192,8 @@ CSRF_TRUSTED_ORIGINS = [
 # ===== File upload/download custom settings =====
 # 最大上传尺寸（字节），前端文案将与此保持一致
 MAX_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024 * 1024  # 100GB
+
+# Django文件上传大小限制配置
+FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024 * 1024  # 100GB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024 * 1024  # 100GB
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000  # 增加字段数量限制

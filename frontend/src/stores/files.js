@@ -445,6 +445,15 @@ export const useFilesStore = defineStore('files', {
     },
 
     async downloadFile(fileId, filename, fileSize, opts = {}) {
+      const maxRetries = opts.maxRetries || 3
+      const retryDelay = opts.retryDelay || 1000
+      let retryCount = opts.retryCount || 0
+      
+      // 显示下载开始提示（仅在首次尝试时显示）
+      if (retryCount === 0 && !opts.useExistingHandle) {
+        this.showDownloadNotification(`开始下载: ${filename}`)
+      }
+      
       // 如果浏览器支持文件系统访问API，则使用流式+Range断点续传
       const supportsFS = typeof window.showSaveFilePicker === 'function'
       const useExistingHandle = !!opts.useExistingHandle
@@ -546,7 +555,16 @@ export const useFilesStore = defineStore('files', {
             try {
               errText = await res.text()
             } catch (_) {}
-            throw new Error(errText || `下载失败，HTTP ${res.status}`)
+            
+            // 检查是否是可重试的错误
+            const isRetryableError = res.status >= 500 || res.status === 408 || res.status === 429
+            const errorMessage = errText || `下载失败，HTTP ${res.status}`
+            
+            if (isRetryableError) {
+              throw new Error(`RETRYABLE: ${errorMessage}`)
+            } else {
+              throw new Error(errorMessage)
+            }
           }
 
           const totalFromRange = (() => {
@@ -693,23 +711,82 @@ export const useFilesStore = defineStore('files', {
         if (aborted) {
           message = pausedFlag ? '' : '下载已取消'
         } else {
-          message = error?.message 
-            || error?.response?.data?.message 
-            || error?.response?.data?.error 
-            || error?.response?.data?.detail 
-            || '文件下载失败'
-          console.error('Download error:', error)
+          // 提供更清晰的错误信息
+          if (error?.response?.status === 404) {
+            message = '文件不存在或已被删除'
+          } else if (error?.response?.status === 403) {
+            message = '没有权限下载此文件'
+          } else if (error?.response?.status === 401) {
+            message = '登录已过期，请重新登录'
+          } else if (error?.response?.status >= 500) {
+            message = '服务器错误，请稍后重试'
+          } else if (error?.name === 'TypeError' || error?.message?.includes('fetch')) {
+            message = '网络连接失败，请检查网络连接'
+          } else if (error?.message?.includes('timeout')) {
+            message = '下载超时，请重试'
+          } else if (error?.message?.includes('空文件')) {
+            message = '文件为空或损坏'
+          } else if (error?.message?.includes('错误页面')) {
+            message = '服务器返回错误，请联系管理员'
+          } else {
+            message = error?.message 
+              || error?.response?.data?.message 
+              || error?.response?.data?.error 
+              || error?.response?.data?.detail 
+              || '文件下载失败，请重试'
+          }
+          console.error(`Download error (attempt ${retryCount + 1}/${maxRetries + 1}):`, error)
+        }
+
+        // 检查是否可以重试
+        const isRetryableError = !aborted && (
+          error?.message?.includes('RETRYABLE:') ||
+          error?.name === 'TypeError' ||
+          error?.message?.includes('fetch') ||
+          error?.message?.includes('network') ||
+          error?.message?.includes('timeout') ||
+          (error?.response && error.response.status >= 500)
+        )
+
+        if (isRetryableError && retryCount < maxRetries) {
+          console.log(`Retrying download in ${retryDelay * (retryCount + 1)}ms...`)
+          
+          // 清理当前状态但保留进度
+          delete this.downloadControllers[fileId]
+          delete this.downloadPauseRequested[fileId]
+          delete this.downloadCancelRequested[fileId]
+          
+          // 延迟重试
+          setTimeout(() => {
+            this.downloadFile(fileId, filename, fileSize, {
+              ...opts,
+              retryCount: retryCount + 1,
+              maxRetries,
+              retryDelay,
+              useExistingHandle: true // 重试时使用现有句柄
+            })
+          }, retryDelay * (retryCount + 1))
+          
+          return { success: false, error: `正在重试下载... (${retryCount + 1}/${maxRetries})` }
         }
 
         // 按模式清理
         const mode = aborted ? (pausedFlag ? 'pause' : 'cancel') : 'error'
         cleanup(mode)
         if (mode !== 'pause') {
-          this.error = message
+          const cleanMessage = message.replace('RETRYABLE: ', '')
+          this.error = cleanMessage
           delete this.downloadHandles[fileId]
           if (window.__downloadHandles) delete window.__downloadHandles[fileId]
+          
+          // 显示错误通知（仅在非重试情况下显示）
+          if (mode === 'error' && retryCount === 0) {
+            this.showErrorNotification(`下载失败: ${cleanMessage}`)
+          } else if (mode === 'cancel') {
+            this.showErrorNotification('下载已取消')
+          }
         }
-        return { success: false, error: message }
+        return { success: false, error: message.replace('RETRYABLE: ', '') }
       }
     },
 
@@ -798,6 +875,76 @@ export const useFilesStore = defineStore('files', {
     closeAllDialogs() {
       this.showUploadDialog = false
       this.showNewFolderDialog = false
+    },
+
+    showDownloadNotification(message) {
+      this.showNotification(message, 'success')
+    },
+
+    showErrorNotification(message) {
+      this.showNotification(message, 'error')
+    },
+
+    showNotification(message, type = 'success') {
+      // 创建通知
+      const notification = document.createElement('div')
+      const isError = type === 'error'
+      const backgroundColor = isError ? '#f44336' : '#4CAF50'
+      const icon = isError ? '⚠️' : '✓'
+      
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${backgroundColor};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-size: 14px;
+        max-width: 350px;
+        word-wrap: break-word;
+        animation: slideIn 0.3s ease-out;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      `
+      
+      // 添加滑入动画
+      const style = document.createElement('style')
+      style.textContent = `
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `
+      if (!document.head.querySelector('style[data-notification]')) {
+        style.setAttribute('data-notification', 'true')
+        document.head.appendChild(style)
+      }
+      
+      notification.innerHTML = `<span style="font-size: 16px;">${icon}</span><span>${message}</span>`
+      document.body.appendChild(notification)
+      
+      // 错误信息显示更长时间（5秒），成功信息3秒
+      const duration = isError ? 5000 : 3000
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.style.animation = 'slideIn 0.3s ease-out reverse'
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.parentNode.removeChild(notification)
+            }
+          }, 300)
+        }
+      }, duration)
     }
   }
 })

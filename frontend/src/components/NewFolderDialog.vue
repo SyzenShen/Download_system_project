@@ -198,25 +198,24 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: transparent;
+  backdrop-filter: none;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: waves-fade-in 0.3s ease;
 }
 
 .waves-dialog-container {
-  background: var(--waves-surface-primary);
-  border-radius: var(--waves-radius-xl);
-  box-shadow: var(--waves-shadow-2xl);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 500px;
   width: 90vw;
   max-height: 90vh;
   overflow: hidden;
-  animation: waves-scale-in 0.3s ease;
-  border: 1px solid var(--waves-border-light);
+  animation: waves-scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #e5e7eb;
 }
 
 @keyframes waves-fade-in {
@@ -230,11 +229,15 @@ export default {
 
 @keyframes waves-scale-in {
   from {
-    transform: scale(0.9);
+    transform: scale(0.8) translateY(20px);
     opacity: 0;
   }
+  50% {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0.8;
+  }
   to {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
     opacity: 1;
   }
 }
@@ -245,8 +248,8 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  background: var(--waves-surface-primary);
-  border-bottom: 1px solid var(--waves-border-light);
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   position: relative;
 }
 
@@ -280,13 +283,13 @@ export default {
 .waves-dialog-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #1f2937;
   margin: 0 0 0.25rem 0;
 }
 
 .waves-dialog-subtitle {
   font-size: 0.875rem;
-  color: #e0e0e0;
+  color: #6b7280;
   margin: 0;
   line-height: 1.4;
 }
@@ -295,19 +298,19 @@ export default {
   width: 32px;
   height: 32px;
   border: none;
-  background: var(--waves-surface-secondary);
-  border-radius: var(--waves-radius-md);
+  background: #f3f4f6;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #e0e0e0;
+  color: #6b7280;
 }
 
 .waves-close-btn:hover {
-  background: #fee;
-  color: #d13438;
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 .waves-close-btn svg {
@@ -320,13 +323,14 @@ export default {
   padding: 2rem;
   max-height: 60vh;
   overflow-y: auto;
+  background: #ffffff;
 }
 
 /* 表单区域 */
 .waves-form-section {
-  background: var(--waves-surface-secondary);
-  border-radius: var(--waves-radius-lg);
-  border: 1px solid var(--waves-border-light);
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
@@ -342,16 +346,16 @@ export default {
   gap: 0.25rem;
   margin-bottom: 0.75rem;
   font-weight: 500;
-  color: #ffffff;
+  color: #1f2937;
   font-size: 0.875rem;
 }
 
 .waves-label-text {
-  color: #ffffff;
+  color: #1f2937;
 }
 
 .waves-label-required {
-  color: var(--waves-error-500);
+  color: #dc2626;
   font-weight: 600;
 }
 
@@ -366,7 +370,7 @@ export default {
   left: 1rem;
   width: 16px;
   height: 16px;
-  color: var(--waves-text-secondary);
+  color: #6b7280;
   z-index: 1;
   pointer-events: none;
 }
@@ -374,26 +378,26 @@ export default {
 .waves-form-control {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.75rem;
-  border: 2px solid var(--waves-border-light);
-  border-radius: var(--waves-radius-md);
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
   font-size: 0.875rem;
   transition: all 0.3s ease;
   box-sizing: border-box;
-  background: var(--waves-surface-primary);
-  color: #ffffff;
+  background: #ffffff;
+  color: #1f2937;
   font-family: inherit;
 }
 
 .waves-form-control::placeholder {
-  color: #e0e0e0;
+  color: #9ca3af;
   opacity: 1;
 }
 
 .waves-form-control:focus {
   outline: none;
-  border-color: var(--waves-primary-500);
-  box-shadow: 0 0 0 3px rgba(var(--waves-primary-rgb), 0.1);
-  background: var(--waves-surface-primary);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: #ffffff;
 }
 
 .waves-form-control.waves-has-error {
@@ -461,8 +465,8 @@ export default {
   gap: 1rem;
   justify-content: flex-end;
   padding: 2rem;
-  background: var(--waves-surface-secondary);
-  border-top: 1px solid var(--waves-border-light);
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
 }
 
 .waves-btn {
@@ -471,7 +475,7 @@ export default {
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: var(--waves-radius-md);
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -484,35 +488,35 @@ export default {
 
 
 .waves-btn-primary {
-  background: var(--waves-primary-600);
+  background: #3b82f6;
   color: white;
 }
 
 .waves-btn-primary:hover:not(:disabled) {
-  background: var(--waves-primary-700);
+  background: #2563eb;
   transform: translateY(-2px);
-  box-shadow: var(--waves-shadow-md);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .waves-btn-primary:disabled {
-  background: var(--waves-surface-tertiary);
-  color: var(--waves-text-disabled);
+  background: #f3f4f6;
+  color: #9ca3af;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
 .waves-btn-secondary {
-  background: var(--waves-surface-primary);
-  color: #ffffff;
-  border: 1px solid var(--waves-border-light);
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
 }
 
 .waves-btn-secondary:hover {
-  background: var(--waves-surface-secondary);
-  border-color: var(--waves-primary-300);
+  background: #f9fafb;
+  border-color: #3b82f6;
   transform: translateY(-2px);
-  box-shadow: var(--waves-shadow-md);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 

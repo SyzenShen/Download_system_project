@@ -101,7 +101,7 @@
             <span class="waves-size-text">{{ formatFileSize(file.file_size) }}</span>
           </div>
           <div class="waves-cell waves-date-cell">
-            <span class="waves-date-text">{{ formatDate(file.upload_time) }}</span>
+            <span class="waves-date-text">{{ formatDate(file.uploaded_at) }}</span>
           </div>
           <div class="waves-cell waves-action-cell">
             <div class="waves-action-group">
@@ -214,7 +214,7 @@
             <div class="waves-item-meta">
               <span class="waves-item-type">{{ getFileType(file.original_filename) }}</span>
               <span class="waves-item-size">{{ formatFileSize(file.file_size) }}</span>
-              <span class="waves-item-date">{{ formatDate(file.upload_time) }}</span>
+              <span class="waves-item-date">{{ formatDate(file.uploaded_at) }}</span>
             </div>
           </div>
         </div>
@@ -285,29 +285,74 @@ const deleteFile = async (fileId) => {
   }
 }
 
-const downloadFile = async (file) => {
+const downloadFile = async (file, retryCount = 0) => {
+  const maxRetries = 3
+  const retryDelay = 1000 * (retryCount + 1) // 递增延迟
+
   try {
     // 获取token
     const token = localStorage.getItem('token')
     if (!token) {
-      alert('请先登录')
+      filesStore.showErrorNotification('请先登录')
       return
     }
 
-    // 使用fetch进行带认证的下载
+    // 显示下载开始提示
+    if (retryCount === 0) {
+      filesStore.showDownloadNotification(`开始下载: ${file.original_filename || file.name || `文件_${file.id}`}`)
+    }
+
+    // 检查文件大小，大文件使用store中的断点续传下载
+    if (file.file_size && file.file_size > 50 * 1024 * 1024) { // 50MB以上
+      const result = await filesStore.downloadFile(file.id, file.original_filename || `file_${file.id}`, file.file_size)
+      if (!result.success) {
+        throw new Error(result.error || '下载失败')
+      }
+      return
+    }
+
+    // 使用fetch进行带认证的下载，添加超时控制
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30秒超时
+
     const response = await fetch(`http://localhost:8000/api/files/${file.id}/download/`, {
       method: 'GET',
       headers: {
         'Authorization': `Token ${token}`
-      }
+      },
+      signal: controller.signal
     })
 
+    clearTimeout(timeoutId)
+
     if (!response.ok) {
+      // 检查是否是认证问题
+      if (response.status === 401) {
+        filesStore.showErrorNotification('登录已过期，请重新登录')
+        return
+      }
+      // 检查是否是文件不存在
+      if (response.status === 404) {
+        filesStore.showErrorNotification('文件不存在或已被删除')
+        return
+      }
       throw new Error(`下载失败: ${response.status} ${response.statusText}`)
+    }
+
+    // 检查响应内容类型，避免下载错误页面
+    const contentType = response.headers.get('content-type') || ''
+    if (contentType.includes('text/html') || contentType.includes('application/json')) {
+      const errorText = await response.text()
+      throw new Error(errorText || '服务器返回错误页面')
     }
 
     // 获取文件blob
     const blob = await response.blob()
+    
+    // 检查blob大小，避免下载空文件
+    if (blob.size === 0) {
+      throw new Error('下载的文件为空')
+    }
     
     // 创建下载链接
     const url = window.URL.createObjectURL(blob)
@@ -320,9 +365,33 @@ const downloadFile = async (file) => {
     
     // 清理URL对象
     window.URL.revokeObjectURL(url)
+    
   } catch (error) {
-    console.error('下载失败:', error)
-    alert(`下载失败: ${error.message}`)
+    console.error(`下载失败 (尝试 ${retryCount + 1}/${maxRetries + 1}):`, error)
+    
+    // 检查是否是网络错误且可以重试
+    const isNetworkError = error.name === 'AbortError' || 
+                          error.message.includes('fetch') || 
+                          error.message.includes('network') ||
+                          error.message.includes('timeout')
+    
+    if (isNetworkError && retryCount < maxRetries) {
+      console.log(`${retryDelay}ms 后重试下载...`)
+      setTimeout(() => {
+        downloadFile(file, retryCount + 1)
+      }, retryDelay)
+      return
+    }
+    
+    // 显示用户友好的错误信息
+    let errorMessage = error.message
+    if (error.name === 'AbortError') {
+      errorMessage = '下载超时，请检查网络连接'
+    } else if (error.message.includes('fetch')) {
+      errorMessage = '网络连接失败，请检查网络'
+    }
+    
+    filesStore.showErrorNotification(`下载失败: ${errorMessage}`)
   }
 }
 
@@ -416,9 +485,7 @@ const getFileType = (filename) => {
 .waves-file-display {
   height: 100%;
   background: var(--waves-surface-primary);
-  border-radius: var(--waves-radius-lg);
   overflow: hidden;
-  border: 1px solid var(--waves-border-light);
 }
 
 /* 列表视图样式 */
@@ -431,7 +498,7 @@ const getFileType = (filename) => {
 .waves-table-header {
   display: flex;
   align-items: center;
-  padding: 1rem 1.5rem;
+  padding: 0.5rem 0.75rem;
   background: linear-gradient(135deg, var(--waves-primary-50), var(--waves-primary-100));
   border-bottom: 2px solid var(--waves-border-light);
   font-weight: 600;
@@ -482,9 +549,9 @@ const getFileType = (filename) => {
 .waves-table-row {
   display: flex;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--waves-border-light);
-  transition: all 0.3s ease;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #f3f2f1;
+  transition: all 0.2s ease;
   cursor: pointer;
 }
 

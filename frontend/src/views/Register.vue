@@ -3,11 +3,6 @@
     <div class="page-center">
       <div class="card page-card waves-auth-card waves-well">
         <div class="card-header waves-auth-header">
-          <div class="waves-auth-icon">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15 12C17.21 12 19 10.21 19 8C19 5.79 17.21 4 15 4C12.79 4 11 5.79 11 8C11 10.21 12.79 12 15 12ZM6 10V7H4V10H1V12H4V15H6V12H9V10H6ZM15 14C12.33 14 7 15.34 7 18V20H23V18C23 15.34 17.67 14 15 14Z" fill="currentColor"/>
-            </svg>
-          </div>
           <h2 class="card-title waves-text-corporate">用户注册</h2>
           <p class="waves-text-light">创建您的企业账户</p>
         </div>
@@ -214,7 +209,7 @@ export default {
   overflow: hidden;
 }
 .waves-auth-card {
-  transform: translateY(-120px); /* 轻微上移，视觉平衡 */
+  transform: translateY(-40px); /* 轻微上移，视觉平衡 */
 }
 
 .waves-auth-header {
@@ -224,18 +219,7 @@ export default {
   border-bottom: var(--waves-border-subtle);
 }
 
-.waves-auth-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  background: var(--waves-success-500);
-  color: white;
-  border-radius: var(--waves-border-radius-full);
-  margin-bottom: 24px;
-  box-shadow: var(--waves-shadow-lg);
-}
+
 
 .waves-auth-header .card-title {
   font-size: 2rem;

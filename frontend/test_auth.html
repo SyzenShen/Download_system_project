@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>认证测试</title>
+</head>
+<body>
+    <h1>认证功能测试</h1>
+    
+    <div>
+        <h2>当前状态</h2>
+        <p>Token: <span id="currentToken">-</span></p>
+        <button onclick="clearStorage()">清除localStorage</button>
+        <button onclick="checkToken()">检查Token</button>
+    </div>
+    
+    <div>
+        <h2>登录测试</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="用户名" value="testuser">
+            <input type="password" id="password" placeholder="密码" value="testpass123">
+            <button type="submit">登录</button>
+        </form>
+        <div id="loginResult"></div>
+    </div>
+    
+    <div>
+        <h2>API测试</h2>
+        <button onclick="testProfile()">测试Profile API</button>
+        <div id="profileResult"></div>
+    </div>
+
+    <script>
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.getElementById('currentToken').textContent = '-';
+            console.log('Storage cleared');
+        }
+        
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            document.getElementById('currentToken').textContent = token || '无';
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/auth/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                document.getElementById('loginResult').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+                if (data.token) {
+                    localStorage.setItem('token', data.token);
+                    checkToken();
+                }
+            } catch (error) {
+                document.getElementById('loginResult').innerHTML = 
+                    `<p style="color: red;">错误: ${error.message}</p>`;
+            }
+        });
+        
+        async function testProfile() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                document.getElementById('profileResult').innerHTML = 
+                    '<p style="color: red;">请先登录获取token</p>';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/profile/', {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                document.getElementById('profileResult').innerHTML = 
+                    `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('profileResult').innerHTML = 
+                    `<p style="color: red;">错误: ${error.message}</p>`;
+            }
+        }
+        
+        // 页面加载时检查token
+        checkToken();
+    </script>
+</body>
+</html>

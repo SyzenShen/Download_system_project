@@ -93,21 +93,56 @@ def file_delete(request, file_id):
 @permission_classes([IsAuthenticated])
 def file_download(request, file_id):
     """文件下载"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
-        file_obj = File.objects.get(id=file_id, user=request.user)
-        if not file_obj.file or not os.path.exists(file_obj.file.path):
+        # 获取文件对象
+        try:
+            file_obj = File.objects.get(id=file_id, user=request.user)
+        except File.DoesNotExist:
+            logger.warning(f"File not found: id={file_id}, user={request.user.id}")
             raise Http404("File not found")
 
+        # 验证文件是否存在
+        if not file_obj.file:
+            logger.error(f"File object has no file: id={file_id}")
+            raise Http404("File not found")
+            
         file_path = file_obj.file.path
+        if not os.path.exists(file_path):
+            logger.error(f"Physical file not found: path={file_path}, id={file_id}")
+            raise Http404("File not found")
+
+        # 验证文件可读性
+        try:
+            with open(file_path, 'rb') as test_file:
+                test_file.read(1)  # 尝试读取1字节
+        except (IOError, OSError, PermissionError) as e:
+            logger.error(f"Cannot read file: path={file_path}, error={str(e)}")
+            raise Http404("File not accessible")
+
         file_name = file_obj.original_filename or os.path.basename(file_path)
+        
+        # 安全的文件名处理
+        import urllib.parse
+        safe_filename = urllib.parse.quote(file_name.encode('utf-8'))
 
         # MIME类型
         content_type, _ = mimetypes.guess_type(file_path)
         if content_type is None:
             content_type = 'application/octet-stream'
 
-        file_size = os.path.getsize(file_path)
+        try:
+            file_size = os.path.getsize(file_path)
+        except OSError as e:
+            logger.error(f"Cannot get file size: path={file_path}, error={str(e)}")
+            raise Http404("File not accessible")
+
         range_header = request.headers.get('Range') or request.META.get('HTTP_RANGE')
+        
+        logger.info(f"Download request: file_id={file_id}, user={request.user.id}, "
+                   f"size={file_size}, range={range_header}")
 
         if range_header:
             # 解析 Range: bytes=start-end
@@ -118,25 +153,35 @@ def file_download(request, file_id):
                 start_str, end_str = rng.split('-')
                 start = int(start_str) if start_str else 0
                 end = int(end_str) if end_str else file_size - 1
-                if start > end or end >= file_size:
+                
+                # 验证范围
+                if start < 0 or end >= file_size or start > end:
+                    logger.warning(f"Invalid range: start={start}, end={end}, size={file_size}")
                     start = 0
                     end = file_size - 1
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Range parsing error: {str(e)}")
                 start = 0
                 end = file_size - 1
 
             length = end - start + 1
 
             def file_iterator(path, offset, length, chunk_size=8192):
-                with open(path, 'rb') as f:
-                    f.seek(offset)
-                    remaining = length
-                    while remaining > 0:
-                        chunk = f.read(min(chunk_size, remaining))
-                        if not chunk:
-                            break
-                        remaining -= len(chunk)
-                        yield chunk
+                try:
+                    with open(path, 'rb') as f:
+                        f.seek(offset)
+                        remaining = length
+                        while remaining > 0:
+                            chunk_to_read = min(chunk_size, remaining)
+                            chunk = f.read(chunk_to_read)
+                            if not chunk:
+                                logger.warning(f"Unexpected EOF: path={path}, offset={offset}, remaining={remaining}")
+                                break
+                            remaining -= len(chunk)
+                            yield chunk
+                except (IOError, OSError) as e:
+                    logger.error(f"Error reading file during streaming: path={path}, error={str(e)}")
+                    raise
 
             response = StreamingHttpResponse(
                 file_iterator(file_path, start, length), content_type=content_type, status=206
@@ -144,18 +189,30 @@ def file_download(request, file_id):
             response['Content-Length'] = str(length)
             response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
             response['Accept-Ranges'] = 'bytes'
-            response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+            response['Content-Disposition'] = f'attachment; filename="{file_name}"; filename*=UTF-8\'\'{safe_filename}'
+            
+            logger.info(f"Partial download started: file_id={file_id}, range={start}-{end}")
             return response
         else:
             # 全量下载，流式传输
-            response = FileResponse(open(file_path, 'rb'), content_type=content_type)
-            response['Content-Length'] = str(file_size)
-            response['Accept-Ranges'] = 'bytes'
-            response['Content-Disposition'] = f'attachment; filename="{file_name}"'
-            return response
+            try:
+                file_handle = open(file_path, 'rb')
+                response = FileResponse(file_handle, content_type=content_type)
+                response['Content-Length'] = str(file_size)
+                response['Accept-Ranges'] = 'bytes'
+                response['Content-Disposition'] = f'attachment; filename="{file_name}"; filename*=UTF-8\'\'{safe_filename}'
+                
+                logger.info(f"Full download started: file_id={file_id}, size={file_size}")
+                return response
+            except (IOError, OSError) as e:
+                logger.error(f"Error opening file for download: path={file_path}, error={str(e)}")
+                raise Http404("File not accessible")
             
-    except File.DoesNotExist:
-        raise Http404("File not found")
+    except Http404:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in file download: file_id={file_id}, error={str(e)}")
+        raise Http404("Download failed")
 
 
 @api_view(['GET'])

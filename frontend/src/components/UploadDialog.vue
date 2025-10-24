@@ -52,9 +52,20 @@
               </svg>
             </div>
             <h4 class="waves-upload-title">拖拽文件到此处或点击选择</h4>
-            <p class="waves-upload-description">支持多个文件同时上传，单个文件最大 100MB</p>
+            <p class="waves-upload-description">支持多个文件同时上传，单个文件最大 100GB</p>
             
 
+          </div>
+        </div>
+        
+        <!-- 简约进度条 - 在文件列表上方 -->
+        <div v-if="uploading" class="simple-upload-progress">
+          <div class="progress-info">
+            <span class="progress-label">正在上传文件...</span>
+            <span class="progress-percentage">{{ uploadProgress }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
           </div>
         </div>
         
@@ -98,26 +109,6 @@
             </div>
           </div>
         </div>
-        
-        <!-- 上传进度 -->
-        <div v-if="uploading" class="waves-upload-progress">
-          <div class="waves-progress-header">
-            <div class="waves-progress-info">
-              <div class="waves-progress-icon">
-                <svg class="waves-spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div class="waves-progress-text">
-                <div class="waves-progress-title">正在上传文件...</div>
-                <div class="waves-progress-subtitle">{{ uploadProgress }}% 已完成</div>
-              </div>
-            </div>
-          </div>
-          <div class="waves-progress-bar">
-            <div class="waves-progress-fill" :style="{ width: uploadProgress + '%' }"></div>
-          </div>
-        </div>
       </div>
       
       <!-- 对话框底部 -->
@@ -151,7 +142,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useFilesStore } from '../stores/files'
 
 export default {
@@ -167,6 +158,15 @@ export default {
     const currentFolderId = computed(() => filesStore.currentFolderId)
     
     const fileInput = ref(null)
+    
+    // 监听store中的上传状态
+    watch(() => filesStore.isLoading, (isLoading) => {
+      if (!isLoading && uploading.value) {
+        // 上传完成，重置状态
+        uploading.value = false
+        uploadProgress.value = 0
+      }
+    })
     
     const selectFiles = () => {
       fileInput.value.click()
@@ -209,15 +209,37 @@ export default {
       uploadProgress.value = 0
       
       try {
+        // 计算总文件大小用于准确的进度计算
+        const totalSize = selectedFiles.value.reduce((sum, file) => sum + file.size, 0)
+        let uploadedSize = 0
+        
         for (let i = 0; i < selectedFiles.value.length; i++) {
           const file = selectedFiles.value[i]
+          
+          // 设置当前文件的进度监听
+          const initialUploadedSize = uploadedSize
+          const progressWatcher = watch(() => filesStore.uploadProgress, (fileProgress) => {
+            if (uploading.value) {
+              // 计算当前文件已上传的字节数
+              const currentFileUploaded = (fileProgress / 100) * file.size
+              // 计算总体进度
+              const totalUploaded = initialUploadedSize + currentFileUploaded
+              uploadProgress.value = Math.round((totalUploaded / totalSize) * 100)
+            }
+          })
+          
           await filesStore.uploadFile(
             file,
             'Vue Frontend',
             currentFolderId.value
           )
-          // 更新进度
-          uploadProgress.value = Math.round(((i + 1) / selectedFiles.value.length) * 100)
+          
+          // 停止监听当前文件进度
+          progressWatcher()
+          
+          // 更新已上传大小
+          uploadedSize += file.size
+          uploadProgress.value = Math.round((uploadedSize / totalSize) * 100)
         }
         
         await filesStore.fetchFiles(currentFolderId.value)
@@ -295,25 +317,24 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+  background: transparent;
+  backdrop-filter: none;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: waves-fade-in 0.3s ease;
 }
 
 .waves-dialog-container {
-  background: var(--waves-surface-primary);
-  border-radius: var(--waves-radius-xl);
-  box-shadow: var(--waves-shadow-2xl);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   max-width: 600px;
   width: 90vw;
   max-height: 90vh;
   overflow: hidden;
-  animation: waves-scale-in 0.3s ease;
-  border: 1px solid var(--waves-border-light);
+  animation: waves-scale-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #e5e7eb;
 }
 
 @keyframes waves-fade-in {
@@ -327,11 +348,15 @@ export default {
 
 @keyframes waves-scale-in {
   from {
-    transform: scale(0.9);
+    transform: scale(0.8) translateY(20px);
     opacity: 0;
   }
+  50% {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0.8;
+  }
   to {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
     opacity: 1;
   }
 }
@@ -342,8 +367,8 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 2rem;
-  background: var(--waves-surface-primary);
-  border-bottom: 1px solid var(--waves-border-light);
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
   position: relative;
 }
 
@@ -377,13 +402,13 @@ export default {
 .waves-dialog-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #1f2937;
   margin: 0 0 0.25rem 0;
 }
 
 .waves-dialog-subtitle {
   font-size: 0.875rem;
-  color: #e0e0e0;
+  color: #6b7280;
   margin: 0;
   line-height: 1.4;
 }
@@ -392,19 +417,19 @@ export default {
   width: 32px;
   height: 32px;
   border: none;
-  background: var(--waves-surface-secondary);
-  border-radius: var(--waves-radius-md);
+  background: #f3f4f6;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #e0e0e0;
+  color: #6b7280;
 }
 
 .waves-close-btn:hover {
-  background: #fee;
-  color: #d13438;
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 .waves-close-btn svg {
@@ -417,18 +442,18 @@ export default {
   padding: 2rem;
   max-height: 60vh;
   overflow-y: auto;
-  background: var(--waves-surface-primary);
+  background: #ffffff;
 }
 
 /* 上传区域 */
 .waves-upload-zone {
-  border: 2px dashed var(--waves-border-light);
-  border-radius: var(--waves-radius-lg);
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
   padding: 3rem 2rem;
   text-align: center;
   transition: all 0.3s ease;
   cursor: pointer;
-  background: var(--waves-surface-secondary);
+  background: #f9fafb;
   position: relative;
   overflow: hidden;
 }
@@ -445,22 +470,22 @@ export default {
 }
 
 .waves-upload-zone:hover {
-  border-color: var(--waves-primary-300);
-  background: var(--waves-primary-50);
+  border-color: #3b82f6;
+  background: #eff6ff;
   transform: translateY(-2px);
   box-shadow: var(--waves-shadow-lg);
 }
 
 .waves-upload-zone.waves-drag-over {
-  border-color: var(--waves-primary-500);
-  background: var(--waves-primary-100);
+  border-color: #3b82f6;
+  background: #dbeafe;
   transform: scale(1.02);
-  box-shadow: var(--waves-shadow-xl);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
 .waves-upload-zone.waves-has-files {
-  border-color: var(--waves-success-400);
-  background: var(--waves-success-50);
+  border-color: #10b981;
+  background: #ecfdf5;
 }
 
 .waves-upload-content {
@@ -472,7 +497,7 @@ export default {
   width: 80px;
   height: 80px;
   margin: 0 auto 1.5rem;
-  background: linear-gradient(135deg, var(--waves-primary-500), var(--waves-primary-600));
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -488,13 +513,13 @@ export default {
 .waves-upload-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #1f2937;
   margin: 0 0 0.5rem 0;
 }
 
 .waves-upload-description {
   font-size: 0.875rem;
-  color: #e0e0e0;
+  color: #6b7280;
   margin: 0 0 2rem 0;
   line-height: 1.6;
 }
@@ -504,9 +529,9 @@ export default {
 /* 文件列表 */
 .waves-file-list {
   margin-top: 2rem;
-  background: var(--waves-surface-secondary);
-  border-radius: var(--waves-radius-lg);
-  border: 1px solid var(--waves-border-light);
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
   overflow: hidden;
 }
 
@@ -515,8 +540,8 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background: var(--waves-primary-50);
-  border-bottom: 1px solid var(--waves-border-light);
+  background: #eff6ff;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .waves-list-title {
@@ -525,14 +550,14 @@ export default {
   gap: 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #ffffff;
+  color: #1f2937;
   margin: 0;
 }
 
 .waves-list-icon {
   width: 16px;
   height: 16px;
-  color: var(--waves-primary-600);
+  color: #3b82f6;
 }
 
 .waves-clear-btn {
@@ -540,19 +565,19 @@ export default {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--waves-border-light);
-  background: var(--waves-surface-primary);
-  border-radius: var(--waves-radius-sm);
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 6px;
   font-size: 0.8rem;
-  color: #e0e0e0;
+  color: #6b7280;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .waves-clear-btn:hover {
-  background: var(--waves-error-50);
-  border-color: var(--waves-error-300);
-  color: var(--waves-error-600);
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 
 .waves-clear-btn svg {
@@ -570,7 +595,7 @@ export default {
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid var(--waves-border-light);
+  border-bottom: 1px solid #e5e7eb;
   transition: all 0.3s ease;
 }
 
@@ -579,18 +604,18 @@ export default {
 }
 
 .waves-file-item:hover {
-  background: var(--waves-primary-25);
+  background: #f0f9ff;
 }
 
 .waves-file-icon {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, var(--waves-primary-100), var(--waves-primary-200));
-  border-radius: var(--waves-radius-md);
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--waves-primary-600);
+  color: #3b82f6;
   flex-shrink: 0;
 }
 
@@ -606,7 +631,7 @@ export default {
 
 .waves-file-name {
   font-weight: 500;
-  color: #ffffff;
+  color: #1f2937;
   margin-bottom: 0.25rem;
   white-space: nowrap;
   overflow: hidden;
@@ -618,26 +643,26 @@ export default {
   display: flex;
   gap: 1rem;
   font-size: 0.75rem;
-  color: #e0e0e0;
+  color: #6b7280;
 }
 
 .waves-remove-btn {
   width: 24px;
   height: 24px;
   border: none;
-  background: var(--waves-error-100);
+  background: #fee2e2;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: var(--waves-error-600);
+  color: #dc2626;
   flex-shrink: 0;
 }
 
 .waves-remove-btn:hover {
-  background: var(--waves-error-200);
+  background: #fecaca;
   transform: scale(1.1);
 }
 
@@ -646,100 +671,46 @@ export default {
   height: 12px;
 }
 
-/* 上传进度 */
-.waves-upload-progress {
-  margin-top: 2rem;
-  background: var(--waves-surface-secondary);
-  border-radius: var(--waves-radius-lg);
-  border: 1px solid var(--waves-border-light);
-  overflow: hidden;
+/* 简约上传进度条 */
+.simple-upload-progress {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
-.waves-progress-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--waves-border-light);
-}
-
-.waves-progress-info {
+.progress-info {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  margin-bottom: 0.75rem;
 }
 
-.waves-progress-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--waves-primary-500), var(--waves-primary-600));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.waves-spinner {
-  width: 20px;
-  height: 20px;
-  animation: waves-spin 1.5s linear infinite;
-}
-
-@keyframes waves-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.waves-progress-text {
-  flex: 1;
-}
-
-.waves-progress-title {
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 0.25rem;
+.progress-label {
   font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
 }
 
-.waves-progress-subtitle {
-  font-size: 0.75rem;
-  color: #e0e0e0;
+.progress-percentage {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #3b82f6;
 }
 
-.waves-progress-bar {
-  height: 8px;
-  background: var(--waves-surface-primary);
-  position: relative;
+.progress-bar {
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
   overflow: hidden;
 }
 
-.waves-progress-fill {
+.progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--waves-primary-500), var(--waves-primary-600));
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+  border-radius: 2px;
   transition: width 0.3s ease;
-  position: relative;
-}
-
-.waves-progress-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: waves-shimmer 2s infinite;
-}
-
-@keyframes waves-shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
 }
 
 /* 对话框底部 */
@@ -748,8 +719,8 @@ export default {
   gap: 1rem;
   justify-content: flex-end;
   padding: 2rem;
-  background: var(--waves-surface-secondary);
-  border-top: 1px solid var(--waves-border-light);
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
 }
 
 .waves-btn {
@@ -758,7 +729,7 @@ export default {
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: var(--waves-radius-md);
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -774,35 +745,35 @@ export default {
 }
 
 .waves-btn-primary {
-  background: var(--waves-primary-600);
+  background: #3b82f6;
   color: white;
 }
 
 .waves-btn-primary:hover:not(:disabled) {
-  background: var(--waves-primary-700);
+  background: #2563eb;
   transform: translateY(-2px);
-  box-shadow: var(--waves-shadow-md);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .waves-btn-primary:disabled {
-  background: var(--waves-surface-tertiary);
-  color: var(--waves-text-disabled);
+  background: #f3f4f6;
+  color: #9ca3af;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
 .waves-btn-secondary {
-  background: var(--waves-surface-primary);
-  color: #ffffff;
-  border: 1px solid var(--waves-border-light);
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
 }
 
 .waves-btn-secondary:hover {
-  background: var(--waves-surface-secondary);
-  border-color: var(--waves-primary-300);
+  background: #f9fafb;
+  border-color: #3b82f6;
   transform: translateY(-2px);
-  box-shadow: var(--waves-shadow-md);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .waves-loading-spinner {
@@ -818,19 +789,19 @@ export default {
 
 .waves-dialog-body::-webkit-scrollbar-track,
 .waves-file-items::-webkit-scrollbar-track {
-  background: var(--waves-surface-secondary);
-  border-radius: var(--waves-radius-sm);
+  background: #f3f4f6;
+  border-radius: 4px;
 }
 
 .waves-dialog-body::-webkit-scrollbar-thumb,
 .waves-file-items::-webkit-scrollbar-thumb {
-  background: var(--waves-border-light);
-  border-radius: var(--waves-radius-sm);
+  background: #d1d5db;
+  border-radius: 4px;
 }
 
 .waves-dialog-body::-webkit-scrollbar-thumb:hover,
 .waves-file-items::-webkit-scrollbar-thumb:hover {
-  background: var(--waves-primary-400);
+  background: #60a5fa;
 }
 
 /* 响应式设计 */

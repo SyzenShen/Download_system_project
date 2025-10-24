@@ -1,5 +1,11 @@
 <template>
   <div class="file-upload waves-corporate-bg">
+    <!-- 简约进度条 - 移到卡片上方 -->
+    <div v-if="isUploading || uploadProgress > 0" class="simple-progress-bar">
+      <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
+      <span class="progress-text">{{ uploadProgress.toFixed(0) }}%</span>
+    </div>
+
     <div class="upload-container">
       <!-- 头部区域 -->
       <div class="upload-header">
@@ -22,7 +28,7 @@
           <div v-if="!selectedFile" class="upload-placeholder">
             <i class="fas fa-cloud-upload-alt fa-4x waves-upload-icon"></i>
             <h3 class="upload-zone-title waves-text-corporate">拖拽文件到此处或点击选择</h3>
-            <p class="upload-zone-subtitle waves-text-light">支持多种文件格式，单个文件最大 100MB</p>
+            <p class="upload-zone-subtitle waves-text-light">支持多种文件格式，单个文件最大 100GB</p>
             
             <!-- 功能标签 -->
             <div class="upload-features">
@@ -51,6 +57,11 @@
             <div class="file-preview-header">
               <i class="fas fa-file-alt fa-3x waves-file-icon"></i>
               <div class="file-info">
+                <!-- 进度条 - 在文件名称上方 -->
+                <div v-if="isUploading || uploadProgress > 0" class="file-progress-bar">
+                  <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
+                  <span class="progress-text">{{ uploadProgress.toFixed(0) }}%</span>
+                </div>
                 <h4 class="file-name waves-text-corporate">{{ selectedFile.name }}</h4>
                 <p class="file-size waves-text-light">{{ formatFileSize(selectedFile.size) }}</p>
                 <div class="file-status">
@@ -98,21 +109,6 @@
                 取消
               </button>
             </div>
-          </div>
-        </div>
-
-        <!-- 上传进度区域 -->
-        <div v-if="isUploading || uploadProgress > 0" class="waves-progress-section">
-          <h3 class="progress-title">
-            <i class="fas fa-chart-line progress-icon"></i>
-            上传进度
-          </h3>
-          <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
-          </div>
-          <div class="progress-text">
-            <span>{{ uploadProgress.toFixed(1) }}% 完成</span>
-            <span class="progress-percentage">{{ uploadProgress.toFixed(1) }}%</span>
           </div>
         </div>
 
@@ -341,9 +337,22 @@ export default {
       console.log('查看文件:', file)
     }
     
-    const downloadFile = (file) => {
-      // 下载文件
-      console.log('下载文件:', file)
+    const downloadFile = async (file) => {
+      try {
+        const result = await filesStore.downloadFile(
+          file.id, 
+          file.original_filename || `file_${file.id}`, 
+          file.file_size
+        )
+        // 错误处理已在store中完成，这里不需要额外处理
+        if (result.success) {
+          // 可以在这里添加下载成功的处理逻辑
+          console.log('下载开始:', file.original_filename)
+        }
+      } catch (error) {
+        console.error('下载失败:', error)
+        filesStore.showErrorNotification(`下载失败: ${error.message}`)
+      }
     }
     
     return {
@@ -674,56 +683,70 @@ export default {
   100% { transform: rotate(360deg); }
 }
 
-/* 进度区域样式 */
-.waves-progress-section {
-  margin-top: 32px;
-  padding: 32px;
-  background: var(--waves-card-secondary-bg);
-  border-radius: var(--waves-border-radius-lg);
-  border: var(--waves-border-subtle);
+/* 简约进度条样式 */
+.simple-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  backdrop-filter: blur(10px);
 }
 
-.progress-title {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.progress-icon {
-  color: var(--waves-primary);
-}
-
-.progress-bar {
-  width: 100%;
-  height: 12px;
-  background: var(--waves-card-bg);
-  border-radius: var(--waves-border-radius);
-  overflow: hidden;
-  margin-bottom: 16px;
-  border: var(--waves-border-subtle);
-}
-
-.progress-fill {
+.simple-progress-bar .progress-fill {
   height: 100%;
-  background: var(--waves-gradient-primary);
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
   transition: width 0.3s ease;
-  border-radius: var(--waves-border-radius);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
-.progress-text {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-  color: var(--waves-text-light);
-}
-
-.progress-percentage {
+.simple-progress-bar .progress-text {
+  position: absolute;
+  top: 8px;
+  right: 20px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--waves-primary);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(10px);
+}
+
+/* 文件进度条样式 */
+.file-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 3px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
+.file-progress-bar .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #06b6d4);
+  transition: width 0.3s ease;
+  border-radius: 3px;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+}
+
+.file-progress-bar .progress-text {
+  position: absolute;
+  top: -24px;
+  right: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--waves-primary);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 /* 设置区域样式 */

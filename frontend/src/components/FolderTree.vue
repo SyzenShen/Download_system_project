@@ -144,7 +144,7 @@ onMounted(async () => {
 }
 
 .tree-header {
-  padding: 16px;
+  padding: 12px 8px;
   border-bottom: 1px solid #e5e5e5;
   background: #ffffff;
 }
@@ -159,19 +159,19 @@ onMounted(async () => {
 .tree-content {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 0;
+  padding: 4px 0;
 }
 
 .tree-node {
   display: flex;
   align-items: center;
-  padding: 8px 16px;
+  padding: 6px 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
   color: #605e5c;
   border-radius: var(--waves-radius-sm);
-  margin: 2px 8px;
+  margin: 1px 4px;
 }
 
 .tree-node:hover {
