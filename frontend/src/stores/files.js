@@ -350,9 +350,12 @@ export const useFilesStore = defineStore('files', {
         // 显式附加鉴权头，避免某些环境下axios默认头丢失
         const token = localStorage.getItem('token')
         const headers = token ? { Authorization: `Token ${token}` } : {}
+        
         await axios.delete(`/api/files/${fileId}/delete/`, { headers })
+        
         // 从本地状态中移除文件
         this.files = this.files.filter(file => file.id !== fileId)
+        
         return { success: true, message: '文件删除成功' }
       } catch (error) {
         const message = error.response?.data?.message 

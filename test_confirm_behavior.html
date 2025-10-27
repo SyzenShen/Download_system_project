@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm 函数行为测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Confirm 函数行为测试</h1>
+    
+    <div class="test-section">
+        <h2>测试 1: 基本 confirm 行为</h2>
+        <button class="delete-btn" onclick="testBasicConfirm()">测试基本 confirm</button>
+        <div id="basicLog" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试 2: 模拟删除文件流程</h2>
+        <button class="delete-btn" onclick="testDeleteFlow()">模拟删除文件</button>
+        <div id="deleteLog" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试 3: 异步删除流程</h2>
+        <button class="delete-btn" onclick="testAsyncDeleteFlow()">模拟异步删除</button>
+        <div id="asyncLog" class="log"></div>
+    </div>
+
+    <script>
+        function log(elementId, message) {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.textContent += `[${timestamp}] ${message}\n`;
+        }
+
+        function testBasicConfirm() {
+            const logElement = document.getElementById('basicLog');
+            logElement.textContent = '';
+            
+            log('basicLog', '开始测试基本 confirm 行为');
+            log('basicLog', '即将显示 confirm 对话框...');
+            
+            const result = confirm('确定要删除这个文件吗？');
+            
+            log('basicLog', `用户选择: ${result ? '确定' : '取消'}`);
+            
+            if (result) {
+                log('basicLog', '执行删除操作');
+            } else {
+                log('basicLog', '取消删除操作');
+            }
+            
+            log('basicLog', '测试完成');
+        }
+
+        function testDeleteFlow() {
+            const logElement = document.getElementById('deleteLog');
+            logElement.textContent = '';
+            
+            log('deleteLog', '开始模拟删除文件流程');
+            
+            // 模拟删除函数
+            function deleteFile(fileId) {
+                log('deleteLog', `准备删除文件 ID: ${fileId}`);
+                
+                // 显示确认对话框
+                const confirmed = confirm('确定要删除这个文件吗？');
+                log('deleteLog', `确认结果: ${confirmed}`);
+                
+                if (!confirmed) {
+                    log('deleteLog', '用户取消，直接返回');
+                    return;
+                }
+                
+                log('deleteLog', '用户确认，开始删除...');
+                
+                // 模拟删除操作
+                setTimeout(() => {
+                    log('deleteLog', '文件删除成功');
+                }, 100);
+            }
+            
+            deleteFile('test-file-123');
+        }
+
+        async function testAsyncDeleteFlow() {
+            const logElement = document.getElementById('asyncLog');
+            logElement.textContent = '';
+            
+            log('asyncLog', '开始模拟异步删除流程');
+            
+            // 模拟异步删除函数
+            async function deleteFileAsync(fileId) {
+                log('asyncLog', `准备删除文件 ID: ${fileId}`);
+                
+                // 显示确认对话框
+                const confirmed = confirm('确定要删除这个文件吗？');
+                log('asyncLog', `确认结果: ${confirmed}`);
+                
+                if (!confirmed) {
+                    log('asyncLog', '用户取消，直接返回');
+                    return;
+                }
+                
+                log('asyncLog', '用户确认，开始异步删除...');
+                
+                // 模拟异步删除操作
+                try {
+                    await new Promise(resolve => {
+                        setTimeout(() => {
+                            log('asyncLog', '模拟发送删除请求到服务器...');
+                            resolve();
+                        }, 500);
+                    });
+                    
+                    log('asyncLog', '服务器删除成功');
+                    log('asyncLog', '更新本地状态...');
+                    
+                    // 模拟更新本地状态
+                    setTimeout(() => {
+                        log('asyncLog', '本地状态更新完成');
+                    }, 100);
+                    
+                } catch (error) {
+                    log('asyncLog', `删除失败: ${error.message}`);
+                }
+            }
+            
+            await deleteFileAsync('test-file-async-123');
+            log('asyncLog', '异步删除流程完成');
+        }
+    </script>
+</body>
+</html>

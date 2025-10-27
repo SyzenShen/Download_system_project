@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>删除问题调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .file-name {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>删除问题调试</h1>
+    
+    <div id="fileList">
+        <div class="file-item" id="file-1">
+            <span class="file-name">测试文件 1.txt</span>
+            <button class="delete-btn" onclick="deleteFile(1)">🗑️ 删除</button>
+        </div>
+        <div class="file-item" id="file-2">
+            <span class="file-name">测试文件 2.txt</span>
+            <button class="delete-btn" onclick="deleteFile(2)">🗑️ 删除</button>
+        </div>
+        <div class="file-item" id="file-3">
+            <span class="file-name">测试文件 3.txt</span>
+            <button class="delete-btn" onclick="deleteFile(3)">🗑️ 删除</button>
+        </div>
+    </div>
+
+    <div class="log" id="log"></div>
+
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        // 模拟 Vue 的响应式行为
+        let files = [
+            { id: 1, name: '测试文件 1.txt' },
+            { id: 2, name: '测试文件 2.txt' },
+            { id: 3, name: '测试文件 3.txt' }
+        ];
+
+        // 模拟 store 的删除方法
+        async function storeDeleteFile(fileId) {
+            log(`store.deleteFile 被调用，文件ID: ${fileId}`);
+            
+            try {
+                log('发送删除请求到后端...');
+                
+                // 模拟网络请求延迟
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                log('后端删除成功，更新本地状态...');
+                
+                // 立即更新本地状态（这里是问题所在）
+                files = files.filter(file => file.id !== fileId);
+                updateUI();
+                
+                log('本地状态更新完成');
+                
+                return { success: true, message: '文件删除成功' };
+            } catch (error) {
+                log(`删除失败: ${error.message}`);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 更新 UI
+        function updateUI() {
+            log('更新 UI...');
+            files.forEach(file => {
+                const element = document.getElementById(`file-${file.id}`);
+                if (element) {
+                    element.style.display = 'block';
+                }
+            });
+            
+            // 隐藏已删除的文件
+            for (let i = 1; i <= 3; i++) {
+                if (!files.find(f => f.id === i)) {
+                    const element = document.getElementById(`file-${i}`);
+                    if (element) {
+                        element.style.display = 'none';
+                        log(`文件 ${i} 从 UI 中移除`);
+                    }
+                }
+            }
+        }
+
+        // 删除文件函数（模拟 FileDisplay.vue 中的逻辑）
+        async function deleteFile(fileId) {
+            log(`deleteFile 函数被调用，文件ID: ${fileId}`);
+            
+            log('显示确认对话框...');
+            const confirmed = confirm('确定要删除这个文件吗？');
+            log(`用户确认结果: ${confirmed}`);
+            
+            if (!confirmed) {
+                log('用户取消删除，函数返回');
+                return;
+            }
+            
+            log('用户确认删除，开始调用 store 方法');
+            const result = await storeDeleteFile(fileId);
+            log(`store 删除结果: ${JSON.stringify(result)}`);
+            
+            if (!result.success) {
+                alert(`删除失败: ${result.error}`);
+            }
+        }
+
+        // 测试不同的删除方式
+        async function testImmediateDelete(fileId) {
+            log(`\n=== 测试立即删除（问题版本）===`);
+            
+            log(`准备删除文件 ${fileId}`);
+            
+            // 模拟问题：在确认对话框显示的同时立即更新 UI
+            setTimeout(() => {
+                log('立即更新 UI（模拟问题）');
+                files = files.filter(file => file.id !== fileId);
+                updateUI();
+            }, 10); // 很短的延迟，模拟异步更新
+            
+            const confirmed = confirm('确定要删除这个文件吗？（UI 已经更新）');
+            log(`用户确认结果: ${confirmed}`);
+            
+            if (!confirmed) {
+                log('用户取消了，但文件已经从 UI 中消失了！');
+                // 这里应该恢复文件，但在实际应用中很难做到
+            }
+        }
+
+        // 在页面加载时显示说明
+        window.onload = function() {
+            log('页面加载完成');
+            log('点击删除按钮测试正常流程');
+            log('或者在控制台运行 testImmediateDelete(1) 测试问题场景');
+        };
+    </script>
+</body>
+</html>
