@@ -1,8 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 import os
 import uuid
+
+User = get_user_model()
 
 # Create your models here.
 # Define user directory path

@@ -76,6 +76,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'file_project.wsgi.application'
 
+# Custom User Model
+AUTH_USER_MODEL = 'authentication.CustomUser'
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
@@ -97,12 +99,21 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    {
+        'NAME': 'authentication.validators.ComplexPasswordValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
 ]
 

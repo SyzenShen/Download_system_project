@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>删除确认功能调试测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 14px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .delete-button {
+            background: #dc3545;
+        }
+        .delete-button:hover {
+            background: #c82333;
+        }
+        .log-area {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>删除确认功能调试测试</h1>
+    
+    <div class="test-container">
+        <h2>测试说明</h2>
+        <p>这个页面用于测试删除确认对话框的行为。请按照以下步骤测试：</p>
+        <ol>
+            <li>点击"测试删除文件"按钮</li>
+            <li>在弹出的确认对话框中点击"取消"</li>
+            <li>观察日志区域，应该显示"用户取消了删除操作"</li>
+            <li>再次点击"测试删除文件"按钮</li>
+            <li>在弹出的确认对话框中点击"确定"</li>
+            <li>观察日志区域，应该显示"执行删除操作"</li>
+        </ol>
+    </div>
+
+    <div class="test-container">
+        <h2>测试按钮</h2>
+        <button class="test-button delete-button" onclick="testDeleteFile()">测试删除文件</button>
+        <button class="test-button delete-button" onclick="testDeleteFolder()">测试删除文件夹</button>
+        <button class="test-button" onclick="clearLog()">清空日志</button>
+    </div>
+
+    <div class="test-container">
+        <h2>测试日志</h2>
+        <div id="log" class="log-area">等待测试...\n</div>
+    </div>
+
+    <div class="test-container">
+        <h2>confirm函数返回值测试</h2>
+        <button class="test-button" onclick="testConfirmReturnValue()">测试confirm返回值</button>
+        <div id="confirmTest" class="status info" style="display: none;"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logArea = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logArea.textContent += `[${timestamp}] ${message}\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '日志已清空\n';
+        }
+
+        // 模拟FileDisplay.vue中的deleteFile函数
+        async function testDeleteFile() {
+            log('开始测试删除文件...');
+            
+            // 显示确认对话框，只有用户点击"确定"时才执行删除
+            const confirmed = confirm('确定要删除这个文件吗？');
+            log(`confirm函数返回值: ${confirmed}`);
+            
+            if (!confirmed) {
+                log('用户点击了取消，不执行删除操作');
+                return; // 用户点击取消，直接返回，不执行删除
+            }
+            
+            log('用户点击了确定，执行删除操作');
+            // 模拟删除操作
+            await simulateDelete('文件');
+        }
+
+        // 模拟FileDisplay.vue中的deleteFolder函数
+        async function testDeleteFolder() {
+            log('开始测试删除文件夹...');
+            
+            // 显示确认对话框，只有用户点击"确定"时才执行删除
+            const confirmed = confirm('确定要删除这个文件夹吗？');
+            log(`confirm函数返回值: ${confirmed}`);
+            
+            if (!confirmed) {
+                log('用户点击了取消，不执行删除操作');
+                return; // 用户点击取消，直接返回，不执行删除
+            }
+            
+            log('用户点击了确定，执行删除操作');
+            // 模拟删除操作
+            await simulateDelete('文件夹');
+        }
+
+        async function simulateDelete(type) {
+            log(`正在删除${type}...`);
+            // 模拟异步操作
+            await new Promise(resolve => setTimeout(resolve, 500));
+            log(`${type}删除成功！`);
+        }
+
+        function testConfirmReturnValue() {
+            const testDiv = document.getElementById('confirmTest');
+            testDiv.style.display = 'block';
+            
+            log('测试confirm函数返回值...');
+            
+            // 测试confirm的返回值
+            setTimeout(() => {
+                const result1 = confirm('测试1: 请点击"确定"');
+                log(`测试1结果 (应该是true): ${result1}`);
+                testDiv.innerHTML = `测试1结果: ${result1}`;
+                
+                setTimeout(() => {
+                    const result2 = confirm('测试2: 请点击"取消"');
+                    log(`测试2结果 (应该是false): ${result2}`);
+                    testDiv.innerHTML += `<br>测试2结果: ${result2}`;
+                }, 1000);
+            }, 500);
+        }
+
+        // 页面加载完成后的初始化
+        window.onload = function() {
+            log('页面加载完成，可以开始测试');
+            log('请点击上方的测试按钮进行测试');
+        };
+    </script>
+</body>
+</html>

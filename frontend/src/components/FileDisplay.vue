@@ -116,7 +116,7 @@
               </button>
               <button 
                 class="waves-action-btn waves-delete-btn"
-                @click="deleteFile(file.id)"
+                @click.stop="deleteFile(file.id)"
                 title="删除文件"
               >
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -200,7 +200,7 @@
               </button>
               <button 
                 class="waves-action-btn waves-delete-btn"
-                @click="deleteFile(file.id)"
+                @click.stop="deleteFile(file.id)"
                 title="删除文件"
               >
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -268,20 +268,46 @@ const navigateToFolder = (folderId) => {
 }
 
 const deleteFolder = async (folderId) => {
-  if (confirm('确定要删除这个文件夹吗？')) {
-    const result = await filesStore.deleteFolder(folderId)
-    if (!result.success) {
-      alert(`删除失败: ${result.error}`)
-    }
+  console.log('deleteFolder 函数被调用，文件夹ID:', folderId)
+  
+  // 显示确认对话框，只有用户点击"确定"时才执行删除
+  console.log('准备显示确认对话框...')
+  const confirmed = confirm('确定要删除这个文件夹吗？')
+  console.log('确认对话框结果:', confirmed)
+  
+  if (!confirmed) {
+    console.log('用户点击了取消，不执行删除')
+    return // 用户点击取消，直接返回，不执行删除
+  }
+  
+  console.log('用户确认删除，开始执行删除操作...')
+  const result = await filesStore.deleteFolder(folderId)
+  console.log('删除操作结果:', result)
+  
+  if (!result.success) {
+    alert(`删除失败: ${result.error}`)
   }
 }
 
 const deleteFile = async (fileId) => {
-  if (confirm('确定要删除这个文件吗？')) {
-    const result = await filesStore.deleteFile(fileId)
-    if (!result.success) {
-      alert(`删除失败: ${result.error}`)
-    }
+  console.log('deleteFile 函数被调用，文件ID:', fileId)
+  
+  // 显示确认对话框，只有用户点击"确定"时才执行删除
+  console.log('准备显示确认对话框...')
+  const confirmed = confirm('确定要删除这个文件吗？')
+  console.log('确认对话框结果:', confirmed)
+  
+  if (!confirmed) {
+    console.log('用户点击了取消，不执行删除')
+    return // 用户点击取消，直接返回，不执行删除
+  }
+  
+  console.log('用户确认删除，开始执行删除操作...')
+  const result = await filesStore.deleteFile(fileId)
+  console.log('删除操作结果:', result)
+  
+  if (!result.success) {
+    alert(`删除失败: ${result.error}`)
   }
 }
 

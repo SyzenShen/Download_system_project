@@ -16,18 +16,18 @@
           
           <form @submit.prevent="handleLogin" class="waves-auth-form">
             <div class="form-group waves-form-group">
-              <label for="username" class="form-label waves-form-label">
+              <label for="email" class="form-label waves-form-label">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor"/>
+                  <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="currentColor"/>
                 </svg>
-                用户名
+                邮箱地址
               </label>
               <input
-                type="text"
-                id="username"
-                v-model="form.username"
+                type="email"
+                id="email"
+                v-model="form.email"
                 class="form-control waves-form-control"
-                placeholder="请输入您的用户名"
+                placeholder="请输入您的邮箱地址"
                 required
                 :disabled="isLoading"
               />
@@ -92,7 +92,7 @@ export default {
     const authStore = useAuthStore()
     
     const form = ref({
-      username: '',
+      email: '',
       password: ''
     })
     

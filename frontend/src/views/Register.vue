@@ -23,26 +23,6 @@
           
           <form @submit.prevent="handleRegister" class="waves-auth-form">
             <div class="form-group waves-form-group">
-              <label for="username" class="form-label waves-form-label">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="currentColor"/>
-                </svg>
-                用户名
-              </label>
-              <input
-                type="text"
-                id="username"
-                v-model="form.username"
-                class="form-control waves-form-control"
-                placeholder="请输入用户名（至少3个字符）"
-                required
-                :disabled="isLoading"
-                minlength="3"
-              />
-              <small class="waves-form-hint">用户名至少3个字符</small>
-            </div>
-            
-            <div class="form-group waves-form-group">
               <label for="email" class="form-label waves-form-label">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="currentColor"/>
@@ -72,12 +52,37 @@
                 id="password"
                 v-model="form.password"
                 class="form-control waves-form-control"
-                placeholder="请输入密码（至少6个字符）"
+                :class="{ 'waves-form-error': form.password && !isPasswordValid }"
+                placeholder="请输入密码"
                 required
                 :disabled="isLoading"
-                minlength="6"
+                minlength="8"
+                @input="validatePassword"
               />
-              <small class="waves-form-hint">密码至少6个字符</small>
+              
+              <!-- 密码复杂度要求提示 -->
+              <div class="password-requirements" v-if="form.password">
+                <div class="requirement-item" :class="{ 'valid': passwordChecks.length }">
+                  <span class="check-icon">{{ passwordChecks.length ? '✓' : '✗' }}</span>
+                  至少8个字符
+                </div>
+                <div class="requirement-item" :class="{ 'valid': passwordChecks.uppercase }">
+                  <span class="check-icon">{{ passwordChecks.uppercase ? '✓' : '✗' }}</span>
+                  包含大写字母 (A-Z)
+                </div>
+                <div class="requirement-item" :class="{ 'valid': passwordChecks.lowercase }">
+                  <span class="check-icon">{{ passwordChecks.lowercase ? '✓' : '✗' }}</span>
+                  包含小写字母 (a-z)
+                </div>
+                <div class="requirement-item" :class="{ 'valid': passwordChecks.number }">
+                  <span class="check-icon">{{ passwordChecks.number ? '✓' : '✗' }}</span>
+                  包含数字 (0-9)
+                </div>
+              </div>
+              
+              <small v-if="!form.password" class="waves-form-hint">
+                密码必须包含至少8个字符，包括大写字母、小写字母和数字
+              </small>
             </div>
             
             <div class="form-group waves-form-group">
@@ -107,7 +112,7 @@
               <button
                 type="submit"
                 class="btn btn-primary waves-btn waves-btn-primary"
-                :disabled="isLoading || form.password !== form.confirmPassword"
+                :disabled="isLoading || form.password !== form.confirmPassword || !isPasswordValid"
               >
                 <span v-if="isLoading" class="waves-loading-spinner"></span>
                 {{ isLoading ? '注册中...' : '立即注册' }}
@@ -144,7 +149,6 @@ export default {
     const authStore = useAuthStore()
     
     const form = ref({
-      username: '',
       email: '',
       password: '',
       confirmPassword: ''
@@ -152,8 +156,34 @@ export default {
     
     const successMessage = ref('')
     
+    // 密码复杂度检查
+    const passwordChecks = ref({
+      length: false,
+      uppercase: false,
+      lowercase: false,
+      number: false
+    })
+    
     const isLoading = computed(() => authStore.isLoading)
     const error = computed(() => authStore.error)
+    
+    // 计算密码是否有效
+    const isPasswordValid = computed(() => {
+      return passwordChecks.value.length &&
+             passwordChecks.value.uppercase &&
+             passwordChecks.value.lowercase &&
+             passwordChecks.value.number
+    })
+    
+    // 验证密码复杂度
+    const validatePassword = () => {
+      const password = form.value.password
+      
+      passwordChecks.value.length = password.length >= 8
+      passwordChecks.value.uppercase = /[A-Z]/.test(password)
+      passwordChecks.value.lowercase = /[a-z]/.test(password)
+      passwordChecks.value.number = /\d/.test(password)
+    }
     
     const handleRegister = async () => {
       if (form.value.password !== form.value.confirmPassword) {
@@ -161,7 +191,6 @@ export default {
       }
       
       const result = await authStore.register({
-        username: form.value.username,
         email: form.value.email,
         password: form.value.password,
         // 后端序列化器要求字段名为 confirm_password
@@ -181,6 +210,9 @@ export default {
       isLoading,
       error,
       successMessage,
+      passwordChecks,
+      isPasswordValid,
+      validatePassword,
       handleRegister
     }
   }
@@ -390,6 +422,48 @@ export default {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+}
+
+/* 密码复杂度提示样式 */
+.password-requirements {
+  margin-top: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.requirement-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: #6c757d;
+  transition: color 0.2s ease;
+}
+
+.requirement-item:last-child {
+  margin-bottom: 0;
+}
+
+.requirement-item.valid {
+  color: #28a745;
+}
+
+.check-icon {
+  font-weight: bold;
+  font-size: 0.875rem;
+  width: 16px;
+  text-align: center;
+}
+
+.requirement-item.valid .check-icon {
+  color: #28a745;
+}
+
+.requirement-item:not(.valid) .check-icon {
+  color: #dc3545;
 }
 
 /* 加载动画 */
