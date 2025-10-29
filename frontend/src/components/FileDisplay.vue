@@ -95,6 +95,13 @@
             <div class="waves-file-info">
               <div class="waves-file-name">{{ file.original_filename }}</div>
               <div class="waves-file-type">{{ getFileType(file.original_filename) }}</div>
+              <!-- 下载进度条（仅在有进度时显示） -->
+              <div v-if="downloadProgress[file.id] !== undefined" class="waves-download-progress">
+                <div class="waves-progress-track">
+                  <div class="waves-progress-fill" :style="{ width: (downloadProgress[file.id] || 0) + '%' }"></div>
+                </div>
+                <span class="waves-progress-text">{{ (downloadProgress[file.id] || 0) }}%</span>
+              </div>
             </div>
           </div>
           <div class="waves-cell waves-size-cell">
@@ -114,6 +121,32 @@
                   <path d="M5 20H19V18H5M19 9H15V3H9V9H5L12 16L19 9Z" fill="currentColor"/>
                 </svg>
               </button>
+              <!-- 下载控制：暂停/继续/取消 -->
+              <template v-if="downloadActive[file.id] || downloadProgress[file.id] !== undefined">
+                <button 
+                  class="waves-action-btn"
+                  @click.stop="pauseDownload(file.id)"
+                  v-if="!downloadPaused[file.id]"
+                  title="暂停下载"
+                >
+                  ||
+                </button>
+                <button 
+                  class="waves-action-btn"
+                  @click.stop="resumeDownload(file.id, file.original_filename || `file_${file.id}`, file.file_size)"
+                  v-else
+                  title="继续下载"
+                >
+                  ▶
+                </button>
+                <button 
+                  class="waves-action-btn waves-delete-btn"
+                  @click.stop="cancelDownload(file.id)"
+                  title="取消下载"
+                >
+                  ✕
+                </button>
+              </template>
               <button 
                 class="waves-action-btn waves-delete-btn"
                 @click.stop="deleteFile(file.id)"
@@ -261,6 +294,10 @@ const viewMode = computed(() => filesStore.viewMode)
 const folders = computed(() => filesStore.currentFolders)
 const files = computed(() => filesStore.currentFiles)
 const isEmpty = computed(() => folders.value.length === 0 && files.value.length === 0)
+// 下载相关状态（来自 Pinia store）
+const downloadProgress = computed(() => filesStore.downloadProgress)
+const downloadPaused = computed(() => filesStore.downloadPaused)
+const downloadActive = computed(() => filesStore.downloadActive)
 
 // 方法
 const navigateToFolder = (folderId) => {
@@ -415,6 +452,17 @@ const downloadFile = async (file, retryCount = 0) => {
     
     filesStore.showErrorNotification(`下载失败: ${errorMessage}`)
   }
+}
+
+// 下载控制：暂停/继续/取消（委托给 store）
+const pauseDownload = (fileId) => {
+  try { filesStore.pauseDownload(fileId) } catch (_) {}
+}
+const resumeDownload = async (fileId, filename, fileSize) => {
+  try { await filesStore.resumeDownload(fileId, filename, fileSize) } catch (_) {}
+}
+const cancelDownload = async (fileId) => {
+  try { await filesStore.cancelDownload(fileId) } catch (_) {}
 }
 
 const downloadFolder = async (folderId) => {
@@ -696,6 +744,30 @@ const getFileType = (filename) => {
   background: #ef4444;
   color: white;
   transform: scale(1.1);
+}
+
+/* 下载进度条 */
+.waves-download-progress {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.waves-progress-track {
+  flex: 1;
+  height: 6px;
+  background: var(--waves-surface-secondary);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.waves-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  transition: width 0.2s ease;
+}
+.waves-progress-text {
+  font-size: 12px;
+  color: var(--waves-text-secondary);
 }
 
 /* 网格视图样式 */
