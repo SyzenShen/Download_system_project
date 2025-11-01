@@ -15,9 +15,9 @@ class FileUploadForm(forms.Form):
         max_size = getattr(settings, 'MAX_UPLOAD_SIZE_BYTES', None)
         if max_size is not None and file.size > max_size:
             raise forms.ValidationError(f"文件过大，最大允许 {int(max_size / (1024 * 1024 * 1024))}GB")
-        ext = file.name.split('.')[-1].lower()
-        if ext not in ["jpg", "pdf", "xlsx"]:
-            raise forms.ValidationError("Only jpg, pdf and xlsx files are allowed.")
+        
+        # 移除严格的文件格式限制，现在支持所有文件格式
+        
         # return cleaned data is very important.
         return file
 
@@ -38,9 +38,10 @@ class FileUploadModelForm(forms.ModelForm):
         max_size = getattr(settings, 'MAX_UPLOAD_SIZE_BYTES', None)
         if max_size is not None and file.size > max_size:
             raise forms.ValidationError(f"文件过大，最大允许 {int(max_size / (1024 * 1024 * 1024))}GB")
-        ext = file.name.split('.')[-1].lower()
-        if ext not in ["jpg", "pdf", "xlsx"]:
-            raise forms.ValidationError("Only jpg, pdf and xlsx files are allowed.")
+        
+        # 移除严格的文件格式限制，只检查文件大小
+        # 现在支持所有文件格式
+        
         # return cleaned data is very important.
         return file
 

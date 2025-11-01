@@ -14,6 +14,21 @@
           <li :class="{ active: $route.path === '/' }">
             <router-link to="/">Home</router-link>
           </li>
+          
+          <template v-if="isAuthenticated">
+            <li :class="{ active: $route.path === '/files' }">
+              <router-link to="/files">📁 文件管理</router-link>
+            </li>
+            <li :class="{ active: $route.path === '/search' }">
+              <router-link to="/search">🔍 文件查找</router-link>
+            </li>
+            <li :class="{ active: $route.path === '/upload' }">
+              <router-link to="/upload">📤 文件上传</router-link>
+            </li>
+            <li :class="{ active: $route.path === '/profile' }">
+              <router-link to="/profile">👤 个人资料</router-link>
+            </li>
+          </template>
 
           
           <!-- 用户相关项 -->

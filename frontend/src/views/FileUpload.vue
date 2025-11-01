@@ -237,7 +237,7 @@ export default {
     
     // 计算属性
     const acceptedFileTypes = computed(() => {
-      return '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.avi,.mov'
+      return '.fastq,.fasta,.vcf,.bam,.sam,.bed,.gtf,.gff,.pdf,.doc,.docx,.ppt,.pptx,.rtf,.csv,.tsv,.xls,.xlsx,.json,.xml,.yaml,.sql,.py,.ipynb,.r,.rmd,.js,.html,.css,.java,.cpp,.c,.sh,.pl,.php,.rb,.go,.rs,.swift,.kt,.scala,.txt,.md,.log,.conf,.ini,.cfg,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.svg,.webp,.ico,.mp3,.wav,.flac,.aac,.ogg,.m4a,.mp4,.avi,.mov,.wmv,.flv,.mkv,.webm,.m4v,.zip,.rar,.7z,.tar,.gz,.bz2,.xz'
     })
     
     // 方法

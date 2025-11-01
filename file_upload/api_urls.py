@@ -1,6 +1,7 @@
 from django.urls import path
 from . import api_views
 from . import chunked_api_views as chunk_api
+from . import search_views
 
 urlpatterns = [
     # 文件相关API
@@ -11,6 +12,12 @@ urlpatterns = [
     # 兼容旧路径：/api/files/download/<id>/
     path('download/<int:file_id>/', api_views.file_download, name='api_file_download_legacy'),
     path('stats/', api_views.user_stats, name='api_user_stats'),
+    
+    # 文件搜索相关API
+    path('search/', search_views.search_files, name='file-search'),
+    path('facets/', search_views.get_facets, name='file-facets'),
+    path('suggestions/', search_views.search_suggestions, name='search-suggestions'),
+    path('<int:file_id>/preview/', search_views.file_preview, name='file-preview'),
     
     # 文件夹相关API
     path('folders/', api_views.folder_list_create, name='api_folder_list_create'),

@@ -61,11 +61,10 @@
     </div>
      
     <!-- 上传文件对话框 -->
-    <div v-if="showUploadDialog" class="waves-modal-overlay" @click="closeUploadDialog">
-      <div class="waves-modal-container" @click.stop>
-        <UploadDialog @close="closeUploadDialog" />
-      </div>
-    </div>
+    <EnhancedUploadDialog 
+      v-if="showUploadDialog" 
+      @close="closeUploadDialog" 
+    />
      
     <!-- 新建文件夹对话框 -->
     <div v-if="showNewFolderDialog" class="waves-modal-overlay" @click="closeNewFolderDialog">
@@ -103,7 +102,7 @@ import { useFilesStore } from '../stores/files'
 import NavigationBar from '../components/NavigationBar.vue'
 import FolderTree from '../components/FolderTree.vue'
 import FileDisplay from '../components/FileDisplay.vue'
-import UploadDialog from '../components/UploadDialog.vue'
+import EnhancedUploadDialog from '../components/EnhancedUploadDialog.vue'
 import NewFolderDialog from '../components/NewFolderDialog.vue'
 
 export default {
@@ -112,7 +111,7 @@ export default {
     NavigationBar,
     FolderTree,
     FileDisplay,
-    UploadDialog,
+    EnhancedUploadDialog,
     NewFolderDialog
   },
   setup() {

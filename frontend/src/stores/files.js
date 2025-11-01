@@ -948,6 +948,147 @@ export const useFilesStore = defineStore('files', {
           }, 300)
         }
       }, duration)
+    },
+
+    // 搜索相关方法
+    async searchFiles(params) {
+      try {
+        const response = await axios.get('/api/files/search/', { params })
+        return response.data
+      } catch (error) {
+        console.error('搜索文件失败:', error)
+        throw error
+      }
+    },
+
+    async getFacets() {
+      try {
+        const response = await axios.get('/api/files/facets/')
+        return response.data
+      } catch (error) {
+        console.error('获取筛选器数据失败:', error)
+        throw error
+      }
+    },
+
+    async getSearchSuggestions(query, limit = 10) {
+      try {
+        const response = await axios.get('/api/files/suggestions/', {
+          params: { q: query, limit }
+        })
+        return response.data
+      } catch (error) {
+        console.error('获取搜索建议失败:', error)
+        throw error
+      }
+    },
+
+    async getFilePreview(fileId) {
+      try {
+        const response = await axios.get(`/api/files/${fileId}/preview/`)
+        return response.data
+      } catch (error) {
+        console.error('获取文件预览失败:', error)
+        throw error
+      }
+    },
+
+    async uploadFileWithMetadata(file, metadata, parentFolderId = null) {
+      this.isLoading = true
+      this.error = null
+      this.uploadProgress = 0
+      this.uploadPauseRequested = false
+      this.uploadCancelRequested = false
+      this.uploadPaused = false
+      this.uploadSessionId = null
+      this.uploadUploadedSize = 0
+      this.uploadFileRef = file
+      this.uploadMethodRef = 'Enhanced Vue Frontend'
+
+      try {
+        // 创建FormData
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('upload_method', this.uploadMethodRef)
+        
+        // 添加元数据字段
+        formData.append('title', metadata.title || '')
+        formData.append('project', metadata.project || '')
+        formData.append('file_format', metadata.file_format || 'other')
+        formData.append('document_type', metadata.document_type || 'Dataset')
+        formData.append('access_level', metadata.access_level || 'Internal')
+        formData.append('organism', metadata.organism || '')
+        formData.append('experiment_type', metadata.experiment_type || '')
+        formData.append('tags', metadata.tags || '')
+        formData.append('description', metadata.description || '')
+        
+        if (parentFolderId) {
+          formData.append('parent_folder', parentFolderId)
+        }
+
+        // 使用XMLHttpRequest以支持进度监控
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest()
+          
+          // 进度监控
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              this.uploadProgress = Math.round((event.loaded / event.total) * 100)
+            }
+          })
+          
+          // 完成处理
+          xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const response = JSON.parse(xhr.responseText)
+                resolve(response)
+              } catch (e) {
+                reject(new Error('响应解析失败'))
+              }
+            } else {
+              try {
+                const errorResponse = JSON.parse(xhr.responseText)
+                reject(new Error(errorResponse.message || '上传失败'))
+              } catch (e) {
+                reject(new Error(`上传失败: ${xhr.status}`))
+              }
+            }
+          })
+          
+          // 错误处理
+          xhr.addEventListener('error', () => {
+            reject(new Error('网络错误'))
+          })
+          
+          // 中止处理
+          xhr.addEventListener('abort', () => {
+            reject(new Error('上传被取消'))
+          })
+          
+          // 发送请求
+          xhr.open('POST', '/api/files/upload/')
+          
+          // 添加认证头
+          const token = localStorage.getItem('token')
+          if (token) {
+            xhr.setRequestHeader('Authorization', `Token ${token}`)
+          }
+          
+          xhr.send(formData)
+          
+          // 保存控制器以便取消
+          this.uploadController = xhr
+        })
+        
+      } catch (error) {
+        this.error = error.message || '上传失败'
+        throw error
+      } finally {
+        this.isLoading = false
+        this.uploadProgress = 0
+        this.uploadController = null
+      }
     }
   }
 })

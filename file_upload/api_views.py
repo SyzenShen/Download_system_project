@@ -53,11 +53,23 @@ def file_list(request):
 @parser_classes([MultiPartParser, FormParser])
 def file_upload(request):
     """文件上传"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # 记录请求数据
+    logger.error(f"Upload request data: {dict(request.data)}")
+    logger.error(f"Upload request files: {dict(request.FILES)}")
+    logger.error(f"Upload request user: {request.user}")
+    
     serializer = FileUploadSerializer(data=request.data, context={'request': request})
     if serializer.is_valid():
         file_obj = serializer.save()
         response_serializer = FileSerializer(file_obj, context={'request': request})
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+    
+    # 记录详细的验证错误
+    logger.error(f"Serializer validation errors: {serializer.errors}")
+    
     # 统一错误消息格式，便于前端展示
     errors = serializer.errors
     message = None

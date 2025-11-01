@@ -58,17 +58,25 @@
       <!-- 操作按钮 -->
       <div class="action-buttons">
         <button 
+          class="action-btn search-btn"
+          @click="goToSearch"
+          title="文件查找"
+        >
+          🔍 查找
+        </button>
+        
+        <button 
           class="action-btn"
           @click="showUploadDialog"
         >
-          上传文件
+          📤 上传
         </button>
         
         <button 
           class="action-btn"
           @click="showNewFolderDialog"
         >
-          新建文件夹
+          📁 新建
         </button>
         
         <button 
@@ -76,7 +84,7 @@
           @click="refreshFiles"
           :disabled="isLoading"
         >
-          刷新
+          🔄 刷新
         </button>
       </div>
     </div>
@@ -85,8 +93,10 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useFilesStore } from '../stores/files'
 
+const router = useRouter()
 const filesStore = useFilesStore()
 
 // 计算属性
@@ -126,6 +136,10 @@ const showNewFolderDialog = () => {
 
 const refreshFiles = () => {
   filesStore.fetchFiles(currentFolderId.value)
+}
+
+const goToSearch = () => {
+  router.push('/search')
 }
 </script>
 
