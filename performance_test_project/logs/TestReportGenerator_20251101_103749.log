@@ -1,0 +1,5 @@
+2025-11-01 10:37:49,811 - TestReportGenerator - INFO - 开始生成完整测试报告
+2025-11-01 10:37:49,811 - TestReportGenerator - INFO - 加载所有测试结果
+2025-11-01 10:37:49,812 - TestReportGenerator - INFO - 生成Markdown测试报告
+2025-11-01 10:37:49,812 - TestReportGenerator - INFO - 测试报告已保存到: /Users/shenyz/projects/github/Download_system_project/readme_test
+2025-11-01 10:37:49,812 - TestReportGenerator - INFO - 测试报告生成完成
