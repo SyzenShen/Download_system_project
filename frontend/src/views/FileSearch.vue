@@ -2,7 +2,7 @@
   <div class="file-search-container">
     <!-- 页面标题 -->
     <div class="search-header">
-      <h1>🔍 文件查找</h1>
+      <h1>文件查找</h1>
       <p class="search-subtitle">使用关键词搜索和筛选器快速找到您需要的文件</p>
     </div>
 
@@ -14,7 +14,7 @@
           @keyup.enter="performSearch"
           @input="onSearchInput"
           type="text"
-          placeholder="搜索文件... (支持 project:MyLab organism:human 等高级语法)"
+          placeholder="搜索文件..."
           class="search-input"
         />
         <button @click="performSearch" class="search-button">
@@ -44,7 +44,7 @@
         
         <!-- 文档类型 -->
         <div class="facet-group">
-          <h4>📄 文档类型</h4>
+          <h4>文档类型</h4>
           <div class="facet-options">
             <label v-for="item in facets.document_type" :key="item.document_type" class="facet-option">
               <input
@@ -60,7 +60,7 @@
 
         <!-- 文件格式 -->
         <div class="facet-group">
-          <h4>📁 文件格式</h4>
+          <h4>文件格式</h4>
           <div class="facet-options">
             <label v-for="item in facets.file_format" :key="item.file_format" class="facet-option">
               <input
@@ -76,7 +76,7 @@
 
         <!-- 物种 -->
         <div class="facet-group" v-if="facets.organism && facets.organism.length > 0">
-          <h4>🧬 物种</h4>
+          <h4>物种</h4>
           <div class="facet-options">
             <label v-for="item in facets.organism" :key="item.organism" class="facet-option">
               <input
@@ -92,7 +92,7 @@
 
         <!-- 项目 -->
         <div class="facet-group">
-          <h4>📊 项目</h4>
+          <h4>项目</h4>
           <div class="facet-options">
             <label v-for="item in facets.project" :key="item.project" class="facet-option">
               <input
@@ -108,7 +108,7 @@
 
         <!-- 实验类型 -->
         <div class="facet-group" v-if="facets.experiment_type && facets.experiment_type.length > 0">
-          <h4>🔬 实验类型</h4>
+          <h4>实验类型</h4>
           <div class="facet-options">
             <label v-for="item in facets.experiment_type" :key="item.experiment_type" class="facet-option">
               <input
@@ -124,7 +124,7 @@
 
         <!-- 访问级别 -->
         <div class="facet-group">
-          <h4>🔒 访问级别</h4>
+          <h4>访问级别</h4>
           <div class="facet-options">
             <label v-for="item in facets.access_level" :key="item.access_level" class="facet-option">
               <input
@@ -193,24 +193,36 @@
             <div class="file-info">
               <h3 class="file-title">{{ file.title || file.original_filename }}</h3>
               <p class="file-meta">
-                <span class="project">📊 {{ file.project }}</span>
-                <span class="format">📁 {{ file.file_format }}</span>
-                <span class="size">💾 {{ formatFileSize(file.file_size) }}</span>
-                <span class="date">📅 {{ formatDate(file.uploaded_at) }}</span>
+                <span class="project">{{ file.project }}</span>
+                <span class="format">{{ file.file_format }}</span>
+                <span class="size">{{ formatFileSize(file.file_size) }}</span>
+                <span class="date">{{ formatDate(file.uploaded_at) }}</span>
               </p>
-              <p v-if="file.organism" class="organism">🧬 {{ file.organism }}</p>
+              <p v-if="file.organism" class="organism">{{ file.organism }}</p>
               <p v-if="file.description" class="description">{{ file.description }}</p>
               <div v-if="file.tags_list && file.tags_list.length > 0" class="tags">
                 <span v-for="tag in file.tags_list" :key="tag" class="tag">{{ tag }}</span>
               </div>
             </div>
             
-            <div class="file-actions">
-              <button @click.stop="downloadFile(file)" class="action-btn download-btn">
-                下载
+            <div class="waves-action-group">
+              <button 
+                @click.stop="downloadFile(file)" 
+                class="waves-action-btn waves-download-btn"
+                title="下载文件"
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 20H19V18H5M19 9H15V3H9V9H5L12 16L19 9Z" fill="currentColor"/>
+                </svg>
               </button>
-              <button @click.stop="showFilePreview(file)" class="action-btn preview-btn">
-                预览
+              <button 
+                @click.stop="showFilePreview(file)" 
+                class="waves-action-btn waves-view-btn"
+                title="预览文件"
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5C7 5 2.73 8.11 1 12C2.73 15.89 7 19 12 19C17 19 21.27 15.89 23 12C21.27 8.11 17 5 12 5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="currentColor"/>
+                </svg>
               </button>
             </div>
           </div>
@@ -218,7 +230,7 @@
 
         <!-- 无结果状态 -->
         <div v-else-if="searchPerformed && !isSearching" class="no-results">
-          <div class="no-results-icon">🔍</div>
+          <div class="no-results-icon"></div>
           <h3>未找到匹配的文件</h3>
           <p>尝试调整搜索关键词或筛选条件</p>
           <div class="search-tips">
@@ -234,7 +246,7 @@
 
         <!-- 初始状态 -->
         <div v-else class="initial-state">
-          <div class="welcome-icon">🗂️</div>
+          <div class="welcome-icon"></div>
           <h3>开始搜索您的文件</h3>
           <p>在上方输入关键词，或使用左侧筛选器浏览文件</p>
         </div>
@@ -435,103 +447,7 @@ export default {
     }
     
     const getFileIcon = (format) => {
-      const icons = {
-        // 生物信息学格式
-        'FASTQ': '🧬',
-        'FASTA': '🧬',
-        'VCF': '📊',
-        'BAM': '📊',
-        'SAM': '📊',
-        'BED': '📊',
-        'GTF': '📊',
-        'GFF': '📊',
-        
-        // 文档格式
-        'PDF': '📄',
-        'DOC': '📝',
-        'DOCX': '📝',
-        'PPT': '📊',
-        'PPTX': '📊',
-        'RTF': '📝',
-        
-        // 数据格式
-        'CSV': '📊',
-        'TSV': '📊',
-        'XLS': '📊',
-        'XLSX': '📊',
-        'JSON': '📋',
-        'XML': '📋',
-        'YAML': '📋',
-        'SQL': '🗃️',
-        
-        // 代码格式
-        'py': '🐍',
-        'ipynb': '📓',
-        'R': '📈',
-        'Rmd': '📈',
-        'js': '🟨',
-        'html': '🌐',
-        'css': '🎨',
-        'java': '☕',
-        'cpp': '⚙️',
-        'c': '⚙️',
-        'sh': '💻',
-        'pl': '🔷',
-        'php': '🐘',
-        'rb': '💎',
-        'go': '🐹',
-        'rs': '🦀',
-        'swift': '🍎',
-        'kt': '🟣',
-        'scala': '🔴',
-        
-        // 文本格式
-        'txt': '📝',
-        'md': '📝',
-        'log': '📋',
-        'conf': '⚙️',
-        'ini': '⚙️',
-        'cfg': '⚙️',
-        
-        // 图像格式
-        'jpg': '🖼️',
-        'jpeg': '🖼️',
-        'png': '🖼️',
-        'gif': '🖼️',
-        'bmp': '🖼️',
-        'tiff': '🖼️',
-        'svg': '🖼️',
-        'webp': '🖼️',
-        'ico': '🖼️',
-        
-        // 音频格式
-        'mp3': '🎵',
-        'wav': '🎵',
-        'flac': '🎵',
-        'aac': '🎵',
-        'ogg': '🎵',
-        'm4a': '🎵',
-        
-        // 视频格式
-        'mp4': '🎬',
-        'avi': '🎬',
-        'mov': '🎬',
-        'wmv': '🎬',
-        'flv': '🎬',
-        'mkv': '🎬',
-        'webm': '🎬',
-        'm4v': '🎬',
-        
-        // 压缩格式
-        'zip': '📦',
-        'rar': '📦',
-        '7z': '📦',
-        'tar': '📦',
-        'gz': '📦',
-        'bz2': '📦',
-        'xz': '📦'
-      }
-      return icons[format] || '📄'
+      return ''
     }
     
     const formatFileSize = (bytes) => {
@@ -564,7 +480,13 @@ export default {
     
     // 生命周期
     onMounted(() => {
+      // 加载可选项
       loadFacets()
+      // 进入页面默认在 Dataset：预选文档类型并触发一次搜索
+      if (selectedFilters.document_type.length === 0) {
+        selectedFilters.document_type = ['Dataset']
+        applyFilters()
+      }
     })
     
     return {
@@ -966,52 +888,47 @@ export default {
   font-weight: 500;
 }
 
-.file-actions {
+/* 与文件管理界面的操作按钮一致的风格 */
+.waves-action-group {
   display: flex;
-  flex-direction: column;
   gap: 0.5rem;
-  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.action-btn {
-  padding: 0.75rem 1.25rem;
+.result-item:hover .waves-action-group {
+  opacity: 1;
+}
+
+.waves-action-btn {
+  width: 32px;
+  height: 32px;
   border: none;
-  border-radius: var(--waves-radius-lg);
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  border-radius: var(--waves-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  min-width: 120px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--waves-surface-secondary);
+  color: var(--waves-text-secondary);
 }
 
-.download-btn {
-  background: #28a745;
-  color: #ffffff !important;
-  font-weight: 600;
+.waves-action-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
-.download-btn:hover {
-  background: #218838;
-  color: #ffffff !important;
-  transform: translateY(-1px);
-  box-shadow: var(--waves-shadow-md);
+.waves-download-btn:hover {
+  background: #10b981;
+  color: white;
+  transform: scale(1.1);
 }
 
-.preview-btn {
-  background: #17a2b8;
-  color: #ffffff !important;
-  font-weight: 600;
-}
-
-.preview-btn:hover {
-  background: #138496;
-  color: #ffffff !important;
-  transform: translateY(-1px);
-  box-shadow: var(--waves-shadow-md);
+.waves-view-btn:hover {
+  background: #2563eb;
+  color: white;
+  transform: scale(1.1);
 }
 
 .no-results, .initial-state {
@@ -1062,7 +979,7 @@ export default {
 }
 
 .search-tips li:before {
-  content: "💡";
+  content: "";
   position: absolute;
   left: 0;
   top: 0;

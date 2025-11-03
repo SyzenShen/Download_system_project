@@ -27,7 +27,7 @@
           <!-- 文本预览 -->
           <div v-if="previewData.type === 'text'" class="text-preview">
             <div class="preview-header">
-              <h3>📝 文本预览</h3>
+              <h3>文本预览</h3>
               <div class="text-stats">
                 <span>{{ previewData.total_lines }} 行</span>
                 <span>{{ previewData.preview_chars }}/{{ previewData.total_chars }} 字符</span>
@@ -39,7 +39,7 @@
           <!-- 序列文件预览 -->
           <div v-else-if="previewData.type === 'sequence'" class="sequence-preview">
             <div class="preview-header">
-              <h3>🧬 {{ previewData.format }} 序列预览</h3>
+              <h3>{{ previewData.format }} 序列预览</h3>
               <div class="sequence-stats">
                 <span>前 {{ previewData.total_lines_preview }} 行</span>
               </div>
@@ -50,7 +50,7 @@
           <!-- PDF预览 -->
           <div v-else-if="previewData.type === 'pdf_text'" class="pdf-preview">
             <div class="preview-header">
-              <h3>📄 PDF 文本预览</h3>
+              <h3>PDF 文本预览</h3>
               <div class="pdf-stats">
                 <span>{{ previewData.page_count }} 页</span>
                 <span>来源: {{ previewData.source }}</span>
@@ -62,7 +62,7 @@
           <!-- PDF信息 -->
           <div v-else-if="previewData.type === 'pdf_info'" class="pdf-info">
             <div class="preview-header">
-              <h3>📄 PDF 文件信息</h3>
+              <h3>PDF 文件信息</h3>
             </div>
             <p class="pdf-message">{{ previewData.message }}</p>
             <div v-if="previewData.metadata" class="metadata-display">
@@ -70,21 +70,21 @@
               <pre>{{ JSON.stringify(previewData.metadata, null, 2) }}</pre>
             </div>
             <a :href="previewData.download_url" class="download-link" target="_blank">
-              📥 下载文件查看完整内容
+              下载文件查看完整内容
             </a>
           </div>
 
           <!-- 仅元数据 -->
           <div v-else-if="previewData.type === 'metadata_only'" class="metadata-only">
             <div class="preview-header">
-              <h3>📊 文件信息</h3>
+              <h3>文件信息</h3>
             </div>
             <p class="metadata-message">{{ previewData.message }}</p>
           </div>
 
           <!-- 错误状态 -->
           <div v-else-if="previewData.type === 'error'" class="error-preview">
-            <div class="error-icon">⚠️</div>
+            <div class="error-icon"></div>
             <h3>预览失败</h3>
             <p>{{ previewData.message }}</p>
           </div>
@@ -92,7 +92,7 @@
 
         <!-- 错误状态 -->
         <div v-else-if="error" class="error-state">
-          <div class="error-icon">❌</div>
+          <div class="error-icon"></div>
           <h3>加载失败</h3>
           <p>{{ error }}</p>
         </div>
@@ -100,7 +100,7 @@
 
       <!-- 文件详细信息 -->
       <div class="file-details">
-        <h3>📋 文件详情</h3>
+        <h3>文件详情</h3>
         <div class="details-grid">
           <div class="detail-item">
             <label>项目:</label>
@@ -150,7 +150,7 @@
 
         <!-- 提取的元数据 -->
         <div v-if="file.extracted_metadata && Object.keys(file.extracted_metadata).length > 0" class="extracted-metadata">
-          <h4>🔍 自动提取的元数据</h4>
+          <h4>自动提取的元数据</h4>
           <div class="metadata-content">
             <pre>{{ JSON.stringify(file.extracted_metadata, null, 2) }}</pre>
           </div>
@@ -160,7 +160,7 @@
       <!-- 模态框底部操作 -->
       <div class="modal-footer">
         <button @click="downloadFile" class="action-btn download-btn">
-          📥 下载文件
+          下载文件
         </button>
         <button @click="closeModal" class="action-btn close-btn">
           关闭

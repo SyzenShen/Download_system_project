@@ -10,6 +10,7 @@ import FileList from '../views/FileList.vue'
 import FileUpload from '../views/FileUpload.vue'
 import FileSearch from '../views/FileSearch.vue'
 import UploadTest from '../views/UploadTest.vue'
+import CellxgeneWrapper from '../views/CellxgeneWrapper.vue'
 
 const routes = [
   {
@@ -58,6 +59,13 @@ const routes = [
     name: 'UploadTest',
     component: UploadTest,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/cellxgene-app',
+    name: 'CellxgeneWrapper',
+    component: CellxgeneWrapper,
+    // Cellxgene 包装页对所有用户开放，避免登录状态阻塞查看
+    meta: {}
   }
 ]
 

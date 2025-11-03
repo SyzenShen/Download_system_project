@@ -4,7 +4,7 @@
       <div class="navbar-header">
         <router-link to="/" class="navbar-brand">
           <img :src="logoUrl" alt="WAVES Logo" id="navbar-logo" />
-          <span class="brand-text">Download System</span>
+          <span class="brand-text">BioFileManager</span>
         </router-link>
       </div>
       
@@ -12,21 +12,22 @@
         <ul class="nav navbar-nav navbar-right">
           <!-- 主要导航项 -->
           <li :class="{ active: $route.path === '/' }">
-            <router-link to="/">Home</router-link>
+            <router-link to="/">主页</router-link>
           </li>
           
           <template v-if="isAuthenticated">
             <li :class="{ active: $route.path === '/files' }">
-              <router-link to="/files">📁 文件管理</router-link>
+              <router-link to="/files">文件管理</router-link>
             </li>
             <li :class="{ active: $route.path === '/search' }">
-              <router-link to="/search">🔍 文件查找</router-link>
+              <router-link to="/search">文件查找</router-link>
             </li>
-            <li :class="{ active: $route.path === '/upload' }">
-              <router-link to="/upload">📤 文件上传</router-link>
+            <!-- 仅登录用户可见的细胞可视化入口（新标签打开），放在第四位 -->
+            <li>
+              <a :href="cellxgeneUrl" target="_blank" rel="noopener">细胞可视化</a>
             </li>
             <li :class="{ active: $route.path === '/profile' }">
-              <router-link to="/profile">👤 个人资料</router-link>
+              <router-link to="/profile">个人资料</router-link>
             </li>
           </template>
 
@@ -40,7 +41,7 @@
           
           <template v-if="isAuthenticated">
             <li>
-              <a href="#" @click.prevent="handleLogout">Logout</a>
+              <a href="#" @click.prevent="handleLogout">退出登录</a>
             </li>
           </template>
         </ul>
@@ -63,6 +64,9 @@ export default {
     
     const isAuthenticated = computed(() => authStore.isAuthenticated)
     const currentUser = computed(() => authStore.currentUser)
+    // 从环境变量读取 Cellxgene 地址，默认使用本地 5005 端口
+    // 链接到包装页，以便在 Cellxgene 界面内提供返回按钮
+    const cellxgeneUrl = '/cellxgene-app'
     
     const handleLogout = async () => {
       await authStore.logout()
@@ -73,7 +77,8 @@ export default {
       isAuthenticated,
       currentUser,
       handleLogout,
-      logoUrl
+      logoUrl,
+      cellxgeneUrl
     }
   }
 }
@@ -85,12 +90,15 @@ export default {
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  min-height: 50px;
-  padding: 8px 0;
+  min-height: 72px; /* 与全局布局保持一致高度 */
+  padding: 0;
 }
 
 .navbar .container-fluid {
-  padding-left: 10px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .navbar-brand {
@@ -99,6 +107,7 @@ export default {
   color: var(--waves-corporate-text) !important;
   font-weight: 600;
   text-decoration: none;
+  height: 72px;
 }
 
 .navbar-brand:hover {
@@ -118,13 +127,13 @@ export default {
   font-weight: 600;
   color: #4a4a4a !important;
   text-shadow: none !important;
-  margin-top: -px;
 }
 
 .navbar-nav > li > a {
-  display: inline-block;
-  margin-top: 12px; /* 现在会明显下移 */
-  padding: 6px 13px !important;
+  display: flex;
+  align-items: center;
+  height: 72px;
+  padding: 0 14px !important;
   font-size: 14px;
 }
 
@@ -141,7 +150,7 @@ export default {
 .navbar-nav > li.active > a:focus {
   color: var(--brand-accent) !important;
   background-color: rgba(37, 99, 235, 0.1) !important;
-  border-radius: var(--waves-radius-sm);
+  border-radius: 0;
 }
 
 .navbar-text {

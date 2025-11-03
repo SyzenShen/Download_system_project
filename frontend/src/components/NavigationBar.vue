@@ -62,21 +62,21 @@
           @click="goToSearch"
           title="文件查找"
         >
-          🔍 查找
+          查找
         </button>
         
         <button 
           class="action-btn"
           @click="showUploadDialog"
         >
-          📤 上传
+          上传
         </button>
         
         <button 
           class="action-btn"
           @click="showNewFolderDialog"
         >
-          📁 新建
+          新建
         </button>
         
         <button 
@@ -84,7 +84,7 @@
           @click="refreshFiles"
           :disabled="isLoading"
         >
-          🔄 刷新
+          刷新
         </button>
       </div>
     </div>

@@ -3,7 +3,7 @@
     <div class="page-center container">
       <div class="card page-card hero-card waves-well">
         <div class="card-header" style="text-align: center;">
-          <h1 class="card-title title-stable waves-text-corporate hero-title">File Upload & Management</h1>
+          <h1 class="card-title title-stable waves-text-corporate hero-title">BioFileManager</h1>
           <p class="waves-text-light hero-subtitle">Upload, organize and manage your files with ease</p>
         </div>
         <div class="card-body">
