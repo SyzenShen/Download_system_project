@@ -2,7 +2,7 @@
 
 一个专为**生物学/生物信息学工作者**设计的智能文件管理系统，包含 Django 后端与 Vue 3 前端，完美解决科研数据管理难题：
 
-## 🎯 **为生物工作者量身定制的核心优势**
+##  **为生物工作者量身定制的核心优势**
 
 ### 🔬 **科研数据管理专家**
 - 🧬 **生物元数据支持** - 物种、基因、蛋白质、实验类型等22个专业字段
@@ -708,6 +708,20 @@ curl -X POST http://localhost:8000/api/files/upload/ \
 - **流式传输** - 大文件下载不占用服务器内存
 - **分片上传** - 大文件分片上传，提高成功率
 - **断点续传** - 上传下载支持断点续传
+
+### 🔬 细胞可视化（Cellxgene 集成）
+
+- 入口：导航栏点击 `细胞可视化`，或直接访问 `/cellxgene-app`。
+- 包装页：`frontend/src/views/CellxgeneWrapper.vue`，自动检测可用性并提供重试与新标签打开。
+- 路由：`frontend/src/router/index.js` 暴露 `'/cellxgene-app'` 路由，开放访问。
+- 代理：`frontend/vite.config.js` 将以 `'/cellxgene/'` 开头的请求代理到 `http://localhost:5005/`（本地默认端口）。
+- 启动本地 Cellxgene：
+  - 命令：`cellxgene launch /path/to/your.h5ad --port 5005`
+  - 启动后可通过包装页 iframe 内嵌访问，或点击“在新标签打开”直接访问外部页面。
+- 自定义地址（非本地或自定义端口）：
+  - 在 `frontend/.env` 添加：`VITE_CELLXGENE_URL=http://your-host:your-port/`
+  - 包装页将优先使用该地址加载。未设置时默认走 `'/cellxgene/'` 代理至 `http://localhost:5005/`。
+- 返回与导航：包装页保留全局导航栏，随时可返回 `文件管理` 或其他页面。
 - **并发控制** - 合理的并发上传下载控制
 - **缓存优化** - 静态资源缓存优化
 

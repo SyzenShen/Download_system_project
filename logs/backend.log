@@ -207,3 +207,14 @@ Unauthorized: /api/files/search/
 [03/Nov/2025 07:32:46] "GET /api/files/facets/ HTTP/1.1" 200 332
 [03/Nov/2025 07:32:46] "GET /api/files/search/?q=&page=1&sort_by=uploaded_at&sort_order=desc&document_type=Dataset HTTP/1.1" 200 2590
 [03/Nov/2025 07:32:55] "GET /api/auth/profile/ HTTP/1.1" 200 185
+[03/Nov/2025 07:36:42] "GET /api/auth/profile/ HTTP/1.1" 200 185
+Unauthorized: /api/auth/profile/
+[03/Nov/2025 08:17:49] "GET /api/auth/profile/ HTTP/1.1" 401 27
+[03/Nov/2025 08:17:50] "GET /api/files/facets/ HTTP/1.1" 200 332
+[03/Nov/2025 08:17:50] "GET /api/files/search/?q=&page=1&sort_by=uploaded_at&sort_order=desc&document_type=Dataset HTTP/1.1" 200 2590
+Unauthorized: /api/files/folders/all/
+[03/Nov/2025 08:17:52] "GET /api/files/folders/all/ HTTP/1.1" 401 27
+[03/Nov/2025 08:17:52] "GET /api/files/ HTTP/1.1" 200 1706
+[03/Nov/2025 08:17:52] "GET /api/files/ HTTP/1.1" 200 1706
+Unauthorized: /api/auth/profile/
+[03/Nov/2025 08:17:54] "GET /api/auth/profile/ HTTP/1.1" 401 27
