@@ -11,3 +11,26 @@ media/
 
 .vscode/
 .idea/
+# Python env
+.venv*
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Node
+**/node_modules/
+**/puppeteer/.local-chromium/
+
+# 运行时
+logs/
+.pids/
+
+# 用户/数据（默认不推送）
+media/
+cellxgene_data/
+*.h5ad
+
+# OS/IDE
+.DS_Store
+.vscode/
