@@ -158,6 +158,43 @@ def prepare_h5ad_for_cellxgene(dataset_path: str):
     return {'status': 'prepared', 'message': '已生成默认二维布局'}
 
 
+def _kill_processes_on_port(port: int):
+    try:
+        result = subprocess.run(
+            ['lsof', '-t', f'-iTCP:{port}', '-sTCP:LISTEN'],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        return
+
+    if result.returncode != 0 or not result.stdout:
+        return
+
+    for line in result.stdout.strip().splitlines():
+        try:
+            pid = int(line.strip())
+        except ValueError:
+            continue
+        if _is_pid_running(pid):
+            logger.warning("Killing process %s occupying port %s", pid, port)
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                continue
+            # give it a moment
+            for _ in range(10):
+                if not _is_pid_running(pid):
+                    break
+                time.sleep(0.1)
+            if _is_pid_running(pid):
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+
+
 def restart_cellxgene_process(dataset_path: str):
     """尝试使用新的数据集重新启动 Cellxgene 服务"""
     if not getattr(settings, 'CELLXGENE_AUTO_RESTART', True):
@@ -176,6 +213,10 @@ def restart_cellxgene_process(dataset_path: str):
     pid_path.parent.mkdir(parents=True, exist_ok=True)
 
     _stop_existing_cellxgene(pid_path)
+    try:
+        _kill_processes_on_port(int(port))
+    except ValueError:
+        pass
 
     env = os.environ.copy()
     env.setdefault('PYTHONUNBUFFERED', '1')
