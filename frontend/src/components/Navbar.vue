@@ -22,9 +22,9 @@
             <li :class="{ active: $route.path === '/search' }">
               <router-link to="/search">文件查找</router-link>
             </li>
-            <!-- 仅登录用户可见的细胞可视化入口（新标签打开），放在第四位 -->
-            <li>
-              <a :href="cellxgeneUrl" target="_blank" rel="noopener">细胞可视化</a>
+            <!-- 细胞可视化入口，使用 SPA 路由，优先跳转最近发布的文件 -->
+            <li :class="{ active: $route.path === '/cellxgene-app' }">
+              <router-link :to="cellxgeneRoute">细胞可视化</router-link>
             </li>
             <li :class="{ active: $route.path === '/profile' }">
               <router-link to="/profile">个人资料</router-link>
@@ -54,6 +54,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useFilesStore } from '../stores/files'
 import logoUrl from '../assets/images/logo.png'
 
 export default {
@@ -62,11 +63,15 @@ export default {
     const router = useRouter()
     const authStore = useAuthStore()
     
+    const filesStore = useFilesStore()
     const isAuthenticated = computed(() => authStore.isAuthenticated)
     const currentUser = computed(() => authStore.currentUser)
-    // 从环境变量读取 Cellxgene 地址，默认使用本地 5005 端口
-    // 链接到包装页，以便在 Cellxgene 界面内提供返回按钮
-    const cellxgeneUrl = '/cellxgene-app'
+    const cellxgeneRoute = computed(() => {
+      const lastFile = filesStore.lastPublishedCellxgeneFile
+      return lastFile
+        ? { path: '/cellxgene-app', query: { file: lastFile } }
+        : { path: '/cellxgene-app' }
+    })
     
     const handleLogout = async () => {
       await authStore.logout()
@@ -76,9 +81,9 @@ export default {
     return {
       isAuthenticated,
       currentUser,
+      cellxgeneRoute,
       handleLogout,
-      logoUrl,
-      cellxgeneUrl
+      logoUrl
     }
   }
 }

@@ -11,6 +11,8 @@ urlpatterns = [
     path('<int:file_id>/download/', api_views.file_download, name='api_file_download'),
     # 兼容旧路径：/api/files/download/<id>/
     path('download/<int:file_id>/', api_views.file_download, name='api_file_download_legacy'),
+    # 发布到 Cellxgene（将指定文件复制到 Cellxgene 数据目录）
+    path('<int:file_id>/publish-cellxgene/', api_views.publish_cellxgene, name='publish_cellxgene'),
     path('stats/', api_views.user_stats, name='api_user_stats'),
     
     # 文件搜索相关API

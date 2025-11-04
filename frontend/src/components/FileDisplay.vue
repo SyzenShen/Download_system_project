@@ -121,6 +121,15 @@
                   <path d="M5 20H19V18H5M19 9H15V3H9V9H5L12 16L19 9Z" fill="currentColor"/>
                 </svg>
               </button>
+              <button
+                class="waves-action-btn waves-cellxgene-btn"
+                @click.stop="sendToCellxgene(file)"
+                title="发送到 Cellxgene"
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 17L6 12L7.41 10.59L11 14.17L16.59 8.58L18 10L11 17Z" fill="currentColor"/>
+                </svg>
+              </button>
               <!-- 下载控制：暂停/继续/取消 -->
               <template v-if="downloadActive[file.id] || downloadProgress[file.id] !== undefined">
                 <button 
@@ -232,6 +241,15 @@
                 </svg>
               </button>
               <button 
+                class="waves-action-btn waves-cellxgene-btn"
+                @click.stop="sendToCellxgene(file)"
+                title="发送到 Cellxgene"
+              >
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 17L6 12L7.41 10.59L11 14.17L16.59 8.58L18 10L11 17Z" fill="currentColor"/>
+                </svg>
+              </button>
+              <button 
                 class="waves-action-btn waves-delete-btn"
                 @click.stop="deleteFile(file.id)"
                 title="删除文件"
@@ -285,9 +303,11 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useFilesStore } from '../stores/files'
 
 const filesStore = useFilesStore()
+const router = useRouter()
 
 // 计算属性
 const viewMode = computed(() => filesStore.viewMode)
@@ -463,6 +483,91 @@ const resumeDownload = async (fileId, filename, fileSize) => {
 }
 const cancelDownload = async (fileId) => {
   try { await filesStore.cancelDownload(fileId) } catch (_) {}
+}
+
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+const waitForCellxgeneReady = async (datasetFileName, timeout = 60000, interval = 2000) => {
+  const baseUrl = import.meta.env.VITE_CELLXGENE_URL || '/cellxgene/'
+  if (/^https?:\/\//.test(baseUrl)) {
+    // 外部地址（例如 http://localhost:5005/），无法跨域轮询，由用户自行确认
+    await sleep(4000)
+    return true
+  }
+  const cleanBaseUrl = baseUrl.replace(/\/$/, '')
+  const endpoint = `${cleanBaseUrl}/api/v0.2/config`
+  const expected = (datasetFileName || '').replace(/\.[^.]+$/, '')
+  const start = Date.now()
+
+  while (Date.now() - start < timeout) {
+    try {
+      const res = await fetch(endpoint, { method: 'GET', cache: 'no-store' })
+      if (res.ok) {
+        const json = await res.json()
+        const datasetName = json?.config?.displayNames?.dataset || ''
+        if (!expected || datasetName === expected) {
+          return true
+        }
+      }
+    } catch (err) {
+      console.warn('检查 Cellxgene 状态失败:', err)
+    }
+    await sleep(interval)
+  }
+
+  throw new Error('Cellxgene 加载超时，请稍后重试')
+}
+
+// 发送到 Cellxgene 并跳转预览页
+const sendToCellxgene = async (file) => {
+  console.log('开始发送到 Cellxgene...', file)
+  const name = file.original_filename || ''
+  if (!name.toLowerCase().endsWith('.h5ad')) {
+    filesStore.showErrorNotification('仅支持 .h5ad 文件发送到 Cellxgene')
+    console.error('文件类型不支持：', name)
+    return
+  }
+
+  console.log(`正在调用 publishToCellxgene，文件ID: ${file.id}`)
+  try {
+    filesStore.showLoadingOverlay('正在发送文件至 Cellxgene...')
+    const result = await filesStore.publishToCellxgene(file.id)
+    console.log('publishToCellxgene 调用结果:', result)
+
+    if (result && result.success) {
+      // 后端会返回已复制到 Cellxgene 数据目录中的实际文件名（包含安全前缀）
+      const publishedFile = result.data?.published_file
+      const fallbackName = name.split('/').pop() || name
+      const fileNameForPreview = publishedFile || fallbackName
+      filesStore.setLastCellxgeneFile(fileNameForPreview)
+      console.log(
+        `发布成功，准备跳转到 /cellxgene-app，使用文件名: ${fileNameForPreview}`,
+        { publishedFile, fallbackName }
+      )
+
+      try {
+        filesStore.showLoadingOverlay('Cellxgene 正在加载数据，请稍候...')
+        await waitForCellxgeneReady(fileNameForPreview, 90000, 3000)
+      } catch (waitError) {
+        console.error('等待 Cellxgene 加载数据失败:', waitError)
+        filesStore.showErrorNotification(waitError.message || 'Cellxgene 加载超时')
+        return
+      }
+      // 跳转到包装页进行预览，并传递实际文件名参数
+      router.push({
+        path: '/cellxgene-app',
+        query: { file: fileNameForPreview }
+      })
+    } else {
+      console.error('发布失败，来自 store 的结果:', result)
+      filesStore.showErrorNotification(result?.error || '发布失败，请查看控制台日志')
+    }
+  } catch (error) {
+    console.error('调用 publishToCellxgene 时发生异常:', error)
+    filesStore.showErrorNotification('发送到 Cellxgene 时发生未知错误')
+  } finally {
+    filesStore.hideLoadingOverlay()
+  }
 }
 
 const downloadFolder = async (folderId) => {
@@ -742,6 +847,13 @@ const getFileType = (filename) => {
 
 .waves-delete-btn:hover {
   background: #ef4444;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* 发送到 Cellxgene 按钮样式 */
+.waves-cellxgene-btn:hover {
+  background: #3b82f6; /* 蓝色强调 */
   color: white;
   transform: scale(1.1);
 }

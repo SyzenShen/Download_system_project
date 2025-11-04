@@ -1,0 +1,139 @@
+[cellxgene] Starting the CLI...
+Error: Dataset does not have an allowed type.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad.
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+server.common.errors.PrepareError: No valid layout data.
+[cellxgene] Starting the CLI...
+[cellxgene] Starting the CLI...
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad.
+[cellxgene] Loading data from 21__scOBJ.h5ad.
+[cellxgene] Loading data from 21__scOBJ.h5ad.
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+server.common.errors.PrepareError: No valid layout data.
+server.common.errors.PrepareError: No valid layout data.
+server.common.errors.PrepareError: No valid layout data.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad.
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+server.common.errors.PrepareError: No valid layout data.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad, this may take a while...
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad, this may take a while...
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad, this may take a while...
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad, this may take a while...
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+ERROR:werkzeug:Error on request:
+AssertionError: applications must write bytes
+ERROR:werkzeug:Error on request:
+AssertionError: applications must write bytes
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad, this may take a while...
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad, this may take a while...
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad, this may take a while...
+[cellxgene] Loading data from 21__scOBJ.h5ad, this may take a while...
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+Address already in use
+Port 5005 is in use by another program. Either identify and stop that program, or start the server with a different port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+Error: The port selected 5005 is in use, please configure an open port.

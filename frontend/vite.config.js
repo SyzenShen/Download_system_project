@@ -25,6 +25,24 @@ export default defineConfig({
         secure: false,
         ws: true,
         rewrite: (path) => path.replace(/^\/cellxgene\//, '/')
+      },
+      '/cellxgene': {
+        target: 'http://localhost:5005',
+        changeOrigin: true,
+        secure: false,
+        ws: true,
+        rewrite: (path) => path.replace(/^\/cellxgene/, '/')
+      },
+      // Cellxgene 页面下游还会请求静态资源与 API，需要一起代理到 5005 端口
+      '/static/': {
+        target: 'http://localhost:5005',
+        changeOrigin: true,
+        secure: false
+      },
+      '/api/v0.2/': {
+        target: 'http://localhost:5005',
+        changeOrigin: true,
+        secure: false
       }
     }
   }

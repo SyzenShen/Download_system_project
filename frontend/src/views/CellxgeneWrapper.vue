@@ -29,22 +29,50 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 export default {
   name: 'CellxgeneWrapper',
   setup() {
-    const iframeSrc = import.meta.env.VITE_CELLXGENE_URL || '/cellxgene/'
-    const externalUrl = (import.meta.env.VITE_CELLXGENE_URL || 'http://localhost:5005/').replace(/\/$/, '/')
+    const route = useRoute()
+    const fileName = route.query.file
+    
+    // 构建iframe源URL，如果有文件名参数则添加到URL中
+    const baseUrl = import.meta.env.VITE_CELLXGENE_URL || '/cellxgene/'
+    const iframeSrc = computed(() => {
+      if (!fileName) return baseUrl
+      // 移除尾部斜杠并添加文件参数（兼容 Cellxgene 标准 dataset 参数）
+      const cleanBaseUrl = baseUrl.replace(/\/$/, '')
+      return `${cleanBaseUrl}?dataset=${encodeURIComponent(fileName)}`
+    })
+    
+    const externalUrl = computed(() => {
+      const baseExtUrl = (import.meta.env.VITE_CELLXGENE_URL || 'http://localhost:5005/').replace(/\/$/, '')
+      if (!fileName) return baseExtUrl
+      return `${baseExtUrl}?dataset=${encodeURIComponent(fileName)}`
+    })
+    
     const loadError = ref(false)
+    let retryTimer = null
 
     const checkAvailability = async () => {
       try {
-        const res = await fetch(iframeSrc, { method: 'GET' })
-        // 期望 200 或 302，其他状态视为不可用
-        loadError.value = !(res.status >= 200 && res.status < 400)
+        const isExternal = /^https?:\/\//.test(baseUrl)
+        if (isExternal) {
+          loadError.value = false
+          return
+        }
+        const cleanBaseUrl = baseUrl.replace(/\/$/, '')
+        const healthUrl = `${cleanBaseUrl}/api/v0.2/config`
+        const res = await fetch(healthUrl, { method: 'GET' })
+        loadError.value = !res.ok
       } catch (e) {
+        console.warn('Cellxgene 可用性检测失败:', e)
         loadError.value = true
+      }
+      if (loadError.value) {
+        retryTimer = setTimeout(checkAvailability, 3000)
       }
     }
 
@@ -58,7 +86,13 @@ export default {
       checkAvailability()
     })
 
-    return { iframeSrc, externalUrl, loadError, goBack, retryCheck }
+    onUnmounted(() => {
+      if (retryTimer) {
+        clearTimeout(retryTimer)
+      }
+    })
+
+    return { iframeSrc, externalUrl, loadError, goBack, retryCheck, fileName }
   }
 }
 </script>
@@ -66,28 +100,37 @@ export default {
 <style scoped>
 .cellxgene-wrapper {
   position: fixed;
-  top: 72px; /* 保留顶部导航栏，以下区域全屏（与 Navbar 高度一致） */
+  top: 72px; /* 保留导航栏 */
   left: 0;
   right: 0;
   bottom: 0;
   display: flex;
   flex-direction: column;
   background: var(--waves-surface-primary);
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .wrapper-content {
   flex: 1;
   display: flex;
+  min-height: 0;
 }
 
 .wrapper-iframe {
   width: 100%;
   height: 100%;
+  border: none;
   background: #fff;
 }
 
 .helper-panel {
   padding: 16px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .helper-card {

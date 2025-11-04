@@ -208,3 +208,14 @@ MAX_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024 * 1024  # 100GB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024 * 1024  # 100GB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024 * 1024  # 100GB
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000  # 增加字段数量限制
+
+# Cellxgene 数据目录（用于前端一键预览的文件桥接）
+# 可通过环境变量 CELLXGENE_DATA_DIR 覆盖默认目录
+CELLXGENE_DATA_DIR = os.environ.get('CELLXGENE_DATA_DIR', os.path.join(BASE_DIR, 'cellxgene_data'))
+CELLXGENE_CMD = os.environ.get('CELLXGENE_CMD', os.path.join(BASE_DIR, '.venv-cellxgene/bin/cellxgene'))
+CELLXGENE_HOST = os.environ.get('CELLXGENE_HOST', '0.0.0.0')
+CELLXGENE_PORT = int(os.environ.get('CELLXGENE_PORT', '5005'))
+CELLXGENE_PID_FILE = os.environ.get('CELLXGENE_PID_FILE', os.path.join(BASE_DIR, '.pids', 'cellxgene.pid'))
+CELLXGENE_LOG_FILE = os.environ.get('CELLXGENE_LOG_FILE', os.path.join(BASE_DIR, 'logs', 'cellxgene.log'))
+CELLXGENE_AUTO_RESTART = os.environ.get('CELLXGENE_AUTO_RESTART', 'true').lower() == 'true'
+CELLXGENE_PYTHON = os.environ.get('CELLXGENE_PYTHON', os.path.join(os.path.dirname(CELLXGENE_CMD), 'python'))

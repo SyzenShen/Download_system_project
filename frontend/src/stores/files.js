@@ -32,7 +32,10 @@ export const useFilesStore = defineStore('files', {
     // 新增：界面控制
     viewMode: 'list', // 'list' 或 'grid'
     showUploadDialog: false,
-    showNewFolderDialog: false
+    showNewFolderDialog: false,
+    loadingOverlayVisible: false,
+    loadingOverlayMessage: '请稍候...',
+    lastPublishedCellxgeneFile: null
   }),
 
   getters: {
@@ -369,6 +372,34 @@ export const useFilesStore = defineStore('files', {
         }
         this.error = message
         return { success: false, error: message }
+      }
+    },
+
+    // 发布到 Cellxgene：将指定文件复制到后端配置的数据目录
+    async publishToCellxgene(fileId) {
+      this.error = null
+      try {
+        const token = localStorage.getItem('token')
+        const headers = token ? { Authorization: `Token ${token}` } : {}
+        const res = await axios.post(`/api/files/${fileId}/publish-cellxgene/`, {}, { headers })
+        const payload = res.data || {}
+        const cellxgeneStatus = payload?.cellxgene?.status
+        if (cellxgeneStatus === 'error') {
+          const errMsg = payload?.cellxgene?.message || payload?.message || '发布到 Cellxgene 失败'
+          this.showErrorNotification(errMsg)
+          return { success: false, data: payload, error: errMsg }
+        }
+        const successMsg = payload?.message || '已发布到 Cellxgene 数据目录'
+        this.showNotification(successMsg)
+        const publishedFile = payload?.published_file
+        if (publishedFile) {
+          this.lastPublishedCellxgeneFile = publishedFile
+        }
+        return { success: true, data: payload }
+      } catch (error) {
+        const msg = error?.response?.data?.message || '发布到 Cellxgene 失败'
+        this.showErrorNotification(msg)
+        return { success: false, error: msg }
       }
     },
 
@@ -948,6 +979,20 @@ export const useFilesStore = defineStore('files', {
           }, 300)
         }
       }, duration)
+    },
+
+    showLoadingOverlay(message = 'Cellxgene 正在加载数据，请稍候...') {
+      this.loadingOverlayVisible = true
+      this.loadingOverlayMessage = message
+    },
+
+    hideLoadingOverlay() {
+      this.loadingOverlayVisible = false
+      this.loadingOverlayMessage = '请稍候...'
+    },
+
+    setLastCellxgeneFile(filename) {
+      this.lastPublishedCellxgeneFile = filename
     },
 
     // 搜索相关方法
