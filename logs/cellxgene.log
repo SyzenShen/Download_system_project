@@ -159,3 +159,40 @@ This is where adjacency matrices should go now.
 This is where adjacency matrices should go now. 
 [cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
 [cellxgene] Type CTRL-C at any time to exit.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 21__scOBJ.h5ad, this may take a while...
+[cellxgene] Warning: Anndata data matrix is in float64 format not float32. Precision may be truncated. 
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 23__pbmc3k.h5ad.
+[cellxgene] Warning: Moving element from .uns['neighbors']['distances'] to .obsp['distances'].
+
+This is where adjacency matrices should go now. 
+[cellxgene] Warning: Moving element from .uns['neighbors']['connectivities'] to .obsp['connectivities'].
+
+This is where adjacency matrices should go now. 
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 24__example.h5ad, this may take a while...
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] CAUTION: due to the size of your dataset, running differential expression may take longer or fail.
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+WARNING:root:Type float64 will be converted to 32 bit float and may lose precision.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 23__pbmc3k.h5ad.
+[cellxgene] Warning: Moving element from .uns['neighbors']['distances'] to .obsp['distances'].
+
+This is where adjacency matrices should go now. 
+[cellxgene] Warning: Moving element from .uns['neighbors']['connectivities'] to .obsp['connectivities'].
+
+This is where adjacency matrices should go now. 
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.

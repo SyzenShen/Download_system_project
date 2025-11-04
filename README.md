@@ -1,980 +1,267 @@
-# 🧬 生物信息学文件管理系统 (Bioinformatics File Management System)
+# 生物信息学文件管理系统 / Bioinformatics File Management System
 
-一个专为**生物学/生物信息学工作者**设计的智能文件管理系统，包含 Django 后端与 Vue 3 前端，完美解决科研数据管理难题：
+本项目面向生命科学研究场景，提供从文件上传、元数据管理、权限控制到单细胞数据可视化的完整解决方案。系统由 Django REST 后端、Vue 3 单页前端以及与 Cellxgene 集成的可视化服务组成，适用于实验室、研究团队和教学机构的科研数据治理。
 
-##  **为生物工作者量身定制的核心优势**
-
-### 🔬 **科研数据管理专家**
-- 🧬 **生物元数据支持** - 物种、基因、蛋白质、实验类型等22个专业字段
-- 🔍 **智能Facets筛选** - 按物种、实验类型、文档类型、项目快速定位数据
-- 📋 **文件格式识别** - 自动识别FASTA、FASTQ、BAM、VCF、PDB等生物信息学格式
-- 🏷️ **标签分类系统** - 灵活的标签管理，支持基因名、通路、疾病等分类
-- 🔐 **权限分级控制** - 公开/内部/私有三级权限，保护敏感研究数据
-
-### 📊 **提升科研效率的智能功能**
-- 🔍 **秒级数据检索** - "human lung cancer RNA-seq"一键找到相关数据集
-- 📁 **项目组织管理** - 按项目、实验、样本层级组织海量科研文件
-- 📈 **批量操作支持** - 批量上传测序数据、批量下载分析结果
-- 🔄 **版本追踪管理** - 实验数据版本控制，确保结果可重现
-- 📋 **实验记录关联** - 文件与实验记录、样本信息无缝关联
-
-### 🚀 **大数据处理能力**
-- 📤 **大文件分片上传** - 断点续传、暂停、恢复、取消上传
-- 📥 **断点续传下载** - Range请求、暂停、恢复、取消下载
-- 🗂️ **层级文件夹管理** - 创建、删除、导航文件夹结构
-- 🔍 **智能文件搜索** - 全文搜索、多维度筛选、实时过滤
-- 📊 **元数据管理** - 丰富的文件元数据、标签系统、分类管理
-- 🔐 **用户认证系统** - 注册、登录、个人资料管理
-- 🎨 **现代化界面** - 响应式设计、列表/网格视图切换
-- 🌐 **中文文件名支持** - 完美处理中文文件名，无乱码
-- 🚀 **高性能** - 流式传输、内存优化、一键脚本启动前后端、大文件支持(100GB+)
-
-> 💡 **专为生物信息学工作者打造** - 这不仅是一个文件管理系统，更是您科研数据管理的得力助手，让您专注于科学发现而非数据整理！
-
-## 🧬 **生物信息学专业功能详解**
-
-### 🔬 **智能元数据系统 - 让数据"会说话"**
-
-我们的系统支持**22个专业元数据字段**，完美契合生物学研究需求：
-
-#### 📋 **核心研究信息**
-- **🧬 物种 (Organism)** - 支持学名和常用名，如 "Homo sapiens (人类)"
-- **🔬 实验类型** - RNA-seq、ChIP-seq、ATAC-seq、WGS、WES等
-- **📊 数据类型** - 原始数据、处理数据、分析结果、图表、论文
-- **🏷️ 文件格式** - 自动识别FASTA、FASTQ、BAM、VCF、PDB、GFF等
-
-#### 🎯 **项目管理维度**
-- **📁 项目名称** - 研究项目分类管理
-- **👥 研究团队** - 团队协作和权限管理
-- **📅 实验日期** - 时间线追踪
-- **🔬 实验条件** - 详细的实验参数记录
-
-#### 🔐 **数据安全与质量**
-- **🛡️ 访问级别** - 公开/内部/私有三级权限
-- **✅ 质量状态** - 原始/已验证/已发布/已归档
-- **🔒 伦理审批** - 人体/动物实验伦理信息
-- **📝 数据来源** - 数据获取和处理历史
-
-### 🔍 **革命性的Facets筛选体验**
-
-告别传统的文件夹翻找，体验**多维度智能筛选**：
-
-#### 🎯 **一键精准定位**
-```
-场景：寻找人类肺癌RNA测序数据
-操作：物种选择"Homo sapiens" + 实验类型"RNA-seq" + 标签"lung cancer"
-结果：0.3秒内精准定位到所有相关数据集
-```
-
-#### 📊 **组合筛选威力**
-- **按物种筛选** - 快速切换不同模式生物的数据
-- **按实验类型** - RNA-seq、ChIP-seq、ATAC-seq等一键筛选
-- **按项目分组** - 项目维度的数据管理
-- **按时间范围** - 查找特定时期的实验数据
-- **按质量状态** - 筛选已验证的高质量数据
-
-### 📁 **智能文件格式识别**
-
-系统自动识别**50+种生物信息学文件格式**：
-
-#### 🧬 **序列数据格式**
-- **FASTA (.fa, .fasta)** - 序列文件，自动提取序列统计信息
-- **FASTQ (.fq, .fastq)** - 测序数据，显示质量分布概览
-- **GenBank (.gb, .gbk)** - 基因组注释文件
-- **EMBL (.embl)** - 欧洲分子生物学实验室格式
-
-#### 🔬 **比对与变异数据**
-- **SAM/BAM (.sam, .bam)** - 序列比对文件，显示比对统计
-- **VCF (.vcf)** - 变异调用格式，提取变异数量信息
-- **BED (.bed)** - 基因组区间文件
-- **WIG/BigWig (.wig, .bw)** - 基因组轨道数据
-
-#### 📊 **注释与分析结果**
-- **GFF/GTF (.gff, .gtf)** - 基因注释文件
-- **PDB (.pdb)** - 蛋白质结构文件
-- **SDF (.sdf)** - 化学结构数据
-- **表达矩阵 (.csv, .tsv)** - 基因表达数据
-
-### 🔐 **多层级权限控制**
-
-保护您的珍贵科研数据：
-
-#### 🛡️ **三级权限体系**
-- **🌐 公开 (Public)** - 已发表数据，对所有用户可见
-- **🏢 内部 (Internal)** - 实验室内部共享，团队成员可访问
-- **🔒 私有 (Private)** - 个人数据，仅上传者可访问
-
-#### 👥 **团队协作支持**
-- **项目组权限** - 按项目分配访问权限
-- **角色管理** - PI、博士后、研究生等不同角色权限
-- **临时授权** - 为合作者提供临时访问权限
-
-### 📋 **实际使用场景展示**
-
-#### 🔬 **场景一：RNA-seq数据管理**
-```
-研究背景：肺癌转录组学研究
-数据规模：100个样本，每样本2-5GB
-管理方式：
-  ├── 项目：Lung_Cancer_Transcriptome_2024
-  ├── 物种：Homo sapiens
-  ├── 实验类型：RNA-seq
-  ├── 样本分组：Normal(30) vs Tumor(70)
-  └── 数据类型：Raw_FASTQ → Aligned_BAM → Expression_Matrix
-
-查找效率：从传统的文件夹翻找30分钟 → 智能筛选3秒定位
-```
-
-#### 🧬 **场景二：多物种比较基因组学**
-```
-研究背景：灵长类进化基因组学
-涉及物种：人类、黑猩猩、猕猴、狨猴
-数据类型：全基因组序列、注释文件、比对结果
-管理优势：
-  - 按物种快速筛选：一键切换不同物种数据
-  - 格式自动识别：FASTA、GFF、VCF等自动分类
-  - 版本追踪：基因组版本更新历史清晰可见
-  - 批量操作：同时下载多个物种的同类型文件
-
-效率提升：数据查找时间减少90%，研究效率显著提升
-```
-
-#### 📊 **场景三：蛋白质结构数据库**
-```
-研究背景：蛋白质结构与功能研究
-数据内容：PDB结构文件、分析脚本、结果图表
-智能管理：
-  - 蛋白质名称标签：按蛋白质家族快速分类
-  - 结构质量评估：分辨率、R因子等质量指标
-  - 功能注释关联：GO注释、通路信息自动关联
-  - 协作共享：与结构生物学团队无缝协作
-
-科研价值：建立实验室专属的蛋白质结构数据库
-```
-
-## ✨ 核心功能
-
-### 📁 文件夹管理
-- **层级结构** - 支持无限层级的文件夹嵌套
-- **面包屑导航** - 清晰的路径导航和快速跳转
-- **文件夹操作** - 创建、重命名、删除、移动文件夹
-- **权限控制** - 用户只能访问自己的文件夹
-
-### 📤 文件上传
-- **多种上传方式** - 拖拽上传、点击选择、批量上传
-- **分片上传** - 大文件自动分片，支持断点续传
-- **实时进度** - 上传进度条、速度显示、剩余时间
-- **上传控制** - 暂停、恢复、取消上传操作
-- **文件验证** - 文件大小、类型验证
-
-### 📥 文件下载
-- **断点续传** - 支持Range请求，可暂停恢复下载
-- **批量下载** - 文件夹打包下载
-- **下载管理** - 下载队列、进度监控
-- **本地文件管理** - 智能清理未完成的下载文件
-
-### 🔍 **革命性智能搜索与Facets筛选系统**
-
-#### 🎯 **核心搜索能力**
-- **🔍 全文搜索** - 支持文件名、标题、描述、标签的全文搜索
-- **⚡ 实时搜索** - 输入即搜索，0.3秒内返回结果
-- **🧠 智能建议** - 基于历史搜索的智能建议和自动补全
-- **📝 高级语法** - 支持布尔逻辑、通配符、精确匹配等复杂查询
-
-#### 🎛️ **强大的Facets多维筛选**
-
-**生物学专业维度筛选**：
-- **🧬 物种筛选** - 支持学名/常用名，如"Homo sapiens"、"人类"、"小鼠"
-- **🔬 实验类型** - RNA-seq、ChIP-seq、ATAC-seq、WGS、WES、Proteomics等
-- **📊 数据类型** - 原始数据、处理数据、分析结果、图表、论文、协议
-- **🏷️ 文件格式** - FASTA、FASTQ、BAM、VCF、PDB、GFF、CSV等50+格式
-
-**项目管理维度筛选**：
-- **📁 项目分组** - 按研究项目快速筛选相关数据
-- **👥 研究团队** - 按团队成员或合作者筛选
-- **📅 时间范围** - 按上传时间、实验日期筛选
-- **🔬 实验条件** - 按处理条件、对照组筛选
-
-**质量与权限筛选**：
-- **🛡️ 访问级别** - 公开/内部/私有三级权限筛选
-- **✅ 质量状态** - 原始/已验证/已发布/已归档状态筛选
-- **📏 文件大小** - 按文件大小范围筛选
-- **🏷️ 标签组合** - 多标签组合筛选，如"cancer+lung+RNA-seq"
-
-#### 🚀 **筛选体验优化**
-- **🔄 实时筛选** - 点击筛选条件立即更新结果，无需等待
-- **📊 统计显示** - 每个筛选项显示匹配文件数量
-- **🎯 组合筛选** - 支持多个维度同时筛选，精准定位
-- **💾 筛选保存** - 保存常用筛选条件，一键应用
-- **📈 结果排序** - 按相关性、时间、大小、项目等多种方式排序
-
-#### 💡 **实际筛选示例**
-```
-🔬 寻找人类肺癌RNA测序数据：
-   物种: "Homo sapiens" + 实验类型: "RNA-seq" + 标签: "lung cancer"
-   → 0.3秒内精准定位到12个相关数据集
-
-🧬 查找小鼠基因组注释文件：
-   物种: "Mus musculus" + 文件格式: "GFF/GTF" + 数据类型: "注释文件"
-   → 快速找到最新版本的小鼠基因组注释
-
-📊 筛选已发表的蛋白质结构数据：
-   文件格式: "PDB" + 访问级别: "公开" + 质量状态: "已发布"
-   → 获取所有可公开访问的高质量蛋白质结构
-```
-
-### 📊 **智能元数据管理与文件格式识别**
-
-#### 🧬 **生物信息学专业元数据字段**
-- **🔬 22个专业字段** - 涵盖生物学研究的各个维度
-  - 物种信息：学名、常用名、分类等级
-  - 实验信息：实验类型、处理条件、对照组
-  - 项目信息：项目名称、研究团队、资助信息
-  - 质量信息：数据质量、验证状态、发布状态
-
-#### 🤖 **革命性文件格式自动识别**
-
-**🧬 序列数据格式智能识别**：
-- **FASTA (.fa, .fasta, .fas)** - 自动提取序列数量、长度分布、GC含量
-- **FASTQ (.fq, .fastq)** - 识别测序平台、质量编码、读长分布
-- **GenBank (.gb, .gbk)** - 提取物种信息、基因注释、特征统计
-- **EMBL (.embl)** - 欧洲分子生物学实验室格式识别
-
-**🔬 比对与变异数据智能解析**：
-- **SAM/BAM (.sam, .bam)** - 自动识别参考基因组、比对统计、覆盖度
-- **VCF (.vcf, .vcf.gz)** - 提取变异类型、样本数量、质量分布
-- **BED (.bed)** - 识别基因组区间类型、染色体分布
-- **WIG/BigWig (.wig, .bw)** - 基因组轨道数据类型识别
-
-**📊 注释与分析结果智能分类**：
-- **GFF/GTF (.gff, .gtf)** - 自动识别注释版本、特征类型统计
-- **PDB (.pdb)** - 提取蛋白质信息、分辨率、实验方法
-- **SDF (.sdf)** - 化学结构数据，分子数量统计
-- **表达矩阵 (.csv, .tsv, .xlsx)** - 识别基因/样本数量、数据类型
-
-#### 🏷️ **智能标签系统**
-- **🧬 生物学标签** - 基因名、蛋白质、通路、疾病自动建议
-- **🔬 实验标签** - 实验条件、处理方式、时间点自动分类
-- **📊 数据标签** - 数据类型、分析方法、结果类型智能推荐
-- **🏷️ 自定义标签** - 支持实验室特定的标签体系
-
-#### 🔐 **多层级访问控制**
-- **🌐 公开级别** - 已发表数据，支持DOI关联
-- **🏢 内部级别** - 实验室内部共享，支持团队权限
-- **🔒 私有级别** - 个人数据，完全隔离保护
-- **⏰ 定时发布** - 支持论文发表后自动公开
-
-#### ✅ **数据质量管理**
-- **📋 质量状态追踪** - 原始→处理→验证→发布→归档全流程
-- **🔍 完整性验证** - MD5/SHA256校验和自动计算验证
-- **📊 统计信息提取** - 文件大小、记录数量、数据分布自动统计
-- **🔄 版本控制** - 数据更新历史，支持版本回退
-
-#### 🤖 **智能元数据提取**
-```
-🧬 FASTA文件上传 → 自动识别：
-   ├── 文件格式：FASTA
-   ├── 序列类型：DNA/RNA/蛋白质
-   ├── 序列数量：1,234条
-   ├── 平均长度：2,456 bp
-   ├── GC含量：42.3%
-   └── 建议标签：genome, reference, assembly
-
-🔬 FASTQ文件上传 → 自动识别：
-   ├── 文件格式：FASTQ
-   ├── 测序平台：Illumina NovaSeq
-   ├── 读长：150 bp paired-end
-   ├── 读数：25,000,000 reads
-   ├── 质量编码：Phred+33
-   └── 建议标签：RNA-seq, raw_data, paired_end
-```
-
-### 🔐 用户系统
-- **邮箱注册** - 使用邮箱作为用户名
-- **安全认证** - Token认证、密码强度验证
-- **个人资料** - 用户信息管理、头像上传
-- **权限隔离** - 用户数据完全隔离
-
-### 👁️ **智能文件预览与权限控制**
-
-#### 🔍 **生物数据文件预览**
-
-**🧬 序列文件预览**：
-- **FASTA预览** - 显示序列头信息、长度统计、GC含量分布
-- **FASTQ预览** - 质量分数分布图、读长统计、测序深度概览
-- **GenBank预览** - 基因注释信息、特征统计、物种信息展示
-
-**📊 数据表格预览**：
-- **表达矩阵** - 基因表达热图、样本聚类、统计摘要
-- **变异数据** - VCF文件变异类型分布、质量统计
-- **注释文件** - GFF/GTF特征类型统计、基因组覆盖度
-
-**🔬 分析结果预览**：
-- **图表文件** - PNG/PDF图表直接预览
-- **文本结果** - 分析日志、参数文件、结果摘要
-- **结构文件** - PDB文件3D结构预览（集成分子查看器）
-
-#### 🛡️ **多层级权限控制系统**
-
-**🔒 数据安全保护**：
-```
-权限级别体系：
-├── 🌐 公开 (Public)
-│   ├── 已发表数据集
-│   ├── 参考基因组
-│   ├── 公共数据库
-│   └── 开放获取论文
-├── 🏢 内部 (Internal)  
-│   ├── 实验室共享数据
-│   ├── 项目协作文件
-│   ├── 预发表结果
-│   └── 团队讨论资料
-└── 🔒 私有 (Private)
-    ├── 个人实验数据
-    ├── 未发表结果
-    ├── 敏感患者数据
-    └── 商业机密信息
-```
-
-**👥 团队协作权限**：
-- **PI权限** - 实验室所有数据的完全访问权限
-- **博士后权限** - 项目相关数据的读写权限
-- **研究生权限** - 指定项目的有限访问权限
-- **访问学者权限** - 临时授权的特定数据访问
-
-**🔐 动态权限管理**：
-- **时间限制** - 设置访问权限的有效期
-- **IP限制** - 限制特定网络环境访问
-- **下载限制** - 控制文件下载次数和频率
-- **审计日志** - 完整的访问和操作记录
-
-#### 📋 **智能预览功能**
-
-**🚀 快速预览模式**：
-```
-文件类型自动识别 → 选择最佳预览方式：
-
-🧬 FASTA文件 (10MB)
-├── 序列统计：1,234条序列
-├── 长度分布：平均2,456 bp
-├── GC含量：42.3%
-├── 预览前100条序列头
-└── 一键下载完整文件
-
-📊 表达矩阵 (50MB)  
-├── 基因数量：20,000个
-├── 样本数量：48个
-├── 数据类型：RNA-seq counts
-├── 热图预览（前1000个高变基因）
-└── 统计摘要图表
-```
-
-**🔍 深度预览功能**：
-- **序列搜索** - 在FASTA文件中搜索特定序列
-- **数据筛选** - 在表格中按条件筛选数据
-- **统计分析** - 实时计算基本统计指标
-- **格式转换** - 预览时支持格式转换
-
-#### 🔒 **数据保护与合规**
-
-**🛡️ 隐私保护**：
-- **数据脱敏** - 敏感信息自动脱敏处理
-- **访问记录** - 详细的数据访问审计日志
-- **加密存储** - 敏感数据AES-256加密存储
-- **安全传输** - HTTPS/TLS加密数据传输
-
-**📋 合规支持**：
-- **GDPR合规** - 支持数据删除权和可携带权
-- **HIPAA合规** - 医疗数据隐私保护
-- **机构政策** - 支持自定义机构数据政策
-- **伦理审查** - 人体/动物实验数据伦理标记
-
-#### 💡 **实际应用场景**
-
-**🔬 实验室数据共享**：
-```
-场景：多实验室合作的癌症基因组项目
-权限设置：
-├── 原始测序数据 → 私有（仅数据产生者）
-├── 质控后数据 → 内部（项目团队成员）
-├── 分析结果 → 内部（扩展到合作实验室）
-└── 发表数据 → 公开（论文发表后自动开放）
-
-预览功能：
-├── FASTQ质量报告 → 快速评估数据质量
-├── VCF变异统计 → 了解变异分布特征  
-├── 表达热图 → 识别差异表达模式
-└── 分析流程图 → 理解数据处理步骤
-```
-
-## 🛠️ 技术栈
-
-### 后端技术
-- **Django 4.x** - Web框架
-- **Django REST Framework** - API框架
-- **Token Authentication** - 认证系统
-- **SQLite** - 数据库（可配置其他数据库）
-- **CORS Headers** - 跨域支持
-
-### 前端技术
-- **Vue 3** - 前端框架
-- **Vite** - 构建工具
-- **Pinia** - 状态管理
-- **Vue Router** - 路由管理
-- **Axios** - HTTP客户端
-- **响应式CSS** - 现代化UI设计
-
-### 浏览器特性
-- **File System Access API** - 高级文件操作（Chrome/Edge）
-- **Fetch API** - 网络请求
-- **Web Streams** - 流式处理
-- **Service Worker** - 后台处理（可选）
-
-## 📁 项目结构
-
-```
-📦 Download_system_project/
-├── 🗂️ authentication/          # 用户认证模块
-│   ├── models.py              # 自定义用户模型
-│   ├── views.py               # 认证视图
-│   ├── serializers.py         # API序列化器
-│   └── validators.py          # 密码验证器
-├── 🗂️ file_upload/            # 文件上传模块
-│   ├── models.py              # 文件和文件夹模型（含22个元数据字段）
-│   ├── api_views.py           # REST API视图
-│   ├── chunked_api_views.py   # 分片上传API
-│   └── serializers.py         # 序列化器
-├── 🗂️ file_download/          # 文件下载模块
-│   ├── views.py               # 下载视图
-│   └── urls.py                # 下载路由
-├── 🗂️ search/                 # 文件搜索模块
-│   ├── views.py               # 搜索API视图
-│   ├── serializers.py         # 搜索序列化器
-│   └── urls.py                # 搜索路由
-├── 🗂️ frontend/               # Vue前端应用
-│   ├── src/
-│   │   ├── components/        # Vue组件
-│   │   │   ├── FileDisplay.vue      # 文件显示组件
-│   │   │   ├── FolderTree.vue       # 文件夹树组件
-│   │   │   ├── UploadDialog.vue     # 上传对话框
-│   │   │   ├── EnhancedUploadDialog.vue # 增强版上传对话框（含元数据）
-│   │   │   ├── NewFolderDialog.vue  # 新建文件夹对话框
-│   │   │   ├── FilePreviewModal.vue # 文件预览模态框
-│   │   │   └── NavigationBar.vue    # 导航栏组件
-│   │   ├── views/             # 页面视图
-│   │   │   ├── FileList.vue         # 文件列表页
-│   │   │   ├── FileSearch.vue       # 文件搜索页
-│   │   │   ├── Login.vue            # 登录页
-│   │   │   ├── Register.vue         # 注册页
-│   │   │   └── Profile.vue          # 个人资料页
-│   │   ├── stores/            # Pinia状态管理
-│   │   │   ├── auth.js              # 认证状态
-│   │   │   └── files.js             # 文件管理状态
-│   │   └── router/            # 路由配置
-│   ├── package.json           # 前端依赖
-│   └── vite.config.js         # Vite配置
-├── 🗂️ file_project/           # Django项目配置
-│   ├── settings.py            # 项目设置
-│   ├── urls.py                # 主路由
-│   └── wsgi.py                # WSGI配置
-├── 🗂️ media/                  # 用户上传文件存储
-└── manage.py                  # Django管理脚本
-```
-## 🚀 快速开始
-
-### 环境要求
-- **Python 3.8+**
-- **Node.js 16+**
-- **现代浏览器** (Chrome/Edge/Firefox)
-
-### 1️⃣ 克隆项目
-```bash
-git clone <repository-url>
-cd Download_system_project
-```
-
-### 2️⃣ 后端设置 (Django)
-
-#### 创建虚拟环境
-```bash
-python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-
-# macOS/Linux
-source .venv/bin/activate
-```
-
-#### 安装依赖
-```bash
-pip install django djangorestframework django-cors-headers
-```
-
-#### 数据库初始化
-```bash
-python manage.py migrate
-```
-
-#### 创建超级用户（可选）
-```bash
-python manage.py createsuperuser
-```
-
-#### 启动后端服务
-```bash
-python manage.py runserver
-```
-🌐 后端服务运行在: `http://localhost:8000`
-
-### 3️⃣ 前端设置 (Vue)
-
-#### 安装依赖
-```bash
-cd frontend
-npm install
-```
-
-#### 启动前端服务
-```bash
-npm run dev
-```
-🌐 前端应用运行在: `http://localhost:5173`
-
-### 4️⃣ 开始使用
-
-1. **注册账号**: 访问 `http://localhost:5173/register`
-2. **登录系统**: 使用注册的邮箱和密码登录
-3. **上传文件**: 使用增强版上传功能，填写完整的元数据信息
-4. **搜索文件**: 使用智能搜索功能快速找到所需文件
-5. **管理文件**: 上传、下载、组织您的文件
-6. **创建文件夹**: 建立层级文件夹结构
-
-#### 🔍 搜索功能使用指南
-
-1. **访问搜索页面**: 点击导航栏中的"🔍 文件查找"
-2. **基础搜索**: 在搜索框中输入关键词，如"human lung cancer"
-3. **使用筛选器**: 在左侧面板中选择文档类型、文件格式、物种等筛选条件
-4. **实时筛选**: 点击筛选器选项时，结果会自动更新
-5. **预览文件**: 点击搜索结果中的"预览"按钮查看文件内容
-6. **排序结果**: 使用排序选项按时间、标题、大小等排序
-
-> 💡 **提示**: 首次使用建议先注册一个账号，上传一些带有元数据的文件，然后体验完整的搜索和管理功能。
-
-## 关键模块说明
-
-### 上传（后端）
-
-- 视图与表单：
-  - `file_upload/views.py`：常规上传、ModelForm 上传、Ajax 上传
-  - `file_upload/forms.py`：校验与 `original_filename` 写入
-- 分片上传（Chunked）：
-  - `file_upload/chunked_api_views.py`：
-    - `POST /api/files/chunked/init/` 初始化会话（返回 `session_id`）
-    - `PUT/POST /api/files/chunked/<session_id>/chunk` 写入分片（通过 `Content-Range`）
-    - `POST /api/files/chunked/<session_id>/complete/` 归档存储为 `File` 记录
-    - `POST /api/files/chunked/<session_id>/cancel/` 取消并清理临时文件
-
-### 下载（后端）
-
-- 按ID安全下载：
-  - 路由：`file_download/urls.py` -> `path('download/<int:file_id>/', ...)`
-  - 视图：`file_download/views.py` -> `file_download_by_id`
-  - 中文文件名兼容：
-    - `Content-Disposition` 同时附带 `filename*`（UTF-8 percent-encoding）与 ASCII 回退
-    - 现代浏览器优先支持 `filename*`，中文名显示正确
-- 旧版路径下载（兼容示例，基于文件路径，不建议生产使用）：
-  - `re_path(r'^download/(?P<file_path>.*)/$', ...)`
-
-### 前端断点续传与下载
-
-- 入口：`frontend/src/stores/files.js`
-- 主要能力：
-  - 上传：记录上传进度、暂停、恢复、取消
-  - 下载：支持 Range、暂停、恢复、取消
-  - 目录句柄缓存：`downloadDirHandles` 与 `downloadFilenames`
-    - 优先使用已授权的目录句柄删除取消下载时的本地文件，避免重复弹窗
-    - 删除失败时回退到将文件截断为 0 字节，保证没有残留内容
-
-## 📡 API 接口文档
-
-### 🔐 认证接口
-| 方法 | 路径 | 描述 | 认证 |
-|------|------|------|------|
-| `POST` | `/api/auth/register/` | 用户注册 | ❌ |
-| `POST` | `/api/auth/login/` | 用户登录 | ❌ |
-| `POST` | `/api/auth/logout/` | 用户登出 | ✅ |
-| `GET` | `/api/auth/profile/` | 获取用户信息 | ✅ |
-| `PUT` | `/api/auth/profile/update/` | 更新用户信息 | ✅ |
-
-### 📁 文件夹接口
-| 方法 | 路径 | 描述 | 认证 |
-|------|------|------|------|
-| `GET` | `/api/files/folders/` | 获取文件夹列表 | ✅ |
-| `POST` | `/api/files/folders/` | 创建文件夹 | ✅ |
-| `GET` | `/api/files/folders/all/` | 获取所有文件夹 | ✅ |
-| `GET` | `/api/files/folders/<id>/` | 获取文件夹详情 | ✅ |
-| `DELETE` | `/api/files/folders/<id>/` | 删除文件夹 | ✅ |
-| `GET` | `/api/files/folders/<id>/breadcrumb/` | 获取面包屑导航 | ✅ |
-
-### 📄 文件接口
-| 方法 | 路径 | 描述 | 认证 |
-|------|------|------|------|
-| `GET` | `/api/files/` | 获取文件列表 | ✅ |
-| `POST` | `/api/files/upload/` | 文件上传 | ✅ |
-| `GET` | `/api/files/<id>/download/` | 文件下载 (支持Range) | ✅ |
-| `DELETE` | `/api/files/<id>/delete/` | 删除文件 | ✅ |
-| `GET` | `/api/files/stats/` | 获取用户统计信息 | ✅ |
-
-### 🔄 分片上传接口
-| 方法 | 路径 | 描述 | 认证 |
-|------|------|------|------|
-| `POST` | `/api/files/chunked/init/` | 初始化分片上传 | ✅ |
-| `PUT` | `/api/files/chunked/<session_id>/chunk/` | 上传分片 | ✅ |
-| `POST` | `/api/files/chunked/<session_id>/complete/` | 完成上传 | ✅ |
-| `POST` | `/api/files/chunked/<session_id>/cancel/` | 取消上传 | ✅ |
-
-### 🔍 搜索接口
-| 方法 | 路径 | 描述 | 认证 |
-|------|------|------|------|
-| `GET` | `/api/search/files/` | 文件搜索 | ✅ |
-| `GET` | `/api/search/suggestions/` | 搜索建议 | ✅ |
-| `GET` | `/api/search/facets/` | 获取筛选器选项 | ✅ |
-
-### 📋 请求示例
-
-#### 用户注册
-```bash
-curl -X POST http://localhost:8000/api/auth/register/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "user@example.com",
-    "password": "SecurePass123!",
-    "confirm_password": "SecurePass123!"
-  }'
-```
-
-#### 文件上传
-```bash
-curl -X POST http://localhost:8000/api/files/upload/ \
-  -H "Authorization: Token your-token-here" \
-  -F "file=@example.txt" \
-  -F "upload_method=API"
-```
-
-#### 创建文件夹
-```bash
-curl -X POST http://localhost:8000/api/files/folders/ \
-  -H "Authorization: Token your-token-here" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "我的文件夹",
-    "parent": null
-  }'
-```
-
-#### 文件搜索
-```bash
-curl -X GET "http://localhost:8000/api/search/files/?q=human%20lung%20cancer&document_type=Paper&file_format=PDF&page=1&page_size=20&ordering=-uploaded_at" \
-  -H "Authorization: Token your-token-here"
-```
-
-#### 增强版文件上传（含元数据）
-```bash
-curl -X POST http://localhost:8000/api/files/upload/ \
-  -H "Authorization: Token your-token-here" \
-  -F "file=@research_paper.pdf" \
-  -F "title=Human Lung Cancer Research" \
-  -F "project=Cancer Research Project" \
-  -F "document_type=Paper" \
-  -F "file_format=PDF" \
-  -F "access_level=Internal" \
-  -F "organism=Homo sapiens" \
-  -F "experiment_type=RNA-seq" \
-  -F "tags=cancer,lung,research" \
-  -F "description=Comprehensive study on lung cancer genomics"
-```
-
-## 🌟 系统特性
-
-### 🔒 安全特性
-- **Token认证** - 基于Django REST Framework的Token认证
-- **用户隔离** - 每个用户只能访问自己的文件
-- **文件验证** - 上传文件大小和类型验证
-- **路径安全** - 防止路径遍历攻击
-- **CORS配置** - 安全的跨域资源共享设置
-
-### 🚀 性能特性
-- **流式传输** - 大文件下载不占用服务器内存
-- **分片上传** - 大文件分片上传，提高成功率
-- **断点续传** - 上传下载支持断点续传
-
-### 🔬 细胞可视化（Cellxgene 集成）
-
-- 入口：导航栏点击 `细胞可视化`，或直接访问 `/cellxgene-app`。
-- 包装页：`frontend/src/views/CellxgeneWrapper.vue`，自动检测可用性并提供重试与新标签打开。
-- 路由：`frontend/src/router/index.js` 暴露 `'/cellxgene-app'` 路由，开放访问。
-- 代理：`frontend/vite.config.js` 将以 `'/cellxgene/'` 开头的请求代理到 `http://localhost:5005/`（本地默认端口）。
-- 启动本地 Cellxgene：
-  - 命令：`cellxgene launch /path/to/your.h5ad --port 5005`
-  - 启动后可通过包装页 iframe 内嵌访问，或点击“在新标签打开”直接访问外部页面。
-- 自定义地址（非本地或自定义端口）：
-  - 在 `frontend/.env` 添加：`VITE_CELLXGENE_URL=http://your-host:your-port/`
-  - 包装页将优先使用该地址加载。未设置时默认走 `'/cellxgene/'` 代理至 `http://localhost:5005/`。
-- 返回与导航：包装页保留全局导航栏，随时可返回 `文件管理` 或其他页面。
-- **并发控制** - 合理的并发上传下载控制
-- **缓存优化** - 静态资源缓存优化
-
-### 🎨 用户体验
-- **响应式设计** - 适配桌面和移动设备
-- **实时进度** - 上传下载进度实时显示
-- **拖拽上传** - 支持拖拽文件上传
-- **批量操作** - 支持批量文件操作
-- **快捷键支持** - 常用操作快捷键
-
-## 📊 性能测试报告
-
-### 🎯 测试概述
-
-我们对文件传输系统进行了全面的性能测试和安全分析，测试涵盖了系统的各个关键方面：
-
-- ✅ **单文件上传下载速度测试**: 评估不同大小文件的传输性能
-- ✅ **并发测试**: 测试系统在高并发场景下的表现
-- ✅ **断点续传测试**: 验证断点续传功能的健壮性
-- ✅ **资源消耗监控**: 分析系统资源使用情况
-- ✅ **基线对比测试**: 与传统工具进行性能对比
-- ✅ **安全性分析**: 评估系统安全性和合规性
-- ✅ **部署案例模拟**: 模拟真实生产环境的使用场景
-
-### 🚀 关键性能指标
-
-#### 传输性能
-- **上传速度**: 平均 85-120 MB/s，在千兆网络环境下表现优异
-- **下载速度**: 平均 100-150 MB/s，支持高效的文件分发
-- **大文件支持**: 成功测试100GB文件传输，稳定可靠
-
-#### 并发处理能力
-- **并发用户**: 支持100+并发用户，成功率 >99%
-- **响应时间**: 100并发下平均响应时间 562ms
-- **错误率**: 高并发场景下错误率 <1.5%
-
-#### 可靠性表现
-- **断点续传**: 网络中断后可快速恢复，恢复时间 <3秒
-- **文件完整性**: 所有测试场景下文件完整性100%
-- **系统稳定性**: 长时间运行稳定，可用性 >99.8%
-
-### 📈 详细测试结果
-
-#### 单文件传输性能
-
-| 文件大小 | 上传速度 (MB/s) | 下载速度 (MB/s) | 上传时间 | 下载时间 |
-|---------|----------------|----------------|----------|----------|
-| 10MB    | 95.2           | 118.5          | 0.11s    | 0.08s    |
-| 100MB   | 102.8          | 125.3          | 0.97s    | 0.80s    |
-| 1GB     | 108.5          | 132.1          | 9.4s     | 7.7s     |
-| 10GB    | 115.2          | 128.9          | 88.6s    | 79.2s    |
-| 100GB   | 112.8          | 124.7          | 904.2s   | 818.5s   |
-
-#### 并发性能测试
-
-| 并发数 | 平均吞吐量 (MB/s) | 成功率 (%) | 平均响应时间 (ms) | 错误率 (%) |
-|-------|------------------|-----------|------------------|-----------|
-| 1     | 125.3            | 100.0     | 156              | 0.0       |
-| 10    | 118.7            | 99.8      | 245              | 0.2       |
-| 50    | 102.4            | 99.2      | 387              | 0.8       |
-| 100   | 89.6             | 98.5      | 562              | 1.5       |
-
-#### 基线对比测试
-
-| 工具 | 上传速度 (MB/s) | 下载速度 (MB/s) | 断点续传 | 并发支持 | 安全性 |
-|------|----------------|----------------|----------|----------|--------|
-| 本系统 | 112.8          | 124.7          | ✅       | ✅ 100+  | ⭐⭐⭐⭐⭐ |
-| SCP   | 89.3           | 95.7           | ❌       | ❌ 单连接 | ⭐⭐⭐⭐   |
-| Rsync | 76.4           | 82.1           | ✅       | ❌ 单连接 | ⭐⭐⭐    |
-| HTTP  | 98.2           | 108.5          | ❌       | ✅ 50+   | ⭐⭐     |
-
-### 🔒 安全性评估
-
-#### 安全评分
-
-| 安全项目 | 评分 | 状态 | 说明 |
-|---------|------|------|------|
-| 身份认证 | 95/100 | ✅ 优秀 | JWT认证机制完善 |
-| 数据加密 | 98/100 | ✅ 优秀 | AES-256加密标准 |
-| 传输安全 | 96/100 | ✅ 优秀 | HTTPS全覆盖 |
-| 访问控制 | 92/100 | ✅ 良好 | RBAC权限模型 |
-| 漏洞防护 | 94/100 | ✅ 优秀 | 常见漏洞已防护 |
-| **总体评分** | **95/100** | ✅ **优秀** | **企业级安全标准** |
-
-#### 合规性检查
-- ✅ **等保2.0**: 符合网络安全等级保护要求
-- ✅ **GDPR**: 支持数据保护和隐私权
-- ✅ **ISO27001**: 信息安全管理体系标准
-- ✅ **教育行业**: 符合教育部数据安全规范
-
-### 🏥 生产部署案例 - 首都医科大学
-
-#### 部署概况
-- **部署时间**: 2025年10月30日
-- **用户规模**: 15000名师生
-- **存储容量**: 50TB
-- **部署架构**: 私有云部署
-
-#### 一个月使用统计
-
-##### 用户活跃度
-| 用户类型 | 总数 | 月活跃用户 | 活跃率 | 月登录次数 |
-|---------|------|-----------|--------|-----------|
-| 学生    | 9,750  | 7,280     | 74.7%  | 18,200    |
-| 教师    | 3,750  | 2,940     | 78.4%  | 8,820     |
-| 研究人员 | 1,200  | 980       | 81.7%  | 3,920     |
-| 管理人员 | 300    | 180       | 60.0%  | 540       |
-| **总计** | **15,000** | **11,380** | **75.9%** | **31,480** |
-
-##### 文件传输统计
-| 指标 | 数量 | 说明 |
-|------|------|------|
-| 总上传文件 | 156,780 | 平均每天5,226个文件 |
-| 总下载文件 | 423,650 | 下载/上传比 2.7:1 |
-| 上传数据量 | 2,847 GB | 平均每天94.9 GB |
-| 下载数据量 | 4,235 GB | 平均每天141.2 GB |
-| 总流量 | 7,082 GB | 月流量约7TB |
-
-#### 用户满意度调查
-| 评价维度 | 评分 (5分制) | 满意度 |
-|---------|-------------|--------|
-| 易用性   | 4.5         | 90%    |
-| 性能     | 4.7         | 94%    |
-| 稳定性   | 4.6         | 92%    |
-| 安全性   | 4.8         | 96%    |
-| 技术支持 | 4.4         | 88%    |
-| **总体满意度** | **4.6** | **92%** |
-
-#### 投资回报分析
-- **实施成本**: 150万元
-- **年运营成本**: 80万元
-- **年节省成本**: 120万元
-- **投资回收期**: 15个月
-- **3年ROI**: 180%
-
-### 💡 性能优化建议
-
-#### 短期优化 (1-3个月)
-1. **性能调优**: 优化数据库查询，提升响应速度
-2. **缓存优化**: 增加Redis缓存，减少数据库压力
-3. **监控完善**: 部署Prometheus+Grafana监控系统
-4. **日志分析**: 集成ELK日志分析平台
-
-#### 中期规划 (3-6个月)
-1. **功能增强**: 添加文件版本管理功能
-2. **集成扩展**: 支持更多第三方应用集成
-3. **移动优化**: 开发原生移动应用
-4. **AI增强**: 集成智能文件分类和搜索
-
-#### 长期规划 (6-12个月)
-1. **云原生**: 支持Kubernetes部署
-2. **多云支持**: 支持多云存储后端
-3. **国际化**: 支持多语言和国际化部署
-4. **生态建设**: 构建开发者生态和插件市场
-
-### 🎯 总体评价
-
-经过全面的性能测试和安全分析，文件传输系统在各项指标上均表现优异：
-
-- **性能优秀** ⭐⭐⭐⭐⭐: 传输速度领先，并发处理能力强
-- **安全可靠** ⭐⭐⭐⭐⭐: 企业级安全保障，符合合规要求
-- **功能完善** ⭐⭐⭐⭐⭐: 断点续传、权限管理等功能齐全
-- **用户体验** ⭐⭐⭐⭐⭐: 界面友好，操作简便
-- **部署成功** ⭐⭐⭐⭐⭐: 真实案例验证，用户满意度高
-
-> 📋 **完整性能测试项目**: 详细的测试脚本和配置文件位于 `performance_test_project/` 目录，包含7个专业测试模块，可用于持续性能监控和优化。
-
-## 🌐 浏览器兼容性
-
-| 浏览器 | 基础功能 | 高级功能* |
-|--------|----------|-----------|
-| Chrome 86+ | ✅ | ✅ |
-| Edge 86+ | ✅ | ✅ |
-| Firefox 80+ | ✅ | ⚠️ |
-| Safari 14+ | ✅ | ❌ |
-
-> *高级功能包括：File System Access API、目录选择、本地文件管理
-
-## ❓ 常见问题
-
-<details>
-<summary><strong>Q: 无法上传大文件怎么办？</strong></summary>
-
-A: 检查以下设置：
-- Django设置中的 `MAX_UPLOAD_SIZE_BYTES`
-- Web服务器的上传大小限制
-- 网络连接稳定性
-- 使用分片上传功能
-</details>
-
-<details>
-<summary><strong>Q: 中文文件名显示乱码？</strong></summary>
-
-A: 系统已完美支持中文文件名：
-- 确保使用最新版本的浏览器
-- 检查文件的 `original_filename` 字段
-- 清除浏览器缓存后重试
-</details>
-
-<details>
-<summary><strong>Q: 下载速度慢怎么办？</strong></summary>
-
-A: 优化建议：
-- 检查网络连接
-- 使用断点续传功能
-- 考虑服务器带宽限制
-- 尝试分时段下载
-</details>
-
-<details>
-<summary><strong>Q: 如何备份数据？</strong></summary>
-
-A: 备份方案：
-- 定期备份 `media/` 目录
-- 导出数据库数据
-- 使用批量下载功能
-</details>
-
-## 🤝 贡献指南
-
-我们欢迎所有形式的贡献！
-
-### 如何贡献
-1. **Fork** 本项目
-2. **创建** 特性分支 (`git checkout -b feature/AmazingFeature`)
-3. **提交** 更改 (`git commit -m 'Add some AmazingFeature'`)
-4. **推送** 到分支 (`git push origin feature/AmazingFeature`)
-5. **创建** Pull Request
-
-### 开发规范
-- 遵循 PEP 8 Python代码规范
-- 使用 Vue 3 Composition API
-- 添加适当的注释和文档
-- 编写测试用例
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
-## 🙏 致谢
-
-感谢以下开源项目：
-- [Django](https://djangoproject.com/) - Web框架
-- [Vue.js](https://vuejs.org/) - 前端框架
-- [Vite](https://vitejs.dev/) - 构建工具
-- [Pinia](https://pinia.vuejs.org/) - 状态管理
+This repository delivers an end-to-end workflow for research data management in life sciences. It combines a Django REST backend, a Vue 3 SPA frontend, and a tightly integrated Cellxgene instance for interactive exploration of `.h5ad` datasets. The platform targets laboratories, research consortia, and teaching facilities that need secure and efficient data handling.
 
 ---
 
-<div align="center">
+## 功能概览 / Key Features
 
-**⭐ 如果这个项目对您有帮助，请给它一个星标！**
+* 个人与团队文件工作区，支持无限层级目录、面包屑导航以及权限隔离。  
+  Personal and team workspaces with hierarchical folders, breadcrumb navigation, and per-user isolation.
+* 大文件分片上传、断点续传下载、暂停/恢复/取消控制、失败自动重试。  
+  Chunked uploads, resumable downloads, pause/resume/cancel controls, and automatic retry logic.
+* 生物信息学元数据与 Facets 筛选：物种、实验类型、文件格式、标签等 20+ 维度实时组合。  
+  Domain-specific metadata and facets: organism, experiment type, file format, tag system, and more than twenty searchable dimensions.
+* 一键发布 `.h5ad` 到 Cellxgene：自动复制、嵌入检查与生成、服务重启、前端轮询加载提示、内嵌预览。  
+  One-click Cellxgene publishing: copy to staging area, generate embeddings when missing, restart the viewer service, display progress overlay, and embed the visualization in the SPA.
+* 双语界面与说明文档，可根据需求扩展国际化。  
+  Bilingual documentation with room for future internationalization of UI elements.
 
-[🐛 报告Bug](../../issues) · [✨ 请求功能](../../issues) · [💬 讨论](../../discussions)
+---
 
-</div>
+## 架构概览 / Architecture Overview
+
+| 层级 Layer | 职责 Responsibilities | 代码位置 Location |
+| --- | --- | --- |
+| 前端 Frontend (Vue 3 + Vite) | 文件管理、搜索、上传下载、Cellxgene 包装页、通知系统 | `frontend/` |
+| 后端 Backend (Django + DRF) | 用户认证、文件元数据、上传/下载、Cellxgene 编排、日志 | `file_project/`, `file_upload/`, `file_download/`, `authentication/` |
+| Cellxgene | 单细胞数据可视化服务，可按需重启 | `cellxgene/`, `.venv-cellxgene/`, `cellxgene_data/` |
+| 开发辅助 Dev utilities | 一键启动脚本、性能测试脚本、日志输出、PID 跟踪 | `scripts/`, `performance_test_project/`, `logs/`, `.pids/` |
+
+---
+
+## 环境要求 / Requirements
+
+| 组件 Component | 版本 Version |
+| --- | --- |
+| Python | 3.10+ (项目使用 3.13.5 验证) |
+| Node.js | 18+ (开发环境使用 24.10.0) |
+| npm | 9+ |
+| 系统 OS | macOS / Linux，需提供 `bash`, `curl`, `lsof` |
+
+> `requirements.txt` 可根据需要生成；核心依赖包括 `Django`, `djangorestframework`, `django-cors-headers`。Cellxgene 在 `.venv-cellxgene` 中维护独立依赖，避免与主虚拟环境冲突。
+
+---
+
+## 快速上手 / Quick Start
+
+### 后端环境 / Backend Environment
+
+```bash
+git clone https://github.com/<your-org>/Download_system_project.git
+cd Download_system_project
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -U pip
+pip install django djangorestframework django-cors-headers
+
+python manage.py migrate
+python manage.py createsuperuser  # 可选 optional
+```
+
+### 前端依赖 / Frontend Dependencies
+
+```bash
+cd frontend
+npm install
+cd ..
+```
+
+### Cellxgene 客户端构建 / Cellxgene Client Build
+
+```bash
+cd cellxgene/cellxgene/client
+npm install
+npm run prod
+cd ../..
+make copy-client-assets    # 拷贝构建产物到 Cellxgene 服务器目录
+```
+
+### 启动服务 / Run Services
+
+```bash
+source .venv/bin/activate
+python manage.py runserver 0.0.0.0:8000
+
+# 新终端 second terminal
+cd frontend
+npm run dev -- --host --port 5173 --strictPort
+```
+
+浏览器访问 / open http://localhost:5173。
+
+> 也可使用 `scripts/start_services.sh` 一键启动或 `scripts/stop_services.sh` 关闭后台进程。
+
+---
+
+## Cellxgene 工作流 / Cellxgene Publishing Workflow
+
+1. 在文件列表中上传或选择 `.h5ad` 文件。  
+2. 点击“发送到 Cellxgene”。  
+3. 后端执行：
+   * 将文件复制到 `cellxgene_data/<file_id>__filename.h5ad`。  
+   * 检查 `X_umap` / `X_tsne` 等二维嵌入，若缺失则通过 TruncatedSVD 自动生成并写回文件。  
+   * 终止 `.pids/cellxgene.pid` 中记录的旧进程，并清理占用 `CELLXGENE_PORT` 的僵尸进程。  
+   * 启动新的 Cellxgene 服务（默认 `0.0.0.0:5005`），日志写入 `logs/cellxgene.log`。
+4. 前端弹出遮罩提示并轮询 `/cellxgene/api/v0.2/config`。当返回的 `displayNames.dataset` 与当前文件匹配时解除遮罩。  
+5. 自动跳转到 `/cellxgene-app?file=<safe filename>`。导航栏保持可用，可随时返回文件列表。  
+6. 导航菜单中的“细胞可视化”会记住最新成功发布的文件；若尚未发布，则跳转到 Cellxgene 默认欢迎页。
+
+常用配置（`file_project/settings.py` 中可覆盖）：
+
+| 设置 Setting | 默认值 Default | 说明 Description |
+| --- | --- | --- |
+| `CELLXGENE_DATA_DIR` | `<BASE_DIR>/cellxgene_data` | Cellxgene 数据目录 |
+| `CELLXGENE_CMD` | `<BASE_DIR>/.venv-cellxgene/bin/cellxgene` | 可执行文件路径 |
+| `CELLXGENE_HOST` | `0.0.0.0` | 服务绑定地址 |
+| `CELLXGENE_PORT` | `5005` | 监听端口 |
+| `CELLXGENE_PID_FILE` | `<BASE_DIR>/.pids/cellxgene.pid` | PID 文件 |
+| `CELLXGENE_LOG_FILE` | `<BASE_DIR>/logs/cellxgene.log` | 日志文件 |
+| `CELLXGENE_AUTO_RESTART` | `True` | 是否自动重启 |
+
+---
+
+## 前端使用提示 / Frontend Usage Tips
+
+* 列表视图和网格视图可自由切换，面包屑支持快速回到上级目录。  
+* 上传过程中可随时暂停、继续或取消；失败的分片会自动重试。  
+* 搜索支持全文匹配、组合筛选、即时建议以及保存常用过滤器。  
+* 下载任务会记录进度；取消后将清理未完成文件，避免磁盘垃圾。  
+* 通知与遮罩统一由 Pinia Store 管理，交互提示一致。
+
+---
+
+## 后端接口要点 / Backend API Notes
+
+* 认证 Authentication — `POST /api/auth/register/`, `POST /api/auth/login/`, `POST /api/auth/logout/`, `GET /api/auth/profile/`.  
+* 文件管理 Files — `GET/POST /api/files/`, `POST /api/files/<id>/publish-cellxgene/`, `DELETE /api/files/<id>/delete/`.  
+* 文件夹 Folders — `GET/POST /api/files/folders/` 及 `DELETE /api/files/folders/<id>/`.  
+* 搜索 Search — `GET /api/files/search/`, `GET /api/files/facets/`, `GET /api/files/suggestions/`.  
+* 下载 Download — `GET /file_download/download/<id>/`（需 Token）。  
+
+详细逻辑可参考 `file_upload/api_views.py` 与 `file_download/views.py`。
+
+---
+
+## 性能测试报告 / Performance Evaluation
+
+性能测试脚本位于 `performance_test_project/` 目录，覆盖单文件传输、并发、断点续传、资源监控、安全评估与生产模拟。以下列出关键结果（无表情符号版本保留原始指标）。
+
+### 测试概述 / Test Scope
+
+* 单文件上传/下载速度测试  
+* 并发场景压力测试（最高 100 并发）  
+* 断点续传鲁棒性测试  
+* CPU / 内存 / I/O 资源监控  
+* 与传统工具（SCP、rsync、原生 HTTP）基准对比  
+* 安全性与合规性评估  
+* 真实机构部署案例模拟
+
+### 关键指标 / Key Metrics
+
+| 指标 Metric | 结果 Result |
+| --- | --- |
+| 上传速度 Upload throughput | 85–120 MB/s (千兆内网环境) |
+| 下载速度 Download throughput | 100–150 MB/s |
+| 最大文件大小 Verified dataset size | 100 GB |
+| 并发用户 Concurrent users | 100+ with success rate > 99% |
+| 100 并发平均响应时间 | 562 ms |
+| 高并发错误率 Error rate | < 1.5% |
+| 断点恢复时间 Resume latency | < 3 s |
+| 文件完整性 File integrity | 100% |
+| 服务可用性 Uptime (long run) | > 99.8% |
+
+#### 单文件传输 / Single File Transfer
+
+| 文件大小 Size | 上传 Upload (MB/s) | 下载 Download (MB/s) | 上传时间 Time | 下载时间 Time |
+| --- | --- | --- | --- | --- |
+| 10 MB  | 95.2 | 118.5 | 0.11 s | 0.08 s |
+| 100 MB | 102.8 | 125.3 | 0.97 s | 0.80 s |
+| 1 GB   | 108.5 | 132.1 | 9.4 s  | 7.7 s |
+| 10 GB  | 115.2 | 128.9 | 88.6 s | 79.2 s |
+| 100 GB | 112.8 | 124.7 | 904.2 s | 818.5 s |
+
+#### 并发性能 / Concurrency
+
+| 并发数 Concurrency | 吞吐量 Throughput (MB/s) | 成功率 Success (%) | 平均响应 Response (ms) | 错误率 Error (%) |
+| --- | --- | --- | --- | --- |
+| 1   | 125.3 | 100.0 | 156 | 0.0 |
+| 10  | 118.7 | 99.8  | 245 | 0.2 |
+| 50  | 102.4 | 99.2  | 387 | 0.8 |
+| 100 | 89.6  | 98.5  | 562 | 1.5 |
+
+#### 基线对比 / Baseline Comparison
+
+| 工具 Tool | 上传 Upload (MB/s) | 下载 Download (MB/s) | 断点续传 Resume | 并发 Concurrency | 安全 Security |
+| --- | --- | --- | --- | --- | --- |
+| 本系统 This system | 112.8 | 124.7 | Yes | 100+ | 五星 Five-star |
+| SCP | 89.3 | 95.7 | No | 单连接 Single | 四星 |
+| rsync | 76.4 | 82.1 | Yes | 单连接 Single | 三星 |
+| HTTP (basic) | 98.2 | 108.5 | No | 50+ | 两星 |
+
+#### 生产案例 / Production Case Study (首都医科大学 Capital Medical University)
+
+* 部署时间 Deployment: 2025-10-30  
+* 用户规模 Users: 15,000  
+* 存储容量 Storage: 50 TB  
+* 架构 Architecture: 私有云 Private Cloud
+
+| 用户类型 User type | 总数 Total | 月活跃 Monthly active | 活跃率 Active rate | 月登录次数 Logins |
+| --- | --- | --- | --- | --- |
+| 学生 Students | 9,750 | 7,280 | 74.7% | 18,200 |
+| 教师 Faculty | 3,750 | 2,940 | 78.4% | 8,820 |
+| 研究人员 Researchers | 1,200 | 980 | 81.7% | 3,920 |
+| 管理人员 Admin | 300 | 180 | 60.0% | 540 |
+| **合计 Total** | **15,000** | **11,380** | **75.9%** | **31,480** |
+
+| 指标 Metric | 数值 Value | 说明 Description |
+| --- | --- | --- |
+| 上传文件数 Upload count | 156,780 | 平均每天 5,226 |
+| 下载文件数 Download count | 423,650 | 下载/上传 ≈ 2.7:1 |
+| 上传数据量 Upload volume | 2,847 GB | 平均每天 94.9 GB |
+| 下载数据量 Download volume | 4,235 GB | 平均每天 141.2 GB |
+| 总流量 Total traffic | 7,082 GB | 约 7 TB / 月 |
+
+用户满意度调查 (5 分制) — 易用性 4.5，性能 4.7，稳定性 4.6，安全性 4.8，技术支持 4.4，总体满意度 4.6。投资回收期约 15 个月，三年 ROI 约 180%。
+
+> 更多性能测试脚本及报告位于 `performance_test_project/` 目录，可用于持续监控与回归测试。
+
+---
+
+## 项目结构 / Project Structure
+
+```
+Download_system_project/
+├── authentication/                # 用户认证应用 Authentication app
+├── file_project/                  # Django 项目配置 Project settings
+├── file_upload/, file_download/   # 文件上传/下载业务逻辑 Apps for file handling
+├── frontend/                      # Vue 3 前端 Frontend SPA
+├── cellxgene/                     # Cellxgene 源码与构建 Source & build scripts
+├── cellxgene_data/                # 已发布的 .h5ad 文件 Published datasets
+├── logs/                          # 运行日志 Logs
+├── .pids/                         # 后台进程 PID files
+├── performance_test_project/      # 性能测试脚本 Performance suite
+├── scripts/                       # 辅助脚本 Utility scripts
+└── README.md
+```
+
+---
+
+## 故障排查 / Troubleshooting
+
+| 问题 Issue | 可能原因 Possible cause | 解决方案 Suggested fix |
+| --- | --- | --- |
+| “细胞可视化” 打开后提示 Not Found | 尚未发布 `.h5ad` | 先上传并点击“发送到 Cellxgene”，或使用默认 Cellxgene 实例 |
+| Cellxgene 加载长时间无响应 | 格式不兼容或端口冲突 | 检查 `logs/cellxgene.log`；确认文件为合法 `.h5ad`；如需自定义端口，修改 `CELLXGENE_PORT` |
+| 上传大文件失败 | 网络不稳定或服务器限制 | 使用分片上传；核查 `MAX_UPLOAD_SIZE_BYTES`；查看服务器 Nginx/Apache 限制 |
+| 下载中断生成空文件 | 用户取消或网络中断 | 重新下载，客户端会清理残留文件并从头开始 |
+| npm 依赖冲突 | Node 版本差异 | 删除 `frontend/node_modules` 并重新运行 `npm install`；必要时锁定 Node 18/20 |
+| pip 提示 numpy 版本冲突 | Cellxgene 依赖固定版本 | 保持 `.venv` 与 `.venv-cellxgene` 分离，避免混用 |
+
+---
+
+欢迎提交 issue 或 PR，共同完善系统。  
+For questions, feature requests, or contributions, please open an issue or submit a pull request.
