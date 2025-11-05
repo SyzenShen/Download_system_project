@@ -128,7 +128,7 @@ const handleToggle = () => {
 }
 
 .folder-node.active:hover {
-  background-color: #106ebe;
+  background-color: var(--primary-hover);
 }
 
 .expand-icon {

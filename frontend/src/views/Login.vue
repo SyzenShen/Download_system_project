@@ -260,7 +260,7 @@ export default {
 }
 
 .waves-btn-primary:hover:not(:disabled) {
-  background: #106ebe;
+  background: var(--primary-hover);
   box-shadow: 0 4px 8px rgba(0, 120, 212, 0.4);
 }
 

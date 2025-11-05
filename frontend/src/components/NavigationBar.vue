@@ -215,7 +215,7 @@ const goToSearch = () => {
 }
 
 .breadcrumb-item.active {
-  color: #0078d4;
+  color: rgb(58, 126, 185);
   font-weight: 500;
 }
 
@@ -269,13 +269,13 @@ const goToSearch = () => {
 }
 
 .view-btn.active {
-  background-color: #0078d4;
+  background-color: rgb(58, 126, 185);
   color: white;
-  box-shadow: inset 0 2px 4px rgba(0, 120, 212, 0.3);
+  box-shadow: inset 0 2px 4px rgba(58, 126, 185, 0.3);
 }
 
 .view-btn.active:hover {
-  background-color: #106ebe;
+  background-color: rgb(45, 102, 150);
 }
 
 .action-buttons {
@@ -321,21 +321,21 @@ const goToSearch = () => {
 }
 
 .action-btn.primary {
-  background-color: #0078d4;
+  background-color: rgb(58, 126, 185);
   color: white;
-  border-color: #0078d4;
-  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
+  border-color: rgb(58, 126, 185);
+  box-shadow: 0 2px 4px rgba(58, 126, 185, 0.3);
 }
 
 .action-btn.primary:hover {
-  background-color: #106ebe;
-  border-color: #106ebe;
-  box-shadow: 0 4px 8px rgba(0, 120, 212, 0.4);
+  background-color: rgb(45, 102, 150);
+  border-color: rgb(45, 102, 150);
+  box-shadow: 0 4px 8px rgba(45, 102, 150, 0.35);
 }
 
 .action-btn.primary:active {
-  background-color: #005a9e;
-  border-color: #005a9e;
+  background-color: rgb(37, 83, 121);
+  border-color: rgb(37, 83, 121);
 }
 
 /* 响应式设计 */

@@ -132,31 +132,31 @@ export default {
 }
 
 .btn-primary.waves-btn {
-  background: #0078d4;
+  background: rgb(58, 126, 185);
   color: #ffffff;
   border: none;
-  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 2px 4px rgba(58, 126, 185, 0.3);
 }
 
 .btn-primary.waves-btn:hover {
-  background: #106ebe;
+  background: rgb(45, 102, 150);
   color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 120, 212, 0.4);
+  box-shadow: 0 4px 8px rgba(45, 102, 150, 0.4);
 }
 
 .btn-secondary.waves-btn {
   background: transparent;
-  color: #0078d4;
-  border: 2px solid #0078d4;
-  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
+  color: rgb(58, 126, 185);
+  border: 2px solid rgb(58, 126, 185);
+  box-shadow: 0 2px 4px rgba(58, 126, 185, 0.3);
 }
 
 .btn-secondary.waves-btn:hover {
-  background: #0078d4;
+  background: rgb(58, 126, 185);
   color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 120, 212, 0.4);
+  box-shadow: 0 4px 8px rgba(58, 126, 185, 0.4);
 }
 
 .btn-success.waves-btn {
@@ -279,8 +279,6 @@ export default {
   }
 }
 </style>
-
-
 
 
 

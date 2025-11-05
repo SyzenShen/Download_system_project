@@ -68,8 +68,8 @@
   
   /* 卡片系统 */
   --waves-card-bg: #ffffff;
-  --waves-card-secondary-bg: #f1f6fd;
-  --waves-card-hover-bg: #e8f2ff;
+  --waves-card-secondary-bg: #f3f3f3;
+  --waves-card-hover-bg: #ededed;
   
   /* 边框系统 */
   --waves-border-subtle: 1px solid #e5e7eb;
@@ -82,8 +82,8 @@
   --waves-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   
   /* 渐变系统 */
-  --waves-gradient-subtle: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-  --waves-gradient-primary: linear-gradient(135deg, #4169e1 0%, #3354c1 100%);
+  --waves-gradient-subtle: linear-gradient(180deg, #ffffff 0%, #f3f3f3 100%);
+  --waves-gradient-primary: linear-gradient(135deg, #8d8d8d 0%, #6f6f6f 100%);
   
   /* 颜色系统 */
   --primary: #8d8d8d;

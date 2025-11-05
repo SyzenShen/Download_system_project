@@ -268,6 +268,9 @@ export default {
   background: var(--bg-light);
   width: 100%;
   overflow: hidden;
+  --primary: rgb(58, 126, 185);
+  --primary-hover: rgb(45, 102, 150);
+  --primary-muted: rgba(58, 126, 185, 0.12);
 }
 
 .workspace-toolbar {
@@ -334,7 +337,7 @@ export default {
 }
 
 .breadcrumb-item:hover {
-  background: rgba(65, 105, 225, 0.12);
+  background: rgba(141, 141, 141, 0.12);
   color: var(--primary);
 }
 
@@ -479,7 +482,7 @@ export default {
   background: #fff;
   border-radius: 16px;
   padding: 28px 36px;
-  box-shadow: 0 18px 40px rgba(65, 105, 225, 0.16);
+  box-shadow: 0 18px 40px rgba(141, 141, 141, 0.12);
   text-align: center;
   color: var(--text-secondary);
 }
@@ -518,7 +521,7 @@ export default {
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid rgba(65, 105, 225, 0.18);
+  border: 3px solid rgba(141, 141, 141, 0.2);
   border-top-color: var(--primary);
   border-radius: 50%;
   margin: 0 auto 16px;

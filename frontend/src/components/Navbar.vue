@@ -145,16 +145,16 @@ export default {
 
 .navbar-nav > li > a:hover,
 .navbar-nav > li > a:focus {
-  color: var(--waves-corporate-text-light) !important;
-  background-color: rgba(0, 0, 0, 0.05) !important;
+  color: rgb(58, 126, 185) !important;
+  background-color: rgba(58, 126, 185, 0.08) !important;
   text-decoration: none;
 }
 
 .navbar-nav > li.active > a,
 .navbar-nav > li.active > a:hover,
 .navbar-nav > li.active > a:focus {
-  color: var(--brand-accent) !important;
-  background-color: rgba(37, 99, 235, 0.1) !important;
+  color: rgb(58, 126, 185) !important;
+  background-color: rgba(58, 126, 185, 0.14) !important;
   border-radius: 0;
 }
 

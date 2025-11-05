@@ -180,18 +180,23 @@ onMounted(async () => {
 }
 
 .tree-node.active {
-  background-color: #0078d4;
+  background-color: rgb(58, 126, 185);
   color: white;
-  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 2px 4px rgba(58, 126, 185, 0.3);
 }
 
 .tree-node.active:hover {
-  background-color: #106ebe;
+  background-color: rgb(45, 102, 150);
 }
 
 .root-node {
   font-weight: 600;
   margin-bottom: 8px;
+  color: rgb(58, 126, 185);
+}
+
+.root-node:hover {
+  color: rgb(45, 102, 150);
 }
 
 .node-icon {
