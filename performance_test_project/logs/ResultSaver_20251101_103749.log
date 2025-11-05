@@ -1,8 +1,0 @@
-2025-11-01 10:37:49,811 - ResultSaver - ERROR - 加载测试结果失败: [Errno 2] No such file or directory: 'all_tests_complete'
-2025-11-01 10:37:49,811 - ResultSaver - ERROR - 加载测试结果失败: [Errno 2] No such file or directory: 'single_file_speed_test_complete'
-2025-11-01 10:37:49,811 - ResultSaver - ERROR - 加载测试结果失败: [Errno 2] No such file or directory: 'concurrent_test_complete'
-2025-11-01 10:37:49,811 - ResultSaver - ERROR - 加载测试结果失败: [Errno 2] No such file or directory: 'resume_test_complete'
-2025-11-01 10:37:49,811 - ResultSaver - ERROR - 加载测试结果失败: [Errno 2] No such file or directory: 'resource_monitor_complete'
-2025-11-01 10:37:49,811 - ResultSaver - ERROR - 加载测试结果失败: [Errno 2] No such file or directory: 'baseline_comparison_complete'
-2025-11-01 10:37:49,812 - ResultSaver - ERROR - 加载测试结果失败: [Errno 2] No such file or directory: 'security_analysis_complete'
-2025-11-01 10:37:49,812 - ResultSaver - ERROR - 加载测试结果失败: [Errno 2] No such file or directory: 'deployment_simulation_complete'

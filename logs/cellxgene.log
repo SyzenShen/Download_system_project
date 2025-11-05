@@ -196,3 +196,25 @@ This is where adjacency matrices should go now.
 This is where adjacency matrices should go now. 
 [cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
 [cellxgene] Type CTRL-C at any time to exit.
+ERROR:server.app.app:Exception on /api/v0.2/genesets [PUT]
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/shenyz/projects/github/Download_system_project/cellxgene_data/23__pbmc3k.h5ad'
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 23__pbmc3k.h5ad.
+[cellxgene] Warning: Moving element from .uns['neighbors']['distances'] to .obsp['distances'].
+
+This is where adjacency matrices should go now. 
+[cellxgene] Warning: Moving element from .uns['neighbors']['connectivities'] to .obsp['connectivities'].
+
+This is where adjacency matrices should go now. 
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.
+[cellxgene] Starting the CLI...
+[cellxgene] Loading data from 23__pbmc3k.h5ad.
+[cellxgene] Warning: Moving element from .uns['neighbors']['distances'] to .obsp['distances'].
+
+This is where adjacency matrices should go now. 
+[cellxgene] Warning: Moving element from .uns['neighbors']['connectivities'] to .obsp['connectivities'].
+
+This is where adjacency matrices should go now. 
+[cellxgene] Launching! Please go to http://0.0.0.0:5005 in your browser.
+[cellxgene] Type CTRL-C at any time to exit.

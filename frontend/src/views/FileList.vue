@@ -1,105 +1,116 @@
 <template>
-  <div class="waves-file-manager">
-    <!-- 顶部导航栏 -->
-    <NavigationBar />
-    
-    <!-- 主内容区域 -->
-    <div class="waves-main-content">
-      <!-- 左侧目录树 -->
-      <div class="waves-sidebar">
-        <FolderTree />
-      </div>
-      
-      <!-- 右侧文件显示区域 -->
-      <div class="waves-content-area">
-        <!-- 加载状态 -->
-        <div v-if="isLoading" class="waves-loading-container">
-          <div class="waves-loading-content">
-            <div class="waves-loading-spinner">
-              <svg class="waves-spinner-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="waves-loading-text">正在加载文件...</div>
-            <div class="waves-loading-description">请稍候，我们正在获取您的文件列表</div>
+  <div class="workspace">
+    <header class="workspace-toolbar">
+      <div class="toolbar-left">
+        <div class="workspace-meta">
+          <h1 class="workspace-title">文件工作台</h1>
+          <div class="workspace-breadcrumb">
+            <button v-if="currentFolderId !== null" class="breadcrumb-back" @click="navigateUp">
+              返回上一级
+            </button>
+            <button class="breadcrumb-item" :class="{ active: currentFolderId === null }" @click="navigateToRoot">
+              全部文件
+            </button>
+            <template v-for="(folder, index) in breadcrumbPath" :key="folder.id">
+              <span class="breadcrumb-separator">/</span>
+              <button
+                class="breadcrumb-item"
+                :class="{ active: index === breadcrumbPath.length - 1 }"
+                @click="navigateToFolder(folder.id)"
+              >
+                {{ folder.name }}
+              </button>
+            </template>
           </div>
         </div>
-        
-        <!-- 错误状态 -->
-        <div v-else-if="error" class="waves-error-container">
-          <div class="waves-error-content">
-            <div class="waves-error-icon">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-            <div class="waves-error-title">加载失败</div>
-            <div class="waves-error-message">{{ error }}</div>
-            <div class="waves-error-actions">
-              <button @click="refreshFiles" class="waves-btn waves-btn-primary">
-                <svg class="waves-btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 4V10H7M23 20V14H17M20.49 9C19.9828 7.56678 19.1209 6.28392 17.9845 5.27493C16.8482 4.26595 15.4745 3.56905 13.9917 3.24575C12.5089 2.92246 10.9652 2.98546 9.51691 3.42597C8.06861 3.86649 6.76071 4.66872 5.71 5.75L1 10M23 14L18.29 18.25C17.2393 19.3313 15.9314 20.1335 14.4831 20.574C13.0348 21.0145 11.4911 21.0775 10.0083 20.7542C8.52547 20.431 7.1518 19.7341 6.01547 18.7251C4.87913 17.7161 4.01717 16.4332 3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                重新加载
-              </button>
-              <button @click="goHome" class="waves-btn waves-btn-secondary">
-                <svg class="waves-btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                返回首页
-              </button>
+      </div>
+      <div class="toolbar-actions">
+        <div class="view-switch">
+          <button :class="{ active: viewMode === 'list' }" @click="setViewMode('list')">列表</button>
+          <button :class="{ active: viewMode === 'grid' }" @click="setViewMode('grid')">画廊</button>
+        </div>
+        <button class="toolbar-btn ghost" @click="openSearch">查找</button>
+        <button class="toolbar-btn primary" @click="showUploadDialogHandler">上传</button>
+        <button class="toolbar-btn ghost" @click="showNewFolderDialogHandler">新建文件夹</button>
+        <button class="toolbar-btn ghost" @click="refreshFiles" :disabled="isLoading">刷新</button>
+      </div>
+    </header>
+
+    <div class="workspace-body">
+      <aside class="workspace-panel">
+        <div class="panel-title">目录导航</div>
+        <div class="panel-content">
+          <FolderTree />
+        </div>
+      </aside>
+
+      <section class="workspace-canvas">
+        <div class="canvas-surface">
+          <div v-if="isLoading" class="canvas-overlay">
+            <div class="overlay-card">
+              <div class="spinner" />
+              <p>正在加载文件列表…</p>
             </div>
           </div>
+          <div v-else-if="error" class="canvas-overlay">
+            <div class="overlay-card error">
+              <h3>加载失败</h3>
+              <p>{{ error }}</p>
+              <div class="overlay-actions">
+                <button @click="refreshFiles">重试</button>
+                <button class="outline" @click="goHome">返回首页</button>
+              </div>
+            </div>
+          </div>
+          <div v-else class="canvas-content">
+            <FileDisplay />
+          </div>
         </div>
-        
-        <!-- 文件显示 -->
-        <div v-else class="waves-file-display-container">
-          <FileDisplay />
+      </section>
+
+      <aside class="workspace-insights">
+        <div class="insight-card">
+          <div class="insight-value">{{ currentFilesCount }}</div>
+          <div class="insight-label">当前文件</div>
+          <p class="insight-caption">实时统计本目录的文件数量，刷新后自动更新。</p>
         </div>
-      </div>
+        <div class="insight-card">
+          <div class="insight-value">{{ currentFoldersCount }}</div>
+          <div class="insight-label">子文件夹</div>
+          <p class="insight-caption">建议按项目、实验阶段划分子目录，便于权限管理。</p>
+        </div>
+        <div class="insight-card highlight">
+          <div class="insight-value">{{ formattedTotalSize }}</div>
+          <div class="insight-label">本层数据量</div>
+          <p class="insight-caption">结合 Facets 搜索，可进一步筛查关注的数据集合。</p>
+        </div>
+      </aside>
     </div>
-     
-    <!-- 上传文件对话框 -->
-    <EnhancedUploadDialog 
-      v-if="showUploadDialog" 
-      @close="closeUploadDialog" 
-    />
-     
-    <!-- 新建文件夹对话框 -->
-    <div v-if="showNewFolderDialog" class="waves-modal-overlay" @click="closeNewFolderDialog">
-      <div class="waves-modal-container" @click.stop>
+
+    <EnhancedUploadDialog v-if="showUploadDialog" @close="closeUploadDialog" />
+
+    <div v-if="showNewFolderDialog" class="workspace-modal-overlay" @click="closeNewFolderDialog">
+      <div class="workspace-modal" @click.stop>
         <NewFolderDialog @close="closeNewFolderDialog" />
       </div>
     </div>
-     
-    <!-- 成功消息提示 -->
-    <Transition name="waves-toast">
-      <div v-if="successMessage" class="waves-success-toast">
-        <div class="waves-toast-icon">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+
+    <Transition name="workspace-toast">
+      <div v-if="successMessage" class="workspace-toast">
+        <div class="toast-content">
+          <strong>操作成功</strong>
+          <span>{{ successMessage }}</span>
         </div>
-        <div class="waves-toast-content">
-          <div class="waves-toast-title">操作成功</div>
-          <div class="waves-toast-message">{{ successMessage }}</div>
-        </div>
-        <button @click="successMessage = ''" class="waves-toast-close">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+        <button class="toast-close" @click="successMessage = ''">×</button>
       </div>
     </Transition>
   </div>
 </template>
 
 <script>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFilesStore } from '../stores/files'
-import NavigationBar from '../components/NavigationBar.vue'
 import FolderTree from '../components/FolderTree.vue'
 import FileDisplay from '../components/FileDisplay.vue'
 import EnhancedUploadDialog from '../components/EnhancedUploadDialog.vue'
@@ -108,7 +119,6 @@ import NewFolderDialog from '../components/NewFolderDialog.vue'
 export default {
   name: 'FileList',
   components: {
-    NavigationBar,
     FolderTree,
     FileDisplay,
     EnhancedUploadDialog,
@@ -117,504 +127,546 @@ export default {
   setup() {
     const router = useRouter()
     const filesStore = useFilesStore()
+
     const successMessage = ref('')
-    
+
     const isLoading = computed(() => filesStore.isLoading)
     const error = computed(() => filesStore.error)
     const showUploadDialog = computed(() => filesStore.showUploadDialog)
     const showNewFolderDialog = computed(() => filesStore.showNewFolderDialog)
-    
+
+    const currentFolderId = computed(() => filesStore.currentFolderId)
+    const breadcrumbPath = computed(() => filesStore.breadcrumb || [])
+    const viewMode = computed(() => filesStore.viewMode)
+
+    const currentFiles = computed(() => filesStore.currentFiles || [])
+    const currentFolders = computed(() => filesStore.currentFolders || [])
+    const currentFilesCount = computed(() => currentFiles.value.length)
+    const currentFoldersCount = computed(() => currentFolders.value.length)
+    const totalSize = computed(() => currentFiles.value.reduce((sum, file) => sum + (file.file_size || 0), 0))
+
+    const formatBytes = (bytes) => {
+      if (!bytes) return '0 B'
+      const units = ['B', 'KB', 'MB', 'GB', 'TB']
+      const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+      const value = bytes / Math.pow(1024, exponent)
+      return `${value.toFixed(value >= 10 || exponent === 0 ? 0 : 1)} ${units[exponent]}`
+    }
+    const formattedTotalSize = computed(() => formatBytes(totalSize.value))
+
+    const navigateToRoot = () => {
+      filesStore.navigateToFolder(null)
+    }
+
+    const navigateToFolder = (folderId) => {
+      filesStore.navigateToFolder(folderId)
+    }
+
+    const navigateUp = () => {
+      filesStore.navigateUp()
+    }
+
+    const setViewMode = (mode) => {
+      filesStore.setViewMode(mode)
+    }
+
+    const showUploadDialogHandler = () => {
+      filesStore.toggleUploadDialog()
+    }
+
+    const showNewFolderDialogHandler = () => {
+      filesStore.toggleNewFolderDialog()
+    }
+
     const closeUploadDialog = () => {
       filesStore.closeAllDialogs()
     }
-    
+
     const closeNewFolderDialog = () => {
       filesStore.closeAllDialogs()
     }
-    
+
     const refreshFiles = async () => {
-      await filesStore.fetchFiles()
+      await filesStore.fetchFiles(currentFolderId.value)
     }
-    
+
+    const openSearch = () => {
+      router.push('/search')
+    }
+
     const goHome = () => {
       router.push('/')
     }
-    
-    const showSuccessMessage = (message) => {
-      successMessage.value = message
-      setTimeout(() => {
-        successMessage.value = ''
-      }, 4000)
+
+    const applyWorkspaceLayout = () => {
+      nextTick(() => {
+        const main = document.querySelector('main.container')
+        if (main) {
+          main.classList.add('workspace-main')
+        }
+      })
     }
-    
+
+    const resetWorkspaceLayout = () => {
+      const main = document.querySelector('main.container')
+      if (main) {
+        main.classList.remove('workspace-main')
+      }
+    }
+
     onMounted(async () => {
+      applyWorkspaceLayout()
       await filesStore.fetchFiles()
     })
-    
+
+    onBeforeUnmount(() => {
+      resetWorkspaceLayout()
+    })
+
     return {
       isLoading,
       error,
       showUploadDialog,
       showNewFolderDialog,
       successMessage,
+      currentFolderId,
+      breadcrumbPath,
+      viewMode,
+      currentFilesCount,
+      currentFoldersCount,
+      formattedTotalSize,
+      navigateToRoot,
+      navigateToFolder,
+      navigateUp,
+      setViewMode,
+      showUploadDialogHandler,
+      showNewFolderDialogHandler,
       closeUploadDialog,
       closeNewFolderDialog,
       refreshFiles,
-      goHome,
-      showSuccessMessage
+      openSearch,
+      goHome
     }
   }
 }
 </script>
 
 <style scoped>
-/* 企业级文件管理器样式 */
-.waves-file-manager {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--waves-corporate-bg);
-  overflow: hidden;
-}
-
-.waves-main-content {
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-}
-
-.waves-sidebar {
-  width: 240px;
-  background: #ffffff;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.waves-content-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: var(--waves-surface-primary);
-  overflow: hidden;
+:global(main.workspace-main) {
+  display: block;
   padding: 0;
+  margin: 0;
+  min-height: calc(100vh - 72px);
+  width: 100%;
+  max-width: none;
 }
 
-.waves-file-display-container {
-  flex: 1;
+.workspace {
+  min-height: calc(100vh - 72px);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-light);
+  width: 100%;
   overflow: hidden;
 }
 
-/* 加载状态样式 */
-.waves-loading-container {
-  height: 100%;
+.workspace-toolbar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: var(--waves-surface-primary);
+  justify-content: space-between;
+  gap: 32px;
+  padding: 20px 32px 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(27, 44, 72, 0.06);
 }
 
-.waves-loading-content {
-  text-align: center;
-  max-width: 400px;
-  padding: 3rem;
-}
-
-.waves-loading-spinner {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 2rem;
-  background: linear-gradient(135deg, var(--waves-primary-500), var(--waves-primary-600));
-  border-radius: 50%;
+.toolbar-left {
   display: flex;
   align-items: center;
-  justify-content: center;
-  animation: waves-pulse 2s ease-in-out infinite;
-}
-
-.waves-spinner-icon {
-  width: 40px;
-  height: 40px;
-  color: white;
-  animation: waves-spin 1.5s linear infinite;
-}
-
-@keyframes waves-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes waves-pulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(var(--waves-primary-rgb), 0.4);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 20px rgba(var(--waves-primary-rgb), 0);
-  }
-}
-
-.waves-loading-text {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--waves-text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.waves-loading-description {
-  font-size: 1rem;
-  color: var(--waves-text-secondary);
-  line-height: 1.6;
-}
-
-/* 错误状态样式 */
-.waves-error-container {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--waves-surface-primary);
-  padding: 3rem;
-}
-
-.waves-error-content {
-  text-align: center;
-  max-width: 500px;
-  background: var(--waves-surface-secondary);
-  padding: 3rem;
-  border-radius: var(--waves-radius-xl);
-  border: 1px solid var(--waves-border-light);
-  box-shadow: var(--waves-shadow-lg);
-}
-
-.waves-error-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 2rem;
-  background: linear-gradient(135deg, var(--waves-error-500), var(--waves-error-600));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.waves-error-icon svg {
-  width: 40px;
-  height: 40px;
-}
-
-.waves-error-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--waves-text-primary);
-  margin-bottom: 1rem;
-}
-
-.waves-error-message {
-  font-size: 1rem;
-  color: var(--waves-text-secondary);
-  margin-bottom: 2rem;
-  line-height: 1.6;
-}
-
-.waves-error-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.waves-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: var(--waves-radius-md);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  font-size: 0.875rem;
-}
-
-.waves-btn-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.waves-btn-primary {
-  background: var(--waves-primary-600);
-  color: white;
-}
-
-.waves-btn-primary:hover {
-  background: var(--waves-primary-700);
-  transform: translateY(-2px);
-  box-shadow: var(--waves-shadow-md);
-}
-
-.waves-btn-secondary {
-  background: var(--waves-surface-primary);
-  color: var(--waves-text-primary);
-  border: 1px solid var(--waves-border-light);
-}
-
-.waves-btn-secondary:hover {
-  background: var(--waves-surface-secondary);
-  border-color: var(--waves-primary-300);
-  transform: translateY(-2px);
-  box-shadow: var(--waves-shadow-md);
-}
-
-/* 模态框样式 */
-.waves-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: waves-fade-in 0.3s ease;
-}
-
-.waves-modal-container {
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: auto;
-  animation: waves-scale-in 0.3s ease;
-}
-
-@keyframes waves-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes waves-scale-in {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* 成功提示样式 */
-.waves-success-toast {
-  position: fixed;
-  top: 2rem;
-  right: 2rem;
-  background: var(--waves-surface-primary);
-  border: 1px solid var(--waves-success-300);
-  border-left: 4px solid var(--waves-success-500);
-  border-radius: var(--waves-radius-lg);
-  box-shadow: var(--waves-shadow-xl);
-  padding: 1rem 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  max-width: 400px;
-  z-index: 1100;
-  backdrop-filter: blur(8px);
-}
-
-.waves-toast-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--waves-success-500), var(--waves-success-600));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  flex-shrink: 0;
-}
-
-.waves-toast-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.waves-toast-content {
-  flex: 1;
+  gap: 16px;
   min-width: 0;
 }
 
-.waves-toast-title {
-  font-weight: 600;
-  color: var(--waves-text-primary);
-  margin-bottom: 0.25rem;
-  font-size: 0.875rem;
+.workspace-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
 }
 
-.waves-toast-message {
-  color: var(--waves-text-secondary);
-  font-size: 0.8rem;
-  line-height: 1.4;
+.workspace-title {
+  font-size: 22px;
+  font-weight: 650;
+  margin: 0;
+  color: var(--text-primary);
 }
 
-.waves-toast-close {
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: none;
-  color: var(--waves-text-secondary);
-  cursor: pointer;
-  border-radius: var(--waves-radius-sm);
+.workspace-breadcrumb {
   display: flex;
   align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-back {
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.breadcrumb-item {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.breadcrumb-item.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.breadcrumb-item:hover {
+  background: rgba(65, 105, 225, 0.12);
+  color: var(--primary);
+}
+
+.breadcrumb-separator {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.view-switch {
+  display: inline-flex;
+  border: 1px solid rgba(27, 44, 72, 0.12);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #fff;
+}
+
+.view-switch button {
+  border: none;
+  background: transparent;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.view-switch button.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.toolbar-btn {
+  border: 1px solid rgba(27, 44, 72, 0.12);
+  background: #ffffff;
+  color: var(--text-secondary);
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.toolbar-btn.primary {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.toolbar-btn.ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.toolbar-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toolbar-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(27, 44, 72, 0.12);
+}
+
+.workspace-body {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  background: var(--bg-light);
+  width: 100%;
+  min-height: calc(100vh - 72px);
+}
+
+.workspace-panel {
+  width: 272px;
+  background: #ffffff;
+  border-right: 1px solid rgba(27, 44, 72, 0.08);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: calc(100vh - 72px);
+}
+
+.panel-title {
+  padding: 18px 24px 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+  min-height: 0;
+  background: #ffffff;
+}
+
+.workspace-canvas {
+  flex: 1;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.canvas-surface {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 48px rgba(15, 31, 68, 0.08);
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.canvas-content {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.canvas-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
   justify-content: center;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
+  align-items: center;
+  zIndex: 2;
 }
 
-.waves-toast-close:hover {
-  background: var(--waves-surface-secondary);
-  color: var(--waves-text-primary);
+.overlay-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 36px;
+  box-shadow: 0 18px 40px rgba(65, 105, 225, 0.16);
+  text-align: center;
+  color: var(--text-secondary);
 }
 
-.waves-toast-close svg {
-  width: 14px;
-  height: 14px;
+.overlay-card.error {
+  border: 1px solid rgba(244, 63, 94, 0.3);
 }
 
-/* Toast 动画 */
-.waves-toast-enter-active,
-.waves-toast-leave-active {
-  transition: all 0.4s ease;
+.overlay-card h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
-.waves-toast-enter-from {
-  transform: translateX(100%);
+.overlay-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.overlay-actions button {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+  border-radius: var(--radius-lg);
+  padding: 8px 20px;
+  cursor: pointer;
+}
+
+.overlay-actions button.outline {
+  background: transparent;
+  color: var(--primary);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(65, 105, 225, 0.18);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 0.9s linear infinite;
+}
+
+.workspace-insights {
+  width: 260px;
+  border-left: 1px solid rgba(27, 44, 72, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.insight-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 12px 30px rgba(27, 44, 72, 0.08);
+}
+
+.insight-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.insight-label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.insight-caption {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.workspace-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.workspace-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  max-width: 520px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.workspace-toast {
+  position: fixed;
+  right: 28px;
+  bottom: 32px;
+  background: #111827;
+  color: #fff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(15, 31, 68, 0.22);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 20;
+}
+
+.toast-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toast-close {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.workspace-toast-enter-active,
+.workspace-toast-leave-active {
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.workspace-toast-enter-from,
+.workspace-toast-leave-to {
+  transform: translateY(20px);
   opacity: 0;
 }
 
-.waves-toast-leave-to {
-  transform: translateX(100%);
-  opacity: 0;
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* 响应式设计 */
-@media (max-width: 1024px) {
-  .waves-sidebar {
-    width: 240px;
-  }
-  
-  .waves-success-toast {
-    right: 1rem;
-    left: 1rem;
-    max-width: none;
+:deep(.waves-file-display) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+:deep(.waves-table-content) {
+  flex: 1;
+  overflow: auto;
+}
+
+@media (max-width: 1280px) {
+  .workspace-insights {
+    display: none;
   }
 }
 
-@media (max-width: 768px) {
-  .waves-main-content {
+@media (max-width: 960px) {
+  .workspace-toolbar {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
-  
-  .waves-sidebar {
+
+  .toolbar-actions {
     width: 100%;
-    height: 200px;
-    border-right: none;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
-  
-  .waves-loading-content,
-  .waves-error-content {
-    padding: 2rem;
-  }
-  
-  .waves-error-actions {
+
+  .workspace-body {
     flex-direction: column;
-    align-items: center;
   }
-  
-  .waves-success-toast {
-    top: 1rem;
-    right: 1rem;
-    left: 1rem;
-    padding: 1rem;
-  }
-  
-  .waves-modal-container {
-    max-width: 95vw;
-    margin: 1rem;
-  }
-}
 
-@media (max-width: 480px) {
-  .waves-sidebar {
-    height: 150px;
+  .workspace-panel {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(27, 44, 72, 0.08);
   }
-  
-  .waves-loading-spinner,
-  .waves-error-icon {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .waves-spinner-icon,
-  .waves-error-icon svg {
-    width: 30px;
-    height: 30px;
-  }
-  
-  .waves-loading-text,
-  .waves-error-title {
-    font-size: 1.125rem;
-  }
-  
-  .waves-btn {
-    padding: 0.625rem 1.25rem;
-    font-size: 0.8rem;
-  }
-  
-  .waves-success-toast {
-    padding: 0.75rem;
-  }
-  
-  .waves-toast-icon {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .waves-toast-icon svg {
-    width: 16px;
-    height: 16px;
-  }
-}
 
-/* 滚动条样式 */
-.waves-modal-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.waves-modal-container::-webkit-scrollbar-track {
-  background: var(--waves-surface-secondary);
-  border-radius: var(--waves-radius-sm);
-}
-
-.waves-modal-container::-webkit-scrollbar-thumb {
-  background: var(--waves-border-light);
-  border-radius: var(--waves-radius-sm);
-}
-
-.waves-modal-container::-webkit-scrollbar-thumb:hover {
-  background: var(--waves-primary-400);
+  .workspace-canvas {
+    padding: 16px;
+  }
 }
 </style>
