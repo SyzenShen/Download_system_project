@@ -1,6 +1,6 @@
-BioFileManager项目面向科研机构或企业级生物信息中心，用于替代传统 FTP / NAS 文件系统，实现实验数据的可视化与追踪。
+BioFileManager项目面向科研机构或企业级生物信息中心，用于替代传统 FTP / NAS 文件系统，实现实验数据的可视化与追踪。且预留了基于机器学习的智能分析接口，可拓展科研数据的智能标注与可视化。
 
-BioFileManager is aimed at research institutions or enterprise-level bioinformatics centers, and is designed to replace traditional FTP/NAS file systems to achieve the visualization and tracking of experimental data.
+BioFileManager is aimed at research institutions or enterprise-level bioinformatics centers, and is designed to replace traditional FTP/NAS file systems to achieve the visualization and tracking of experimental data.A machine learning–based intelligent analytics interface is reserved for extensible data annotation and visualization in scientific research.
 
 # BioFileManager
 
