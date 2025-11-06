@@ -201,6 +201,10 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:5173",
 ]
 
+# NCBI integration defaults
+NCBI_MAX_DOWNLOAD_BYTES = int(os.environ.get('NCBI_MAX_DOWNLOAD_BYTES', 1024 * 1024 * 1024))  # 1 GiB
+NCBI_HTTP_TIMEOUT = int(os.environ.get('NCBI_HTTP_TIMEOUT', 120))
+
 # ===== File upload/download custom settings =====
 # 最大上传尺寸（字节），前端文案将与此保持一致
 MAX_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024 * 1024  # 100GB

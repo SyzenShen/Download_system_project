@@ -1,0 +1,27 @@
+{
+  "upload_method": "storage-stress",
+  "project": "PerformanceLab",
+  "tags": ["performance", "stress-test", "storage"],
+  "stages": [
+    {
+      "label": "baseline-50mb",
+      "file_size_mb": 50,
+      "file_count": 20,
+      "pause_seconds": 2
+    },
+    {
+      "label": "scaleup-200mb",
+      "file_size_mb": 200,
+      "file_count": 15,
+      "pause_seconds": 5
+    },
+    {
+      "label": "upper-bound-1024mb",
+      "file_size_mb": 1024,
+      "file_count": 5,
+      "pause_seconds": 10
+    }
+  ],
+  "max_failures": 5,
+  "stats_interval": 5
+}

@@ -7,6 +7,7 @@ urlpatterns = [
     # 文件相关API
     path('', api_views.file_list, name='api_file_list'),
     path('upload/', api_views.file_upload, name='api_file_upload'),
+    path('ncbi/import/', api_views.ncbi_import, name='api_file_ncbi_import'),
     path('<int:file_id>/delete/', api_views.file_delete, name='api_file_delete'),
     path('<int:file_id>/download/', api_views.file_download, name='api_file_download'),
     # 兼容旧路径：/api/files/download/<id>/

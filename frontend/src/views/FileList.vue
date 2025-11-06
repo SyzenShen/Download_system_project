@@ -30,6 +30,7 @@
           <button :class="{ active: viewMode === 'grid' }" @click="setViewMode('grid')">画廊</button>
         </div>
         <button class="toolbar-btn ghost" @click="openSearch">查找</button>
+        <button class="toolbar-btn ghost" @click="openNcbiDialog">NCBI 下载</button>
         <button class="toolbar-btn primary" @click="showUploadDialogHandler">上传</button>
         <button class="toolbar-btn ghost" @click="showNewFolderDialogHandler">新建文件夹</button>
         <button class="toolbar-btn ghost" @click="refreshFiles" :disabled="isLoading">刷新</button>
@@ -95,6 +96,31 @@
       </div>
     </div>
 
+    <div v-if="showNcbiDialog" class="workspace-modal-overlay" @click="closeNcbiDialog">
+      <div class="workspace-modal" @click.stop>
+        <div class="ncbi-modal">
+          <h3>NCBI 数据下载</h3>
+          <p class="ncbi-tip">
+            输入 NCBI 链接（如基因、蛋白、SRA、PubMed 等），系统将自动识别并下载对应文件。
+          </p>
+          <input
+            v-model="ncbiUrl"
+            type="text"
+            class="ncbi-input"
+            placeholder="https://www.ncbi.nlm.nih.gov/..."
+            :disabled="ncbiIsSubmitting"
+          />
+          <p v-if="ncbiError" class="ncbi-error">{{ ncbiError }}</p>
+          <div class="ncbi-actions">
+            <button class="toolbar-btn ghost" @click="closeNcbiDialog" :disabled="ncbiIsSubmitting">取消</button>
+            <button class="toolbar-btn primary" @click="submitNcbiDownload" :disabled="ncbiIsSubmitting || !ncbiUrl.trim()">
+              {{ ncbiIsSubmitting ? '下载中…' : '开始下载' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <Transition name="workspace-toast">
       <div v-if="successMessage" class="workspace-toast">
         <div class="toast-content">
@@ -111,6 +137,7 @@
 import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFilesStore } from '../stores/files'
+import axios from 'axios'
 import FolderTree from '../components/FolderTree.vue'
 import FileDisplay from '../components/FileDisplay.vue'
 import EnhancedUploadDialog from '../components/EnhancedUploadDialog.vue'
@@ -129,6 +156,10 @@ export default {
     const filesStore = useFilesStore()
 
     const successMessage = ref('')
+    const showNcbiDialog = ref(false)
+    const ncbiUrl = ref('')
+    const ncbiIsSubmitting = ref(false)
+    const ncbiError = ref('')
 
     const isLoading = computed(() => filesStore.isLoading)
     const error = computed(() => filesStore.error)
@@ -198,6 +229,46 @@ export default {
       router.push('/')
     }
 
+    const openNcbiDialog = () => {
+      ncbiUrl.value = ''
+      ncbiError.value = ''
+      showNcbiDialog.value = true
+    }
+
+    const closeNcbiDialog = () => {
+      if (ncbiIsSubmitting.value) return
+      showNcbiDialog.value = false
+      ncbiUrl.value = ''
+      ncbiError.value = ''
+    }
+
+    const submitNcbiDownload = async () => {
+      if (!ncbiUrl.value.trim()) {
+        ncbiError.value = '请填写有效的 NCBI 链接'
+        return
+      }
+      ncbiIsSubmitting.value = true
+      ncbiError.value = ''
+      try {
+        const payload = { url: ncbiUrl.value.trim() }
+        if (currentFolderId.value !== null && currentFolderId.value !== undefined) {
+          payload.parent_folder = currentFolderId.value
+        }
+        const response = await axios.post('/api/files/ncbi/import/', payload)
+        const fileTitle = response?.data?.file?.title || response?.data?.file?.file_name || '文件'
+        successMessage.value = `已从 NCBI 下载 ${fileTitle}`
+        showNcbiDialog.value = false
+        ncbiUrl.value = ''
+        ncbiError.value = ''
+        await filesStore.fetchFiles(currentFolderId.value)
+      } catch (error) {
+        console.error('NCBI download error:', error)
+        ncbiError.value = error?.response?.data?.message || '下载失败，请稍后再试'
+      } finally {
+        ncbiIsSubmitting.value = false
+      }
+    }
+
     const applyWorkspaceLayout = () => {
       nextTick(() => {
         const main = document.querySelector('main.container')
@@ -245,7 +316,14 @@ export default {
       closeNewFolderDialog,
       refreshFiles,
       openSearch,
-      goHome
+      goHome,
+      showNcbiDialog,
+      ncbiUrl,
+      ncbiIsSubmitting,
+      ncbiError,
+      openNcbiDialog,
+      closeNcbiDialog,
+      submitNcbiDownload
     }
   }
 }
@@ -580,6 +658,54 @@ export default {
   max-width: 520px;
   width: 100%;
   overflow: hidden;
+}
+
+.ncbi-modal {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ncbi-modal h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ncbi-tip {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.ncbi-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(27, 44, 72, 0.18);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ncbi-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(58, 126, 185, 0.15);
+  outline: none;
+}
+
+.ncbi-error {
+  margin: 0;
+  font-size: 13px;
+  color: #dc2626;
+}
+
+.ncbi-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .workspace-toast {

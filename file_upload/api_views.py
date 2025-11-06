@@ -7,6 +7,7 @@ import signal
 import subprocess
 import textwrap
 import time
+import requests
 from pathlib import Path
 
 from rest_framework import status
@@ -19,8 +20,16 @@ from django.conf import settings
 from django.http import Http404, StreamingHttpResponse, FileResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
+from django.core.files import File as DjangoFile
+
 from .models import File, Folder
 from .serializers import FileSerializer, FileUploadSerializer, FolderSerializer, FolderCreateSerializer
+from .ncbi_client import (
+    NCBIDownloadError,
+    NCBIDownloadResult,
+    NCBIDownloadTooLarge,
+    download_ncbi_resource,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -303,6 +312,87 @@ def file_upload(request):
     if not message:
         message = '文件上传失败'
     return Response({'message': message, 'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def ncbi_import(request):
+    """从 NCBI 链接下载文件并保存到当前用户空间。"""
+    url = request.data.get('url')
+    parent_folder_id = request.data.get('parent_folder')
+    project = request.data.get('project') or 'NCBI Import'
+    access_level = request.data.get('access_level') or 'Internal'
+
+    if not url:
+        return Response({'message': '请提供 NCBI 链接'}, status=status.HTTP_400_BAD_REQUEST)
+
+    parent_folder = None
+    if parent_folder_id is not None:
+        try:
+            parent_folder = Folder.objects.get(id=parent_folder_id, user=request.user)
+        except Folder.DoesNotExist:
+            return Response({'message': '指定的文件夹不存在或无权限访问'}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        download_result: NCBIDownloadResult = download_ncbi_resource(url)
+    except NCBIDownloadTooLarge as exc:
+        return Response({'message': str(exc)}, status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+    except NCBIDownloadError as exc:
+        return Response({'message': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+    except requests.RequestException as exc:
+        logger.exception("NCBI request failed: %s", exc)
+        return Response({'message': f'无法连接 NCBI 服务：{exc}'}, status=status.HTTP_502_BAD_GATEWAY)
+    except Exception as exc:
+        logger.exception("Unexpected NCBI import failure: %s", exc)
+        return Response({'message': f'下载失败：{exc}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    file_obj = None
+    try:
+        with open(download_result.file_path, 'rb') as handle:
+            django_file = DjangoFile(handle, name=download_result.filename)
+
+            raw_tags = request.data.get('tags')
+            user_tags = []
+            if isinstance(raw_tags, list):
+                user_tags = [str(tag).strip() for tag in raw_tags if str(tag).strip()]
+            elif isinstance(raw_tags, str):
+                user_tags = [tag.strip() for tag in raw_tags.split(',') if tag.strip()]
+            base_tags = ['NCBI', download_result.db.upper()]
+            combined_tags = []
+            for tag in base_tags + user_tags:
+                if tag and tag not in combined_tags:
+                    combined_tags.append(tag)
+            tag_string = ','.join(combined_tags)
+
+            metadata = download_result.metadata or {}
+            description = metadata.get('title') or metadata.get('extra') or ''
+            if metadata.get('summary'):
+                description = f"{description}\n{metadata['summary']}".strip()
+
+            file_obj = File.objects.create(
+                user=request.user,
+                file=django_file,
+                upload_method='NCBI Import',
+                parent_folder=parent_folder,
+                title=metadata.get('title') or download_result.filename,
+                project=project,
+                original_filename=download_result.filename,
+                file_format=download_result.file_format,
+                document_type=download_result.document_type,
+                access_level=access_level,
+                organism=metadata.get('organism') or '',
+                experiment_type=metadata.get('experiment_type') or '',
+                tags=tag_string,
+                description=description,
+            )
+            file_obj.extracted_metadata = metadata
+            file_obj.save()
+    finally:
+        if os.path.exists(download_result.file_path):
+            os.remove(download_result.file_path)
+
+    serializer = FileSerializer(file_obj, context={'request': request})
+    return Response({'file': serializer.data, 'metadata': download_result.metadata}, status=status.HTTP_201_CREATED)
 
 
 @csrf_exempt
