@@ -3,7 +3,7 @@
     <div class="dialog-container">
       <!-- 对话框头部 -->
       <div class="dialog-header">
-        <h2>📤 文件上传</h2>
+        <h2>文件上传</h2>
         <button @click="$emit('close')" class="close-btn">✕</button>
       </div>
 
@@ -46,7 +46,9 @@
             />
             
             <div class="upload-content">
-              <div class="upload-icon">📁</div>
+              <div class="upload-icon">
+                <span class="upload-icon-symbol">FILE</span>
+              </div>
               <h3>拖拽文件到此处或点击选择</h3>
               <p>支持多个文件同时上传，单个文件最大 100GB</p>
               <p class="supported-formats">
@@ -68,7 +70,7 @@
                     <span>{{ detectFileFormat(file.name) }}</span>
                   </div>
                 </div>
-                <button @click="removeFile(index)" class="remove-btn">🗑️</button>
+                <button @click="removeFile(index)" class="remove-btn">删除</button>
               </div>
             </div>
           </div>
@@ -77,13 +79,13 @@
         <!-- 步骤2: 元数据填写 -->
         <div v-if="currentStep === 2" class="step-content">
           <div class="metadata-form">
-            <h3>📋 文件信息</h3>
+            <h3>文件信息</h3>
             <p class="form-description">请填写文件的基本信息，这将帮助您更好地管理和搜索文件。</p>
             
             <div class="form-grid">
               <!-- 必填字段 -->
               <div class="form-section">
-                <h4>📌 必填信息</h4>
+                <h4>必填信息</h4>
                 
                 <div class="form-group">
                   <label for="title">文件标题 *</label>
@@ -135,7 +137,7 @@
 
               <!-- 可选字段 -->
               <div class="form-section">
-                <h4>🔬 实验信息 (可选)</h4>
+                <h4>实验信息 (可选)</h4>
                 
                 <div class="form-group">
                   <label for="organism">物种</label>
@@ -197,7 +199,7 @@
 
             <!-- 自动检测的信息 -->
             <div v-if="detectedInfo.length > 0" class="detected-info">
-              <h4>🤖 自动检测信息</h4>
+              <h4>自动检测信息</h4>
               <div class="detected-items">
                 <div v-for="info in detectedInfo" :key="info.file" class="detected-item">
                   <strong>{{ info.file }}:</strong>
@@ -213,7 +215,7 @@
         <!-- 步骤3: 确认上传 -->
         <div v-if="currentStep === 3" class="step-content">
           <div class="upload-summary">
-            <h3>📋 上传确认</h3>
+            <h3>上传确认</h3>
             
             <!-- 文件信息摘要 -->
             <div class="summary-section">
@@ -609,103 +611,8 @@ export default {
     
     const getFileIcon = (filename) => {
       const format = detectFileFormat(filename)
-      const icons = {
-        // 生物信息学格式
-        'FASTQ': '🧬',
-        'FASTA': '🧬',
-        'VCF': '📊',
-        'BAM': '📊',
-        'SAM': '📊',
-        'BED': '📊',
-        'GTF': '📊',
-        'GFF': '📊',
-        
-        // 文档格式
-        'PDF': '📄',
-        'DOC': '📝',
-        'DOCX': '📝',
-        'PPT': '📊',
-        'PPTX': '📊',
-        'RTF': '📝',
-        
-        // 数据格式
-        'CSV': '📊',
-        'TSV': '📊',
-        'XLS': '📊',
-        'XLSX': '📊',
-        'JSON': '📋',
-        'XML': '📋',
-        'YAML': '📋',
-        'SQL': '🗃️',
-        
-        // 代码格式
-        'py': '🐍',
-        'ipynb': '📓',
-        'R': '📈',
-        'Rmd': '📈',
-        'js': '🟨',
-        'html': '🌐',
-        'css': '🎨',
-        'java': '☕',
-        'cpp': '⚙️',
-        'c': '⚙️',
-        'sh': '💻',
-        'pl': '🔷',
-        'php': '🐘',
-        'rb': '💎',
-        'go': '🐹',
-        'rs': '🦀',
-        'swift': '🍎',
-        'kt': '🟣',
-        'scala': '🔴',
-        
-        // 文本格式
-        'txt': '📝',
-        'md': '📝',
-        'log': '📋',
-        'conf': '⚙️',
-        'ini': '⚙️',
-        'cfg': '⚙️',
-        
-        // 图像格式
-        'jpg': '🖼️',
-        'jpeg': '🖼️',
-        'png': '🖼️',
-        'gif': '🖼️',
-        'bmp': '🖼️',
-        'tiff': '🖼️',
-        'svg': '🖼️',
-        'webp': '🖼️',
-        'ico': '🖼️',
-        
-        // 音频格式
-        'mp3': '🎵',
-        'wav': '🎵',
-        'flac': '🎵',
-        'aac': '🎵',
-        'ogg': '🎵',
-        'm4a': '🎵',
-        
-        // 视频格式
-        'mp4': '🎬',
-        'avi': '🎬',
-        'mov': '🎬',
-        'wmv': '🎬',
-        'flv': '🎬',
-        'mkv': '🎬',
-        'webm': '🎬',
-        'm4v': '🎬',
-        
-        // 压缩格式
-        'zip': '📦',
-        'rar': '📦',
-        '7z': '📦',
-        'tar': '📦',
-        'gz': '📦',
-        'bz2': '📦',
-        'xz': '📦'
-      }
-      return icons[format] || '📄'
+      if (!format) return 'FILE'
+      return format.toUpperCase()
     }
     
     const formatFileSize = (bytes) => {
@@ -835,7 +742,7 @@ export default {
 }
 
 .step.active .step-number {
-  background: #3498db;
+  background: rgb(58, 126, 185);
   color: white;
 }
 
@@ -851,7 +758,7 @@ export default {
 }
 
 .step.active .step-label {
-  color: #3498db;
+  color: rgb(58, 126, 185);
 }
 
 .step.completed .step-label {
@@ -882,13 +789,27 @@ export default {
 
 .upload-zone:hover,
 .upload-zone.drag-over {
-  border-color: #3498db;
+  border-color: rgb(58, 126, 185);
   background: #f8f9fa;
 }
 
 .upload-icon {
-  font-size: 3rem;
-  margin-bottom: 15px;
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: rgba(58, 126, 185, 0.12);
+  color: rgb(58, 126, 185);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin: 0 auto 15px;
+  letter-spacing: 0.08em;
+}
+
+.upload-icon-symbol {
+  display: inline-block;
 }
 
 .upload-content h3 {
@@ -934,8 +855,24 @@ export default {
 }
 
 .file-icon {
-  font-size: 1.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(58, 126, 185, 0.12);
+  color: rgb(58, 126, 185);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
   flex-shrink: 0;
+}
+
+.summary-file .file-icon {
+  width: 40px;
+  height: 40px;
+  font-size: 0.78rem;
 }
 
 .file-info {
@@ -962,10 +899,13 @@ export default {
   padding: 5px;
   border-radius: 4px;
   transition: background 0.3s;
+  color: #b02e31;
+  font-weight: 500;
 }
 
 .remove-btn:hover {
   background: #f8d7da;
+  color: #842029;
 }
 
 /* 步骤2: 元数据表单样式 */
@@ -1033,8 +973,8 @@ export default {
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+  border-color: rgb(58, 126, 185);
+  box-shadow: 0 0 0 2px rgba(58, 126, 185, 0.2);
 }
 
 .form-group small {
@@ -1135,7 +1075,7 @@ export default {
 .upload-progress {
   margin-top: 20px;
   padding: 20px;
-  background: #e8f4fd;
+  background: rgba(58, 126, 185, 0.08);
   border-radius: 8px;
 }
 
@@ -1158,7 +1098,7 @@ export default {
 
 .progress-fill {
   height: 100%;
-  background: #3498db;
+  background: rgb(58, 126, 185);
   transition: width 0.3s;
 }
 
@@ -1187,12 +1127,12 @@ export default {
 }
 
 .btn-primary {
-  background: #3498db;
+  background: rgb(58, 126, 185);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #2980b9;
+  background: rgb(45, 102, 150);
 }
 
 .btn-secondary {

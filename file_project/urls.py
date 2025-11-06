@@ -25,6 +25,7 @@ urlpatterns = [
     path('file_download/', include("file_download.urls")),
     path('api/auth/', include("authentication.urls")),
     path('api/files/', include("file_upload.api_urls")),
+    path('api/', include("ml_interface.urls")),
     # Redirect root to file list page to avoid 404 at '/'
     path('', RedirectView.as_view(url='/file/', permanent=False)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

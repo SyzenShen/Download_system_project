@@ -204,6 +204,9 @@ export default {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  --dialog-primary: rgb(58, 126, 185);
+  --dialog-primary-hover: rgb(45, 102, 150);
+  --dialog-primary-ring: rgba(58, 126, 185, 0.16);
 }
 
 .waves-dialog-container {
@@ -262,7 +265,7 @@ export default {
 .waves-header-icon {
   width: 40px;
   height: 40px;
-  background: var(--waves-primary-500);
+  background: var(--dialog-primary);
   border-radius: var(--waves-radius-md);
   display: flex;
   align-items: center;
@@ -395,8 +398,8 @@ export default {
 
 .waves-form-control:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--dialog-primary);
+  box-shadow: 0 0 0 3px var(--dialog-primary-ring);
   background: #ffffff;
 }
 
@@ -488,12 +491,12 @@ export default {
 
 
 .waves-btn-primary {
-  background: #3b82f6;
+  background: var(--dialog-primary);
   color: white;
 }
 
 .waves-btn-primary:hover:not(:disabled) {
-  background: #2563eb;
+  background: var(--dialog-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -514,7 +517,7 @@ export default {
 
 .waves-btn-secondary:hover {
   background: #f9fafb;
-  border-color: #3b82f6;
+  border-color: var(--dialog-primary);
   transform: translateY(-2px);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -537,7 +540,7 @@ export default {
 }
 
 .waves-dialog-body::-webkit-scrollbar-thumb:hover {
-  background: var(--waves-primary-400);
+  background: rgba(58, 126, 185, 0.6);
 }
 
 /* 响应式设计 */

@@ -718,7 +718,7 @@ export default {
 
 .facet-option input {
   margin-right: 0.75rem;
-  accent-color: var(--waves-primary-500);
+  accent-color: rgb(58, 126, 185);
 }
 
 .clear-filters-btn {

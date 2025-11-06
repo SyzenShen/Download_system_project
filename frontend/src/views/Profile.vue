@@ -136,12 +136,14 @@ export default {
   display: flex;
   align-items: center;
   gap: 16px;
+  --profile-primary: rgb(58, 126, 185);
+  --profile-primary-hover: rgb(45, 102, 150);
 }
 
 .ms-avatar {
   width: 48px;
   height: 48px;
-  background: #0078d4;
+  background: var(--profile-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -223,12 +225,13 @@ export default {
   border-radius: var(--waves-radius-sm);
   padding: 16px;
   text-align: center;
+  border-top: 2px solid var(--profile-primary);
 }
 
 .ms-stat-number {
   font-size: 28px;
   font-weight: 600;
-  color: #0078d4;
+  color: var(--profile-primary);
   margin-bottom: 4px;
   line-height: 1.2;
 }
@@ -251,7 +254,7 @@ export default {
   width: 20px;
   height: 20px;
   border: 2px solid #edebe9;
-  border-top: 2px solid #0078d4;
+  border-top: 2px solid var(--profile-primary);
   border-radius: 50%;
   animation: ms-spin 1s linear infinite;
   margin: 0 auto 16px;

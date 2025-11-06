@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'file_upload',
     'file_download',
     'authentication',
+    'ml_interface',
 ]
 
 MIDDLEWARE = [

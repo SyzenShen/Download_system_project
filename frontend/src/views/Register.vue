@@ -326,8 +326,15 @@ export default {
   font-size: 0.95rem;
 }
 
+.waves-corporate-bg {
+  --auth-primary: rgb(58, 126, 185);
+  --auth-primary-hover: rgb(45, 102, 150);
+  --auth-shadow: 0 2px 4px rgba(58, 126, 185, 0.3);
+  --auth-shadow-hover: 0 4px 8px rgba(58, 126, 185, 0.4);
+}
+
 .waves-form-label svg {
-  color: var(--waves-primary-500);
+  color: var(--auth-primary);
 }
 
 .waves-form-control {
@@ -348,8 +355,8 @@ export default {
 
 .waves-form-control:focus {
   outline: none;
-  border-color: #0078d4;
-  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
+  border-color: var(--auth-primary);
+  box-shadow: var(--auth-shadow);
   background: #ffffff;
 }
 
@@ -397,20 +404,20 @@ export default {
   justify-content: center;
   gap: 12px;
   padding: 8px 32px;
-  background: #0078d4;
+  background: var(--auth-primary) !important;
   color: white;
-  border: none;
+  border: none !important;
   border-radius: 4px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 120, 212, 0.3);
+  box-shadow: var(--auth-shadow);
 }
 
 .waves-btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover);
-  box-shadow: 0 4px 8px rgba(0, 120, 212, 0.4);
+  background: var(--auth-primary-hover) !important;
+  box-shadow: var(--auth-shadow-hover);
 }
 
 .waves-btn-primary:active:not(:disabled) {
@@ -515,14 +522,14 @@ export default {
 }
 
 .waves-link {
-  color: var(--waves-primary-500);
+  color: var(--auth-primary) !important;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
 .waves-link:hover {
-  color: var(--waves-primary-600);
+  color: var(--auth-primary-hover) !important;
   text-decoration: underline;
 }
 
