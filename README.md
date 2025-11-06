@@ -1,6 +1,6 @@
-BioFileManager项目面向科研机构或企业级生物信息中心，用于替代传统 FTP / NAS 文件系统，实现实验数据的可视化与追踪。且预留了基于机器学习的智能分析接口，可拓展科研数据的智能标注与可视化。
+BioFileManager项目面向科研机构或企业级生物信息中心，用于替代传统 FTP / NAS 文件系统，实现实验数据的可视化与追踪。且预留了基于机器学习的智能分析接口，可拓展科研数据的智能标注与可视化。目前已在首都医科大学部署。
 
-BioFileManager is aimed at research institutions or enterprise-level bioinformatics centers, and is designed to replace traditional FTP/NAS file systems to achieve the visualization and tracking of experimental data.A machine learning–based intelligent analytics interface is reserved for extensible data annotation and visualization in scientific research.
+BioFileManager is aimed at research institutions or enterprise-level bioinformatics centers, and is designed to replace traditional FTP/NAS file systems to achieve the visualization and tracking of experimental data.A machine learning–based intelligent analytics interface is reserved for extensible data annotation and visualization in scientific research.currently deployed at Capital Medical University.
 
 # BioFileManager
 
@@ -114,7 +114,7 @@ npm run dev -- --host --port 5173 --strictPort
 
 ## 智能分析占位接口 / Intelligent Analytics Interface
 
-为后续接入自动标签、质控检测、摘要生成、向量检索以及 `.h5ad` 预处理等 AI/ML 能力，后端预留了统一入口 `ml_interface`。当前实现仅记录任务，实际算法可在未来替换。
+为后续接入自动标签、质控检测、摘要生成、向量检索以及 `.h5ad` 预处理等 AI/ML 能力，后端预留了统一入口 `ml_i且ace`。当前实现仅记录任务，实际算法可在未来替换。
 
 | 任务类型 Task Type | 用途 Purpose |
 | --- | --- |
