@@ -1,3 +1,3 @@
-这是一个用于调试上传功能的测试文件。
-文件内容：测试空元数据上传
-创建时间：2025-11-01
+This file is used to debug uploads with empty metadata.
+File content: empty-metadata upload scenario
+Created: 2025-11-01

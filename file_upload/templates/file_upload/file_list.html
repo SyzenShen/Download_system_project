@@ -13,7 +13,7 @@
     </tr>
     {% for file in files %}
     <tr>
-        <!-- 显示原始文件名，并使用按ID下载路由，避免路径泄露与乱码 -->
+        <!-- Display the original filename and use the ID-based download route to avoid leaking paths -->
         <td>
             <a href="{% url 'file_download:file_download_by_id' file.id %}">
                 {{ file.original_filename|default:file.file.name }}

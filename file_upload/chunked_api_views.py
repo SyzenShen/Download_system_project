@@ -33,15 +33,15 @@ def chunked_upload_init(request):
     parent_folder_id = data.get('parent_folder_id')
 
     if not filename or total_size <= 0:
-        return Response({'message': '缺少必要参数'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Missing required parameters'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # 验证父文件夹权限
+    # Validate parent folder permissions
     parent_folder = None
     if parent_folder_id:
         try:
             parent_folder = Folder.objects.get(id=parent_folder_id, user=request.user)
         except Folder.DoesNotExist:
-            return Response({'message': '父文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Parent folder not found'}, status=status.HTTP_404_NOT_FOUND)
 
     tmp_dir = _get_tmp_dir(request.user.id)
     session_id = uuid.uuid4().hex
@@ -73,14 +73,14 @@ def chunked_upload_chunk(request, session_id):
     try:
         session = UploadSession.objects.get(session_id=session_id, user=request.user)
     except UploadSession.DoesNotExist:
-        return Response({'message': '会话不存在'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'message': 'Upload session not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if session.status != 'active':
-        return Response({'message': '会话不可用'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Upload session is not available'}, status=status.HTTP_400_BAD_REQUEST)
 
     range_header = request.headers.get('Content-Range') or request.META.get('HTTP_CONTENT_RANGE')
     if not range_header:
-        return Response({'message': '缺少 Content-Range 头'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Missing Content-Range header'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         units, rng_total = range_header.split(' ')
@@ -92,14 +92,14 @@ def chunked_upload_chunk(request, session_id):
         end = int(end_str)
         total = int(total_part)
     except Exception:
-        return Response({'message': 'Content-Range 格式错误'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Invalid Content-Range header'}, status=status.HTTP_400_BAD_REQUEST)
 
     if total != session.total_size:
-        return Response({'message': '总大小不一致'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Mismatched total size'}, status=status.HTTP_400_BAD_REQUEST)
 
     chunk = request.body
     if not isinstance(chunk, (bytes, bytearray)) or len(chunk) != (end - start + 1):
-        return Response({'message': '分片大小不匹配'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Chunk size mismatch'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         with open(session.temp_path, 'r+b') as f:
@@ -123,13 +123,13 @@ def chunked_upload_complete(request, session_id):
     try:
         session = UploadSession.objects.get(session_id=session_id, user=request.user)
     except UploadSession.DoesNotExist:
-        return Response({'message': '会话不存在'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'message': 'Upload session not found'}, status=status.HTTP_404_NOT_FOUND)
 
     if session.status != 'active':
-        return Response({'message': '会话不可用'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Upload session is not available'}, status=status.HTTP_400_BAD_REQUEST)
 
     if session.uploaded_size != session.total_size:
-        return Response({'message': '上传未完成'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Upload is incomplete'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         with open(session.temp_path, 'rb') as fp:
@@ -142,7 +142,7 @@ def chunked_upload_complete(request, session_id):
             )
             file_obj.file.save(session.original_filename, django_file, save=True)
     except Exception:
-        return Response({'message': '写入文件失败'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'message': 'Failed to finalize uploaded file'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     session.status = 'completed'
     session.save(update_fields=['status'])
@@ -164,7 +164,7 @@ def chunked_upload_cancel(request, session_id):
     try:
         session = UploadSession.objects.get(session_id=session_id, user=request.user)
     except UploadSession.DoesNotExist:
-        return Response({'message': '会话不存在'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'message': 'Upload session not found'}, status=status.HTTP_404_NOT_FOUND)
 
     session.status = 'canceled'
     session.save(update_fields=['status'])
@@ -174,4 +174,4 @@ def chunked_upload_cancel(request, session_id):
     except Exception:
         pass
 
-    return Response({'message': '已取消上传'}, status=status.HTTP_200_OK)
+    return Response({'message': 'Upload canceled'}, status=status.HTTP_200_OK)

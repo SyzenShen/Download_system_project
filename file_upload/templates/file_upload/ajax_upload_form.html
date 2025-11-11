@@ -27,7 +27,7 @@ function csrfSafeMethod(method) {
 $(document).ready(function(){
    $('#btn').click(function(e){
         e.preventDefault();
-        // 构建FormData对象
+        // Build a FormData payload
         var form_data = new FormData();
         form_data.append('file', $('#id_file')[0].files[0]);
         form_data.append('upload_method', $('#id_upload_method').val());
@@ -36,11 +36,11 @@ $(document).ready(function(){
         data: form_data,
         type: 'POST',
         dataType: 'json',
-        // 告诉jQuery不要去处理发送的数据, 发送对象。
+        // Prevent jQuery from trying to process the raw file data
         processData : false,
-        // 告诉jQuery不要去设置Content-Type请求头
+        // Prevent jQuery from setting the Content-Type header
         contentType : false,
-        // 获取POST所需的csrftoken
+        // Fetch the csrftoken required for POST
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);

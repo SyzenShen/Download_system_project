@@ -11,12 +11,12 @@ class FileUploadForm(forms.Form):
 
     def clean_file(self):
         file = self.cleaned_data['file']
-        # 大小限制
+        # Enforce optional size limit
         max_size = getattr(settings, 'MAX_UPLOAD_SIZE_BYTES', None)
         if max_size is not None and file.size > max_size:
-            raise forms.ValidationError(f"文件过大，最大允许 {int(max_size / (1024 * 1024 * 1024))}GB")
+            raise forms.ValidationError(f"File too large; maximum allowed size is {int(max_size / (1024 * 1024 * 1024))} GB")
         
-        # 移除严格的文件格式限制，现在支持所有文件格式
+        # No strict file-type filtering; all formats are allowed
         
         # return cleaned data is very important.
         return file
@@ -37,10 +37,9 @@ class FileUploadModelForm(forms.ModelForm):
         file = self.cleaned_data['file']
         max_size = getattr(settings, 'MAX_UPLOAD_SIZE_BYTES', None)
         if max_size is not None and file.size > max_size:
-            raise forms.ValidationError(f"文件过大，最大允许 {int(max_size / (1024 * 1024 * 1024))}GB")
+            raise forms.ValidationError(f"File too large; maximum allowed size is {int(max_size / (1024 * 1024 * 1024))} GB")
         
-        # 移除严格的文件格式限制，只检查文件大小
-        # 现在支持所有文件格式
+        # Only validate by size; all formats are accepted
         
         # return cleaned data is very important.
         return file
@@ -48,11 +47,10 @@ class FileUploadModelForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         try:
-            # 原始名称来自上传的文件名
+            # Preserve the original filename from the uploaded file
             instance.original_filename = self.cleaned_data.get('file').name
         except Exception:
             pass
         if commit:
             instance.save()
         return instance
-

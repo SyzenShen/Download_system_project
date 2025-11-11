@@ -1,5 +1,5 @@
-这是一个用于测试删除确认功能的测试文件。
-创建时间: 2024年12月19日
-目的: 验证删除确认对话框是否正常工作
+This fixture validates the delete confirmation dialog.
+Created: 19 Dec 2024
+Goal: ensure the confirmation flow works as expected
 
-如果您看到这个文件，说明删除确认功能可能存在问题。
+If this file still exists after running the test, the delete confirmation likely failed.

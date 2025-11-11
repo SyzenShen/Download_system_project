@@ -14,7 +14,7 @@ class FileSerializer(serializers.ModelSerializer):
         model = File
         fields = ('id', 'file', 'file_url', 'file_name', 'file_path', 'original_filename', 
                  'upload_method', 'uploaded_at', 'file_size', 'parent_folder', 'parent_folder_name',
-                 # 新增元数据字段
+                 # Additional metadata fields
                  'title', 'project', 'uploader', 'file_format', 'document_type', 'access_level',
                  'organism', 'experiment_type', 'tags', 'tags_list', 'description', 'checksum', 
                  'qc_status', 'extracted_metadata')
@@ -38,7 +38,7 @@ class FileSerializer(serializers.ModelSerializer):
         return obj.parent_folder.name if obj.parent_folder else None
     
     def get_tags_list(self, obj):
-        """将标签字符串转换为列表"""
+        """Convert the comma-delimited tag string into a list"""
         if obj.tags:
             return [tag.strip() for tag in obj.tags.split(',') if tag.strip()]
         return []
@@ -49,7 +49,7 @@ class FileSerializer(serializers.ModelSerializer):
 
 
 class FileUploadSerializer(serializers.ModelSerializer):
-    # 重新定义字段以允许空白值
+    # Allow blank values so defaults can be injected
     title = serializers.CharField(allow_blank=True, required=False)
     project = serializers.CharField(allow_blank=True, required=False)
     file_format = serializers.CharField(allow_blank=True, required=False)
@@ -59,64 +59,64 @@ class FileUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
         fields = ('file', 'upload_method', 'parent_folder', 
-                 # 必填元数据字段
+                 # Required metadata fields
                  'title', 'project', 'file_format', 'document_type', 'access_level',
-                 # 可选元数据字段
+                 # Optional metadata fields
                  'organism', 'experiment_type', 'tags', 'description')
 
     def validate_file(self, file):
         max_size = getattr(settings, 'MAX_UPLOAD_SIZE_BYTES', None)
         if max_size is not None and file.size > max_size:
             raise serializers.ValidationError(
-                f'文件过大，最大允许 {int(max_size / (1024 * 1024 * 1024))}GB'
+                f'File too large; maximum allowed {int(max_size / (1024 * 1024 * 1024))} GB'
             )
         return file
     
     def validate_title(self, value):
-        """验证标题字段，空字符串时提供默认值"""
+        """Provide a default title when blank"""
         if not value or value.strip() == '':
-            return '未命名文件'
+            return 'Untitled file'
         return value
     
     def validate_project(self, value):
-        """验证项目字段，空字符串时提供默认值"""
+        """Provide a default project name when blank"""
         if not value or value.strip() == '':
-            return '默认项目'
+            return 'Default Project'
         return value
     
     def validate_file_format(self, value):
-        """验证文件格式字段，空字符串时提供默认值"""
+        """Provide a default file format when blank"""
         if not value or value.strip() == '':
             return 'other'
         return value
     
     def validate_document_type(self, value):
-        """验证文档类型字段，空字符串时提供默认值"""
+        """Provide a default document type when blank"""
         if not value or value.strip() == '':
             return 'Dataset'
         return value
     
     def validate_access_level(self, value):
-        """验证访问级别字段，空字符串时提供默认值"""
+        """Provide a default access level when blank"""
         if not value or value.strip() == '':
             return 'Internal'
         return value
     
     def validate(self, data):
-        """验证必填字段并提供默认值"""
-        # 为必填字段提供默认值，避免空字符串导致验证失败
+        """Apply defaults so required fields never stay empty"""
+        # Ensure required fields have fallback values
         if not data.get('title'):
-            data['title'] = data.get('file').name if data.get('file') else '未命名文件'
+            data['title'] = data.get('file').name if data.get('file') else 'Untitled file'
         
         if not data.get('project'):
-            data['project'] = '默认项目'
+            data['project'] = 'Default Project'
             
         if not data.get('file_format'):
-            # 从文件扩展名推断格式
+            # Infer the format from the file extension
             if data.get('file'):
                 filename = data['file'].name
                 ext = filename.split('.')[-1].lower() if '.' in filename else ''
-                # 映射常见扩展名到格式
+                # Map common extensions to internal format names
                 format_mapping = {
                     'txt': 'TXT', 'csv': 'CSV', 'json': 'JSON', 'xml': 'XML',
                     'pdf': 'PDF', 'doc': 'DOC', 'docx': 'DOCX', 'xls': 'XLS', 'xlsx': 'XLSX',
@@ -141,16 +141,16 @@ class FileUploadSerializer(serializers.ModelSerializer):
         if validated_data.get('file'):
             validated_data['original_filename'] = validated_data['file'].name
         
-        # 创建文件对象
+        # Persist the file record
         file_obj = super().create(validated_data)
         
-        # 异步提取元数据
+        # Extract metadata asynchronously
         self._extract_metadata_async(file_obj)
         
         return file_obj
     
     def _extract_metadata_async(self, file_obj):
-        """异步提取文件元数据"""
+        """Kick off metadata extraction in a fire-and-forget manner"""
         try:
             from .metadata_extractor import extract_file_metadata
             
@@ -159,22 +159,22 @@ class FileUploadSerializer(serializers.ModelSerializer):
                 if metadata:
                     file_obj.extracted_metadata = metadata
                     
-                    # 如果没有手动填写物种信息，尝试从提取的元数据中获取
+                    # Autofill organism if user left it blank
                     if not file_obj.organism and 'detected_organism' in metadata:
                         file_obj.organism = metadata['detected_organism']
                     
-                    # 更新描述信息
+                    # Populate description using detected keywords when possible
                     if not file_obj.description and 'detected_keywords' in metadata:
                         keywords = metadata['detected_keywords']
                         if keywords:
-                            file_obj.description = f"检测到的关键词: {', '.join(keywords[:5])}"
+                            file_obj.description = f\"Detected keywords: {', '.join(keywords[:5])}\"
                     
                     file_obj.save()
         except Exception as e:
-            # 记录错误但不影响文件上传
+            # Log errors but do not block the upload
             import logging
             logger = logging.getLogger(__name__)
-            logger.error(f"元数据提取失败 {file_obj.id}: {e}")
+            logger.error(f\"Metadata extraction failed for {file_obj.id}: {e}\")
 
 
 class FolderSerializer(serializers.ModelSerializer):
@@ -204,12 +204,12 @@ class FolderSerializer(serializers.ModelSerializer):
         return obj.files.count()
 
     def get_folder_size(self, obj):
-        """计算文件夹总大小（包括子文件夹）"""
+        """Recursively compute the folder size including descendants"""
         def calculate_folder_size(folder):
-            # 计算当前文件夹中所有文件的大小
+            # Sum file sizes within the current folder
             files_size = sum(file.file_size or 0 for file in folder.files.all())
             
-            # 递归计算子文件夹的大小
+            # Recurse into child folders
             subfolders_size = sum(calculate_folder_size(subfolder) for subfolder in folder.subfolders.all())
             
             return files_size + subfolders_size

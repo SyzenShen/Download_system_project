@@ -27,17 +27,17 @@ export const useAuthStore = defineStore('auth', {
         this.user = user
         localStorage.setItem('token', token)
         
-        // 设置axios默认header
+        // Configure default axios headers
         axios.defaults.headers.common['Authorization'] = `Token ${token}`
         
         return { success: true }
       } catch (error) {
-        // 优先展示后端明确的错误信息
+        // Prefer backend validation errors when available
         const data = error.response?.data
         const msgFromSerializer = Array.isArray(data?.non_field_errors) ? data.non_field_errors[0]
           : (typeof data === 'string' ? data : null)
         const fallback = data?.message || data?.detail
-        this.error = msgFromSerializer || fallback || '账号或密码错误'
+        this.error = msgFromSerializer || fallback || 'Incorrect email or password'
         return { success: false, error: this.error }
       } finally {
         this.isLoading = false
@@ -50,10 +50,10 @@ export const useAuthStore = defineStore('auth', {
       
       try {
         const response = await axios.post('/api/auth/register/', userData)
-        return { success: true, message: '注册成功，请登录' }
+        return { success: true, message: 'Registration successful, please sign in.' }
       } catch (error) {
         const data = error.response?.data
-        // serializer 校验错误兼容：可能是对象或列表
+        // Serializer errors can be lists or dicts; flatten them
         let specificError = null
         if (typeof data === 'object' && data) {
           const fieldOrder = ['username', 'email', 'password', 'confirm_password', 'non_field_errors']
@@ -65,7 +65,7 @@ export const useAuthStore = defineStore('auth', {
           }
         }
         const fallback = data?.message || data?.detail
-        this.error = specificError || fallback || '注册失败'
+        this.error = specificError || fallback || 'Registration failed'
         return { success: false, error: this.error }
       } finally {
         this.isLoading = false
@@ -93,7 +93,7 @@ export const useAuthStore = defineStore('auth', {
         this.user = response.data
       } catch (error) {
         console.error('Fetch user error:', error)
-        // 不强制登出，保留 token，方便用户重试或手动刷新
+        // Do not force logout; keep the token so the user can retry or refresh
         delete axios.defaults.headers.common['Authorization']
       }
     },

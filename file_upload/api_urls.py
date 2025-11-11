@@ -4,31 +4,31 @@ from . import chunked_api_views as chunk_api
 from . import search_views
 
 urlpatterns = [
-    # 文件相关API
+    # File APIs
     path('', api_views.file_list, name='api_file_list'),
     path('upload/', api_views.file_upload, name='api_file_upload'),
     path('ncbi/import/', api_views.ncbi_import, name='api_file_ncbi_import'),
     path('<int:file_id>/delete/', api_views.file_delete, name='api_file_delete'),
     path('<int:file_id>/download/', api_views.file_download, name='api_file_download'),
-    # 兼容旧路径：/api/files/download/<id>/
+    # Backward-compatible path: /api/files/download/<id>/
     path('download/<int:file_id>/', api_views.file_download, name='api_file_download_legacy'),
-    # 发布到 Cellxgene（将指定文件复制到 Cellxgene 数据目录）
+    # Publish to Cellxgene (copy file into the Cellxgene data dir)
     path('<int:file_id>/publish-cellxgene/', api_views.publish_cellxgene, name='publish_cellxgene'),
     path('stats/', api_views.user_stats, name='api_user_stats'),
     
-    # 文件搜索相关API
+    # File search APIs
     path('search/', search_views.search_files, name='file-search'),
     path('facets/', search_views.get_facets, name='file-facets'),
     path('suggestions/', search_views.search_suggestions, name='search-suggestions'),
     path('<int:file_id>/preview/', search_views.file_preview, name='file-preview'),
     
-    # 文件夹相关API
+    # Folder APIs
     path('folders/', api_views.folder_list_create, name='api_folder_list_create'),
     path('folders/all/', api_views.folder_all, name='api_folder_all'),
     path('folders/<int:folder_id>/', api_views.folder_detail, name='api_folder_detail'),
     path('folders/<int:folder_id>/breadcrumb/', api_views.folder_breadcrumb, name='api_folder_breadcrumb'),
     
-    # 分片上传接口
+    # Chunked upload endpoints
     path('chunked/init/', chunk_api.chunked_upload_init, name='api_chunked_upload_init'),
     path('chunked/<str:session_id>/chunk/', chunk_api.chunked_upload_chunk, name='api_chunked_upload_chunk'),
     path('chunked/<str:session_id>/complete/', chunk_api.chunked_upload_complete, name='api_chunked_upload_complete'),

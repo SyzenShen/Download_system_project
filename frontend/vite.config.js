@@ -15,10 +15,10 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
-        // 保留 /api 前缀，后端以 /api 开头
+        // Keep the /api prefix intact; the backend is mounted there
         secure: false
       },
-      // 仅匹配以 /cellxgene/ 开头的路径，避免误匹配 /cellxgene-app
+      // Only proxy /cellxgene/* to avoid intercepting /cellxgene-app
       '/cellxgene/': {
         target: 'http://localhost:5005',
         changeOrigin: true,
@@ -33,7 +33,7 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => path.replace(/^\/cellxgene/, '/')
       },
-      // Cellxgene 页面下游还会请求静态资源与 API，需要一起代理到 5005 端口
+      // Cellxgene also fetches static assets/API calls that must be proxied to 5005
       '/static/': {
         target: 'http://localhost:5005',
         changeOrigin: true,

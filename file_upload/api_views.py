@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 def _resolve_cellxgene_command():
-    """根据配置或 PATH 查找 cellxgene 可执行文件"""
+    """Locate the cellxgene executable via settings or PATH"""
     configured = getattr(settings, 'CELLXGENE_CMD', None)
     candidates = []
     if configured:
@@ -94,7 +94,7 @@ def _stop_existing_cellxgene(pid_path: Path):
 
 
 def prepare_h5ad_for_cellxgene(dataset_path: str):
-    """确保 .h5ad 文件包含 Cellxgene 需要的二维布局"""
+    """Ensure the .h5ad file contains the 2D layout Cellxgene expects"""
     python_bin = getattr(
         settings,
         'CELLXGENE_PYTHON',
@@ -103,7 +103,7 @@ def prepare_h5ad_for_cellxgene(dataset_path: str):
     if not python_bin or not os.path.exists(python_bin):
         return {
             'status': 'skipped',
-            'message': '未找到 Cellxgene Python 解释器，跳过布局生成'
+            'message': 'Cellxgene Python interpreter not found; skipping layout generation.'
         }
 
     script = textwrap.dedent(f"""
@@ -148,7 +148,7 @@ def prepare_h5ad_for_cellxgene(dataset_path: str):
         )
     except OSError as exc:
         logger.error("Failed to invoke Cellxgene python for layout generation: %s", exc)
-        return {'status': 'error', 'message': f'无法生成布局：{exc}'}
+        return {'status': 'error', 'message': f'Failed to generate layout: {exc}'}
 
     if result.returncode != 0:
         logger.error(
@@ -159,12 +159,12 @@ def prepare_h5ad_for_cellxgene(dataset_path: str):
         )
         return {
             'status': 'error',
-            'message': result.stderr.strip() or 'Cellxgene 布局生成失败'
+            'message': result.stderr.strip() or 'Cellxgene layout generation failed'
         }
 
     if result.stdout:
         logger.info("Cellxgene layout script output: %s", result.stdout.strip())
-    return {'status': 'prepared', 'message': '已生成默认二维布局'}
+    return {'status': 'prepared', 'message': 'Default 2D layout generated'}
 
 
 def _kill_processes_on_port(port: int):
@@ -205,13 +205,13 @@ def _kill_processes_on_port(port: int):
 
 
 def restart_cellxgene_process(dataset_path: str):
-    """尝试使用新的数据集重新启动 Cellxgene 服务"""
+    """Attempt to restart Cellxgene with a new dataset"""
     if not getattr(settings, 'CELLXGENE_AUTO_RESTART', True):
-        return {'status': 'skipped', 'message': 'Cellxgene 自动重启已关闭，请手动启动服务'}
+        return {'status': 'skipped', 'message': 'Cellxgene auto restart is disabled; start the service manually.'}
 
     command = _resolve_cellxgene_command()
     if not command:
-        return {'status': 'error', 'message': '未找到 cellxgene 命令，请安装或在 CELLXGENE_CMD 中配置路径'}
+        return {'status': 'error', 'message': 'cellxgene executable not found; install it or set CELLXGENE_CMD.'}
 
     log_path = Path(getattr(settings, 'CELLXGENE_LOG_FILE', os.path.join(settings.BASE_DIR, 'logs', 'cellxgene.log')))
     pid_path = Path(getattr(settings, 'CELLXGENE_PID_FILE', os.path.join(settings.BASE_DIR, '.pids', 'cellxgene.pid')))
@@ -241,33 +241,33 @@ def restart_cellxgene_process(dataset_path: str):
             )
     except OSError as exc:
         logger.error("Failed to start Cellxgene: %s", exc)
-        return {'status': 'error', 'message': f'无法启动 Cellxgene：{exc}'}
+        return {'status': 'error', 'message': f'Unable to start Cellxgene: {exc}'}
 
     pid_path.write_text(str(proc.pid))
     logger.info("Cellxgene restarted with dataset %s (pid=%s)", dataset_path, proc.pid)
-    return {'status': 'started', 'message': 'Cellxgene 已重新加载数据，请稍候页面刷新', 'pid': proc.pid}
+    return {'status': 'started', 'message': 'Cellxgene is reloading the dataset; refresh the page shortly.', 'pid': proc.pid}
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def file_list(request):
-    """获取当前用户的文件列表，支持按文件夹过滤"""
+    """Return the current user's files, optionally filtered by folder"""
     folder_id = request.GET.get('folder_id')
     
-    # 获取文件夹信息
+    # Resolve folder metadata if provided
     current_folder = None
     if folder_id:
         try:
             current_folder = Folder.objects.get(id=folder_id, user=request.user)
         except Folder.DoesNotExist:
-            return Response({'error': '文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Folder not found'}, status=status.HTTP_404_NOT_FOUND)
     
-    # 获取当前文件夹下的子文件夹
+    # Fetch children for the active folder
     if current_folder:
         folders = Folder.objects.filter(user=request.user, parent=current_folder).order_by('name')
         files = File.objects.filter(user=request.user, parent_folder=current_folder).order_by('-uploaded_at')
     else:
-        # 根目录：获取没有父文件夹的文件夹和文件
+        # Root level: only items without parents
         folders = Folder.objects.filter(user=request.user, parent=None).order_by('name')
         files = File.objects.filter(user=request.user, parent_folder=None).order_by('-uploaded_at')
     
@@ -286,8 +286,8 @@ def file_list(request):
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser])
 def file_upload(request):
-    """文件上传"""
-    # 记录请求数据
+    """Upload a file via multipart form data"""
+    # Debug logging (intentionally noisy)
     logger.error(f"Upload request data: {dict(request.data)}")
     logger.error(f"Upload request files: {dict(request.FILES)}")
     logger.error(f"Upload request user: {request.user}")
@@ -298,40 +298,40 @@ def file_upload(request):
         response_serializer = FileSerializer(file_obj, context={'request': request})
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
     
-    # 记录详细的验证错误
+    # Dump detailed validation errors for debugging
     logger.error(f"Serializer validation errors: {serializer.errors}")
     
-    # 统一错误消息格式，便于前端展示
+    # Normalize the response payload for the frontend
     errors = serializer.errors
     message = None
     if isinstance(errors, dict):
-        # 优先返回 file 字段的错误
+        # Prioritize feedback for the file field
         file_errors = errors.get('file')
         if isinstance(file_errors, list) and file_errors:
             message = str(file_errors[0])
     if not message:
-        message = '文件上传失败'
+        message = 'File upload failed'
     return Response({'message': message, 'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def ncbi_import(request):
-    """从 NCBI 链接下载文件并保存到当前用户空间。"""
+    """Download an NCBI resource and store it for the authenticated user"""
     url = request.data.get('url')
     parent_folder_id = request.data.get('parent_folder')
     project = request.data.get('project') or 'NCBI Import'
     access_level = request.data.get('access_level') or 'Internal'
 
     if not url:
-        return Response({'message': '请提供 NCBI 链接'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Provide a valid NCBI link'}, status=status.HTTP_400_BAD_REQUEST)
 
     parent_folder = None
     if parent_folder_id is not None:
         try:
             parent_folder = Folder.objects.get(id=parent_folder_id, user=request.user)
         except Folder.DoesNotExist:
-            return Response({'message': '指定的文件夹不存在或无权限访问'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Folder not found or not accessible'}, status=status.HTTP_404_NOT_FOUND)
 
     try:
         download_result: NCBIDownloadResult = download_ncbi_resource(url)
@@ -341,10 +341,10 @@ def ncbi_import(request):
         return Response({'message': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
     except requests.RequestException as exc:
         logger.exception("NCBI request failed: %s", exc)
-        return Response({'message': f'无法连接 NCBI 服务：{exc}'}, status=status.HTTP_502_BAD_GATEWAY)
+        return Response({'message': f'Unable to reach NCBI: {exc}'}, status=status.HTTP_502_BAD_GATEWAY)
     except Exception as exc:
         logger.exception("Unexpected NCBI import failure: %s", exc)
-        return Response({'message': f'下载失败：{exc}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'message': f'Download failed: {exc}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     file_obj = None
     try:
@@ -400,10 +400,10 @@ def ncbi_import(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def file_delete(request, file_id):
-    """删除文件"""
+    """Delete a file owned by the current user"""
     try:
         file_obj = File.objects.get(id=file_id, user=request.user)
-        # 删除物理文件
+        # Remove the physical file if present
         if file_obj.file and os.path.exists(file_obj.file.path):
             os.remove(file_obj.file.path)
         file_obj.delete()
@@ -416,16 +416,16 @@ def file_delete(request, file_id):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def file_download(request, file_id):
-    """文件下载"""
+    """Download or partially download an existing file"""
     try:
-        # 获取文件对象
+        # Fetch the file record
         try:
             file_obj = File.objects.get(id=file_id, user=request.user)
         except File.DoesNotExist:
             logger.warning(f"File not found: id={file_id}, user={request.user.id}")
             raise Http404("File not found")
 
-        # 验证文件是否存在
+        # Validate the physical file
         if not file_obj.file:
             logger.error(f"File object has no file: id={file_id}")
             raise Http404("File not found")
@@ -435,21 +435,21 @@ def file_download(request, file_id):
             logger.error(f"Physical file not found: path={file_path}, id={file_id}")
             raise Http404("File not found")
 
-        # 验证文件可读性
+        # Ensure the file is readable
         try:
             with open(file_path, 'rb') as test_file:
-                test_file.read(1)  # 尝试读取1字节
+                test_file.read(1)  # Probe one byte
         except (IOError, OSError, PermissionError) as e:
             logger.error(f"Cannot read file: path={file_path}, error={str(e)}")
             raise Http404("File not accessible")
 
         file_name = file_obj.original_filename or os.path.basename(file_path)
         
-        # 安全的文件名处理
+        # Produce a safe filename for Content-Disposition
         import urllib.parse
         safe_filename = urllib.parse.quote(file_name.encode('utf-8'))
 
-        # MIME类型
+        # Detect MIME type
         content_type, _ = mimetypes.guess_type(file_path)
         if content_type is None:
             content_type = 'application/octet-stream'
@@ -466,7 +466,7 @@ def file_download(request, file_id):
                    f"size={file_size}, range={range_header}")
 
         if range_header:
-            # 解析 Range: bytes=start-end
+            # Parse Range: bytes=start-end
             try:
                 units, rng = range_header.split('=')
                 if units.strip() != 'bytes':
@@ -475,7 +475,7 @@ def file_download(request, file_id):
                 start = int(start_str) if start_str else 0
                 end = int(end_str) if end_str else file_size - 1
                 
-                # 验证范围
+                # Validate the requested range
                 if start < 0 or end >= file_size or start > end:
                     logger.warning(f"Invalid range: start={start}, end={end}, size={file_size}")
                     start = 0
@@ -515,7 +515,7 @@ def file_download(request, file_id):
             logger.info(f"Partial download started: file_id={file_id}, range={start}-{end}")
             return response
         else:
-            # 全量下载，流式传输
+            # Full download streaming
             try:
                 file_handle = open(file_path, 'rb')
                 response = FileResponse(file_handle, content_type=content_type)
@@ -539,33 +539,29 @@ def file_download(request, file_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def publish_cellxgene(request, file_id):
-    """将指定文件发布到 Cellxgene 数据目录以便预览
-
-    要求：文件为 .h5ad 格式；将物理文件复制到 settings.CELLXGENE_DATA_DIR 下，
-    避免破坏用户原始文件结构。返回发布后的目标文件名及目录。
-    """
+    """Copy an .h5ad file into the Cellxgene data directory for preview"""
     try:
-        # 获取文件对象（仅限当前用户）
+        # Only allow the owner to publish
         try:
             file_obj = File.objects.get(id=file_id, user=request.user)
         except File.DoesNotExist:
-            return Response({'message': '文件不存在'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'File not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # 验证物理文件存在
+        # Ensure the physical artifact exists
         if not file_obj.file or not os.path.exists(file_obj.file.path):
-            return Response({'message': '物理文件不存在'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'Source file is missing'}, status=status.HTTP_404_NOT_FOUND)
 
-        # 校验扩展名为 .h5ad
+        # Enforce .h5ad extension
         original = file_obj.original_filename or os.path.basename(file_obj.file.name)
         if not str(original).lower().endswith('.h5ad'):
-            return Response({'message': '仅支持 .h5ad 文件发布到 Cellxgene'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Only .h5ad files can be published to Cellxgene'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 目标目录（可通过环境变量 CELLXGENE_DATA_DIR 配置）
+        # Target directory (configurable via CELLXGENE_DATA_DIR)
         from django.conf import settings
         target_dir = getattr(settings, 'CELLXGENE_DATA_DIR', os.path.join(settings.BASE_DIR, 'cellxgene_data'))
         os.makedirs(target_dir, exist_ok=True)
 
-        # 安全文件名：避免特殊字符与路径穿越
+        # Sanitize filename to avoid traversal
         safe_basename = re.sub(r'[^A-Za-z0-9\._-]', '_', os.path.basename(original))
         target_filename = f"{file_obj.id}__{safe_basename}"
         target_path = os.path.join(target_dir, target_filename)
@@ -573,11 +569,11 @@ def publish_cellxgene(request, file_id):
         try:
             shutil.copy2(file_obj.file.path, target_path)
         except Exception as e:
-            return Response({'message': f'复制文件失败: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'message': f'Failed to copy file: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         prepare_info = prepare_h5ad_for_cellxgene(target_path)
         if prepare_info.get('status') == 'error':
-            message = f"已复制到 Cellxgene 数据目录，但无法生成可视化布局：{prepare_info.get('message')}"
+            message = f"Copied to the Cellxgene data directory but failed to create embeddings: {prepare_info.get('message')}"
             logger.error("Cellxgene layout preparation failed for %s: %s", target_filename, prepare_info)
             return Response(
                 {
@@ -591,16 +587,16 @@ def publish_cellxgene(request, file_id):
             )
 
         restart_info = restart_cellxgene_process(target_path)
-        message = '已发布到 Cellxgene 数据目录'
+        message = 'File published to the Cellxgene data directory'
 
         status_text = restart_info.get('status')
         if status_text == 'started':
-            message += '，Cellxgene 正在重新加载该文件，请稍候片刻。'
+            message += '; Cellxgene is reloading the dataset.'
         elif status_text == 'skipped':
-            message += '。自动重启已关闭，请手动启动 Cellxgene 服务。'
+            message += '. Automatic restart is disabled; start Cellxgene manually.'
         elif status_text == 'error':
-            detail = restart_info.get('message') or 'Cellxgene 启动失败'
-            message += f'，但无法自动启动 Cellxgene：{detail}'
+            detail = restart_info.get('message') or 'Cellxgene failed to start'
+            message += f'; unable to auto-start Cellxgene: {detail}'
             logger.error("Cellxgene restart failed for file %s: %s", target_filename, detail)
 
         response_payload = {
@@ -613,13 +609,13 @@ def publish_cellxgene(request, file_id):
         }
         return Response(response_payload, status=status.HTTP_200_OK)
     except Exception as e:
-        return Response({'message': f'发布过程中发生错误: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'message': f'Publishing failed: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_stats(request):
-    """获取用户文件统计信息"""
+    """Return aggregate stats for the authenticated user"""
     user_files = File.objects.filter(user=request.user)
     user_folders = Folder.objects.filter(user=request.user)
     total_files = user_files.count()
@@ -637,7 +633,7 @@ def user_stats(request):
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
 def folder_list_create(request):
-    """获取文件夹列表或创建新文件夹"""
+    """List folders or create a new folder"""
     if request.method == 'GET':
         parent_id = request.GET.get('parent_id')
         
@@ -646,9 +642,9 @@ def folder_list_create(request):
                 parent_folder = Folder.objects.get(id=parent_id, user=request.user)
                 folders = Folder.objects.filter(user=request.user, parent=parent_folder).order_by('name')
             except Folder.DoesNotExist:
-                return Response({'error': '父文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'error': 'Parent folder not found'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            # 获取根目录下的文件夹
+            # Return root-level folders
             folders = Folder.objects.filter(user=request.user, parent=None).order_by('name')
         
         serializer = FolderSerializer(folders, many=True, context={'request': request})
@@ -657,10 +653,10 @@ def folder_list_create(request):
     elif request.method == 'POST':
         serializer = FolderCreateSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            # 验证父文件夹权限
+            # Ensure the user can create under the parent
             parent_folder = serializer.validated_data.get('parent')
             if parent_folder and parent_folder.user != request.user:
-                return Response({'error': '无权限在此文件夹下创建子文件夹'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'error': 'You do not have permission to create under this folder'}, status=status.HTTP_403_FORBIDDEN)
             
             folder = serializer.save()
             response_serializer = FolderSerializer(folder, context={'request': request})
@@ -671,11 +667,11 @@ def folder_list_create(request):
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def folder_detail(request, folder_id):
-    """获取、更新或删除文件夹"""
+    """Retrieve, update, or delete a folder"""
     try:
         folder = Folder.objects.get(id=folder_id, user=request.user)
     except Folder.DoesNotExist:
-        return Response({'error': '文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Folder not found'}, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
         serializer = FolderSerializer(folder, context={'request': request})
@@ -684,10 +680,10 @@ def folder_detail(request, folder_id):
     elif request.method == 'PUT':
         serializer = FolderCreateSerializer(folder, data=request.data, context={'request': request})
         if serializer.is_valid():
-            # 验证父文件夹权限
+            # Validate permissions for the destination parent
             parent_folder = serializer.validated_data.get('parent')
             if parent_folder and parent_folder.user != request.user:
-                return Response({'error': '无权限移动到此文件夹'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'error': 'You do not have permission to move into that folder'}, status=status.HTTP_403_FORBIDDEN)
             
             folder = serializer.save()
             response_serializer = FolderSerializer(folder, context={'request': request})
@@ -695,22 +691,22 @@ def folder_detail(request, folder_id):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == 'DELETE':
-        # 检查文件夹是否为空
+        # Ensure the folder is empty
         if folder.subfolders.exists() or folder.files.exists():
-            return Response({'error': '文件夹不为空，无法删除'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Folder must be empty before deletion'}, status=status.HTTP_400_BAD_REQUEST)
         
         folder.delete()
-        return Response({'message': '文件夹删除成功'}, status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'Folder deleted'}, status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def folder_breadcrumb(request, folder_id):
-    """获取文件夹的面包屑导航路径"""
+    """Return breadcrumb metadata for a folder"""
     try:
         folder = Folder.objects.get(id=folder_id, user=request.user)
     except Folder.DoesNotExist:
-        return Response({'error': '文件夹不存在'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Folder not found'}, status=status.HTTP_404_NOT_FOUND)
     
     breadcrumb = []
     current = folder
@@ -728,7 +724,7 @@ def folder_breadcrumb(request, folder_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def folder_all(request):
-    """获取当前用户的所有文件夹"""
+    """Return all folders owned by the current user"""
     folders = Folder.objects.filter(user=request.user).order_by('name')
     folder_serializer = FolderSerializer(folders, many=True, context={'request': request})
     

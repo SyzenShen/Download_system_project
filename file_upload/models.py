@@ -11,7 +11,7 @@ User = get_user_model()
 
 
 def generate_session_id():
-    """生成唯一的会话ID"""
+    """Generate a unique session identifier"""
     return uuid.uuid4().hex
 
 
@@ -22,25 +22,25 @@ def user_directory_path(instance, filename):
 
 
 class Folder(models.Model):
-    """文件夹模型，支持层级结构"""
+    """Folder model with hierarchical relationships"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='folders')
-    name = models.CharField(max_length=255, verbose_name="文件夹名称")
+    name = models.CharField(max_length=255, verbose_name="Folder name")
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subfolders')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['name']
-        # 确保同一用户在同一父目录下不能有重名文件夹
+        # Ensure a user cannot create duplicate folder names at the same level
         unique_together = ['user', 'parent', 'name']
 
     def clean(self):
-        """验证文件夹不能成为自己的子文件夹（防止循环引用）"""
+        """Prevent a folder from becoming its own ancestor"""
         if self.parent:
             current = self.parent
             while current:
                 if current == self:
-                    raise ValidationError("文件夹不能成为自己的子文件夹")
+                    raise ValidationError("A folder cannot be its own descendant")
                 current = current.parent
 
     def save(self, *args, **kwargs):
@@ -48,7 +48,7 @@ class Folder(models.Model):
         super().save(*args, **kwargs)
 
     def get_path(self):
-        """获取文件夹的完整路径"""
+        """Return the full path for the folder"""
         path_parts = []
         current = self
         while current:
@@ -57,7 +57,7 @@ class Folder(models.Model):
         return '/'.join(reversed(path_parts))
 
     def get_all_subfolders(self):
-        """递归获取所有子文件夹"""
+        """Recursively fetch all descendant folders"""
         subfolders = list(self.subfolders.all())
         for subfolder in self.subfolders.all():
             subfolders.extend(subfolder.get_all_subfolders())
@@ -68,7 +68,7 @@ class Folder(models.Model):
 
 
 class File(models.Model):
-    # 文档类型选择
+    # Document type choices
     DOCUMENT_TYPE_CHOICES = [
         ('Paper', 'Paper'),
         ('Protocol', 'Protocol'),
@@ -76,9 +76,9 @@ class File(models.Model):
         ('Code', 'Code'),
     ]
     
-    # 文件格式选择
+    # File format choices
     FILE_FORMAT_CHOICES = [
-        # 生物信息学格式
+        # Bioinformatics formats
         ('FASTQ', 'FASTQ'),
         ('FASTA', 'FASTA'),
         ('VCF', 'VCF'),
@@ -88,7 +88,7 @@ class File(models.Model):
         ('GTF', 'GTF'),
         ('GFF', 'GFF'),
         
-        # 文档格式
+        # Document formats
         ('PDF', 'PDF'),
         ('DOC', 'Word Document'),
         ('DOCX', 'Word Document'),
@@ -96,7 +96,7 @@ class File(models.Model):
         ('PPTX', 'PowerPoint'),
         ('RTF', 'Rich Text Format'),
         
-        # 数据格式
+        # Data formats
         ('CSV', 'CSV'),
         ('TSV', 'TSV'),
         ('XLS', 'Excel'),
@@ -106,7 +106,7 @@ class File(models.Model):
         ('YAML', 'YAML'),
         ('SQL', 'SQL'),
         
-        # 代码格式
+        # Code formats
         ('py', 'Python'),
         ('ipynb', 'Jupyter Notebook'),
         ('R', 'R Script'),
@@ -127,7 +127,7 @@ class File(models.Model):
         ('kt', 'Kotlin'),
         ('scala', 'Scala'),
         
-        # 文本格式
+        # Text formats
         ('txt', 'Text'),
         ('md', 'Markdown'),
         ('log', 'Log File'),
@@ -135,7 +135,7 @@ class File(models.Model):
         ('ini', 'INI File'),
         ('cfg', 'Config File'),
         
-        # 图像格式
+        # Image formats
         ('jpg', 'JPEG Image'),
         ('jpeg', 'JPEG Image'),
         ('png', 'PNG Image'),
@@ -146,7 +146,7 @@ class File(models.Model):
         ('webp', 'WebP Image'),
         ('ico', 'Icon'),
         
-        # 音频格式
+        # Audio formats
         ('mp3', 'MP3 Audio'),
         ('wav', 'WAV Audio'),
         ('flac', 'FLAC Audio'),
@@ -154,7 +154,7 @@ class File(models.Model):
         ('ogg', 'OGG Audio'),
         ('m4a', 'M4A Audio'),
         
-        # 视频格式
+        # Video formats
         ('mp4', 'MP4 Video'),
         ('avi', 'AVI Video'),
         ('mov', 'MOV Video'),
@@ -164,7 +164,7 @@ class File(models.Model):
         ('webm', 'WebM Video'),
         ('m4v', 'M4V Video'),
         
-        # 压缩格式
+        # Archive formats
         ('zip', 'ZIP Archive'),
         ('rar', 'RAR Archive'),
         ('7z', '7-Zip Archive'),
@@ -173,11 +173,11 @@ class File(models.Model):
         ('bz2', 'BZIP2 Archive'),
         ('xz', 'XZ Archive'),
         
-        # 其他格式
+        # Other formats
         ('other', 'Other'),
     ]
     
-    # 实验类型选择
+    # Experiment type choices
     EXPERIMENT_TYPE_CHOICES = [
         ('RNA-seq', 'RNA-seq'),
         ('WGS', 'Whole Genome Sequencing'),
@@ -188,14 +188,14 @@ class File(models.Model):
         ('other', 'Other'),
     ]
     
-    # 访问级别选择
+    # Access level choices
     ACCESS_LEVEL_CHOICES = [
         ('Public', 'Public'),
         ('Internal', 'Internal'),
         ('Restricted', 'Restricted'),
     ]
     
-    # QC状态选择
+    # QC status choices
     QC_STATUS_CHOICES = [
         ('unknown', 'Unknown'),
         ('passed', 'Passed'),
@@ -203,7 +203,7 @@ class File(models.Model):
         ('pending', 'Pending'),
     ]
 
-    # 原有字段
+    # Core fields
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='files')
     file = models.FileField(upload_to=user_directory_path, null=True)
     upload_method = models.CharField(max_length=50, verbose_name="Upload Method")
@@ -212,27 +212,27 @@ class File(models.Model):
     original_filename = models.CharField(max_length=255, blank=True)
     parent_folder = models.ForeignKey(Folder, on_delete=models.CASCADE, null=True, blank=True, related_name='files')
     
-    # 新增元数据字段 - 必填字段
-    title = models.CharField(max_length=500, default="", verbose_name="文件标题", help_text="文件的描述性标题")
-    project = models.CharField(max_length=200, default="", verbose_name="项目名称", help_text="项目名或课题号")
-    uploader = models.CharField(max_length=100, default="", verbose_name="上传者", help_text="上传者姓名")
-    file_format = models.CharField(max_length=20, choices=FILE_FORMAT_CHOICES, default='other', verbose_name="文件格式")
-    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPE_CHOICES, default='Dataset', verbose_name="文档类型")
-    access_level = models.CharField(max_length=20, choices=ACCESS_LEVEL_CHOICES, default='Internal', verbose_name="访问级别")
+    # Metadata fields (required)
+    title = models.CharField(max_length=500, default="", verbose_name="File title", help_text="Descriptive name")
+    project = models.CharField(max_length=200, default="", verbose_name="Project", help_text="Project or study code")
+    uploader = models.CharField(max_length=100, default="", verbose_name="Uploader", help_text="Person who uploaded the file")
+    file_format = models.CharField(max_length=20, choices=FILE_FORMAT_CHOICES, default='other', verbose_name="File format")
+    document_type = models.CharField(max_length=20, choices=DOCUMENT_TYPE_CHOICES, default='Dataset', verbose_name="Document type")
+    access_level = models.CharField(max_length=20, choices=ACCESS_LEVEL_CHOICES, default='Internal', verbose_name="Access level")
     
-    # 新增元数据字段 - 可选/自动填充字段
-    organism = models.CharField(max_length=200, blank=True, verbose_name="物种", help_text="如 Homo sapiens")
-    experiment_type = models.CharField(max_length=50, choices=EXPERIMENT_TYPE_CHOICES, blank=True, verbose_name="实验类型")
-    tags = models.TextField(blank=True, verbose_name="标签", help_text="用逗号分隔的标签")
-    description = models.TextField(blank=True, verbose_name="描述", help_text="文件详细描述")
-    checksum = models.CharField(max_length=64, blank=True, verbose_name="校验和", help_text="文件MD5校验和")
-    qc_status = models.CharField(max_length=20, choices=QC_STATUS_CHOICES, default='unknown', verbose_name="质控状态")
+    # Optional or auto-filled metadata
+    organism = models.CharField(max_length=200, blank=True, verbose_name="Organism", help_text="e.g., Homo sapiens")
+    experiment_type = models.CharField(max_length=50, choices=EXPERIMENT_TYPE_CHOICES, blank=True, verbose_name="Assay type")
+    tags = models.TextField(blank=True, verbose_name="Tags", help_text="Comma-separated tags")
+    description = models.TextField(blank=True, verbose_name="Description", help_text="Detailed notes")
+    checksum = models.CharField(max_length=64, blank=True, verbose_name="Checksum", help_text="MD5 hash")
+    qc_status = models.CharField(max_length=20, choices=QC_STATUS_CHOICES, default='unknown', verbose_name="QC status")
     
-    # 自动提取的元数据
-    extracted_metadata = models.JSONField(default=dict, blank=True, verbose_name="提取的元数据", help_text="从文件自动提取的元数据")
+    # Automatically extracted metadata
+    extracted_metadata = models.JSONField(default=dict, blank=True, verbose_name="Extracted metadata", help_text="Auto-generated insights")
     
-    # 全文搜索字段（PostgreSQL tsvector，如果使用SQLite则为普通文本）
-    search_vector = models.TextField(blank=True, verbose_name="搜索向量", help_text="用于全文搜索的文本")
+    # Full-text search field (tsvector in PostgreSQL; plain text in SQLite)
+    search_vector = models.TextField(blank=True, verbose_name="Search vector", help_text="Materialized text for search")
 
     def save(self, *args, **kwargs):
         if self.file:
@@ -240,31 +240,31 @@ class File(models.Model):
             if not self.original_filename:
                 self.original_filename = self.file.name
             
-            # 自动推断文件格式
+            # Auto-detect file format
             if not self.file_format or self.file_format == 'other':
                 self.file_format = self._detect_file_format()
             
-            # 计算文件校验和
+            # Calculate checksum
             if not self.checksum:
                 self.checksum = self._calculate_checksum()
         
-        # 自动填充上传者
+        # Populate uploader name if missing
         if not self.uploader and self.user:
             self.uploader = self.user.get_full_name() or self.user.username
         
-        # 更新搜索向量
+        # Refresh the search vector
         self._update_search_vector()
         
         super().save(*args, **kwargs)
     
     def _detect_file_format(self):
-        """根据文件扩展名自动检测文件格式"""
+        """Infer the file format from the extension"""
         if not self.original_filename:
             return 'other'
         
         ext = self.original_filename.lower().split('.')[-1]
         format_mapping = {
-            # 生物信息学格式
+            # Bioinformatics formats
             'fastq': 'FASTQ',
             'fq': 'FASTQ',
             'fasta': 'FASTA',
@@ -276,7 +276,7 @@ class File(models.Model):
             'gtf': 'GTF',
             'gff': 'GFF',
             
-            # 文档格式
+            # Document formats
             'pdf': 'PDF',
             'doc': 'DOC',
             'docx': 'DOCX',
@@ -284,7 +284,7 @@ class File(models.Model):
             'pptx': 'PPTX',
             'rtf': 'RTF',
             
-            # 数据格式
+            # Data formats
             'csv': 'CSV',
             'tsv': 'TSV',
             'xls': 'XLS',
@@ -295,7 +295,7 @@ class File(models.Model):
             'yml': 'YAML',
             'sql': 'SQL',
             
-            # 代码格式
+            # Code formats
             'py': 'py',
             'ipynb': 'ipynb',
             'r': 'R',
@@ -323,7 +323,7 @@ class File(models.Model):
             'kt': 'kt',
             'scala': 'scala',
             
-            # 文本格式
+            # Text formats
             'txt': 'txt',
             'md': 'md',
             'markdown': 'md',
@@ -333,7 +333,7 @@ class File(models.Model):
             'ini': 'ini',
             'cfg': 'cfg',
             
-            # 图像格式
+            # Image formats
             'jpg': 'jpg',
             'jpeg': 'jpeg',
             'png': 'png',
@@ -345,7 +345,7 @@ class File(models.Model):
             'webp': 'webp',
             'ico': 'ico',
             
-            # 音频格式
+            # Audio formats
             'mp3': 'mp3',
             'wav': 'wav',
             'flac': 'flac',
@@ -353,7 +353,7 @@ class File(models.Model):
             'ogg': 'ogg',
             'm4a': 'm4a',
             
-            # 视频格式
+            # Video formats
             'mp4': 'mp4',
             'avi': 'avi',
             'mov': 'mov',
@@ -363,7 +363,7 @@ class File(models.Model):
             'webm': 'webm',
             'm4v': 'm4v',
             
-            # 压缩格式
+            # Archive formats
             'zip': 'zip',
             'rar': 'rar',
             '7z': '7z',
@@ -375,7 +375,7 @@ class File(models.Model):
         return format_mapping.get(ext, 'other')
     
     def _calculate_checksum(self):
-        """计算文件MD5校验和"""
+        """Calculate the file MD5 checksum"""
         import hashlib
         if not self.file:
             return ''
@@ -389,7 +389,7 @@ class File(models.Model):
             return ''
     
     def _update_search_vector(self):
-        """更新搜索向量，用于全文搜索"""
+        """Refresh the search vector used for full-text queries"""
         search_content = ' '.join(filter(None, [
             self.title or '',
             self.description or '',
@@ -402,7 +402,7 @@ class File(models.Model):
         self.search_vector = search_content.lower()
 
     def get_path(self):
-        """获取文件的完整路径"""
+        """Return the full filesystem path of the file"""
         if self.parent_folder:
             return f"{self.parent_folder.get_path()}/{self.original_filename}"
         return self.original_filename
@@ -412,7 +412,7 @@ class File(models.Model):
 
     class Meta:
         ordering = ['-uploaded_at']
-        # 确保同一用户在同一文件夹下不能有重名文件
+        # Do not allow duplicate file names within the same folder for a user
         unique_together = ['user', 'parent_folder', 'original_filename']
 
 
@@ -427,7 +427,7 @@ class UploadSession(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='upload_sessions')
     original_filename = models.CharField(max_length=255)
     total_size = models.BigIntegerField(default=0)
-    chunk_size = models.IntegerField(default=2 * 1024 * 1024)  # 2MB 默认分片
+    chunk_size = models.IntegerField(default=2 * 1024 * 1024)  # 2 MB default chunks
     uploaded_size = models.BigIntegerField(default=0)
     temp_path = models.CharField(max_length=512)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')

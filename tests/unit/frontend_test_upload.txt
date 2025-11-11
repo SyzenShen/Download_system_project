@@ -1,4 +1,3 @@
-这是一个前端上传测试文件
-用于调试文件上传功能
-创建时间: 2025-11-01
-测试内容: 前端上传调试
+This is a frontend upload test file used when debugging.
+Created: 2025-11-01
+Scenario: frontend upload debugging

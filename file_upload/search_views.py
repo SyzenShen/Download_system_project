@@ -1,6 +1,6 @@
 """
-文件搜索和筛选API视图
-支持全文搜索、Facets筛选、元数据查询等功能
+Search and filtering API views for files.
+Supports full-text search, facets, and metadata-driven queries.
 """
 
 from django.db.models import Q, Count
@@ -22,16 +22,15 @@ from .serializers import FileSerializer
 @permission_classes([IsAuthenticated])
 def search_files(request):
     """
-    文件搜索API
-    支持关键词搜索和多种筛选条件
+    Search API that supports keyword queries plus multiple filters
     """
     try:
-        # 获取搜索参数
+        # Query parameters
         query = request.GET.get('q', '').strip()
         page = int(request.GET.get('page', 1))
         page_size = int(request.GET.get('page_size', 20))
         
-        # 获取筛选参数 (Facets)
+        # Facet filters
         document_type = request.GET.get('document_type', '')
         file_format = request.GET.get('file_format', '')
         organism = request.GET.get('organism', '')
@@ -39,18 +38,18 @@ def search_files(request):
         experiment_type = request.GET.get('experiment_type', '')
         access_level = request.GET.get('access_level', '')
         
-        # 排序参数
+        # Sorting parameters
         sort_by = request.GET.get('sort_by', 'uploaded_at')
         sort_order = request.GET.get('sort_order', 'desc')
         
-        # 基础查询：只返回当前用户的文件
+        # Base queryset: only the current user's files
         queryset = File.objects.filter(user=request.user)
         
-        # 应用搜索条件
+        # Apply search query
         if query:
             queryset = apply_search_query(queryset, query)
         
-        # 应用筛选条件
+        # Apply filters
         if document_type:
             queryset = queryset.filter(document_type=document_type)
         if file_format:
@@ -64,20 +63,20 @@ def search_files(request):
         if access_level:
             queryset = queryset.filter(access_level=access_level)
         
-        # 应用排序
+        # Apply sorting
         order_field = sort_by
         if sort_order == 'desc':
             order_field = f'-{sort_by}'
         queryset = queryset.order_by(order_field)
         
-        # 分页
+        # Pagination
         paginator = Paginator(queryset, page_size)
         page_obj = paginator.get_page(page)
         
-        # 序列化结果
+        # Serialize results
         serializer = FileSerializer(page_obj.object_list, many=True)
         
-        # 获取筛选统计信息
+        # Compute facet stats
         facets = get_facets_data(File.objects.filter(user=request.user))
         
         return Response({
@@ -106,7 +105,7 @@ def search_files(request):
         
     except Exception as e:
         return Response(
-            {'error': f'搜索失败: {str(e)}'},
+            {'error': f'Search failed: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -115,8 +114,7 @@ def search_files(request):
 @permission_classes([IsAuthenticated])
 def get_facets(request):
     """
-    获取筛选器数据 (Facets)
-    返回各个筛选维度的可选值和计数
+    Return available facet values and counts for the current user
     """
     try:
         queryset = File.objects.filter(user=request.user)
@@ -129,7 +127,7 @@ def get_facets(request):
         
     except Exception as e:
         return Response(
-            {'error': f'获取筛选器数据失败: {str(e)}'},
+            {'error': f'Failed to fetch facets: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -138,8 +136,7 @@ def get_facets(request):
 @permission_classes([IsAuthenticated])
 def search_suggestions(request):
     """
-    搜索建议API
-    根据用户输入提供搜索建议
+    Suggest search helpers based on the partial query
     """
     try:
         query = request.GET.get('q', '').strip()
@@ -150,7 +147,7 @@ def search_suggestions(request):
         
         suggestions = []
         
-        # 项目名建议
+        # Project suggestions
         projects = File.objects.filter(
             user=request.user,
             project__icontains=query
@@ -160,24 +157,24 @@ def search_suggestions(request):
             suggestions.append({
                 'type': 'project',
                 'value': project,
-                'label': f'项目: {project}'
+                'label': f'Project: {project}'
             })
         
-        # 物种建议
+        # Organism suggestions
         organisms = File.objects.filter(
             user=request.user,
             organism__icontains=query
         ).values_list('organism', flat=True).distinct()[:limit//2]
         
         for organism in organisms:
-            if organism:  # 过滤空值
+            if organism:  # Skip empty values
                 suggestions.append({
                     'type': 'organism',
                     'value': organism,
-                    'label': f'物种: {organism}'
+                    'label': f'Organism: {organism}'
                 })
         
-        # 标题建议
+        # Title suggestions
         titles = File.objects.filter(
             user=request.user,
             title__icontains=query
@@ -187,7 +184,7 @@ def search_suggestions(request):
             suggestions.append({
                 'type': 'title',
                 'value': title,
-                'label': f'标题: {title[:50]}...' if len(title) > 50 else f'标题: {title}'
+                'label': f'Title: {title[:50]}...' if len(title) > 50 else f'Title: {title}'
             })
         
         return Response({
@@ -196,7 +193,7 @@ def search_suggestions(request):
         
     except Exception as e:
         return Response(
-            {'error': f'获取搜索建议失败: {str(e)}'},
+            {'error': f'Failed to fetch search suggestions: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
@@ -205,8 +202,7 @@ def search_suggestions(request):
 @permission_classes([IsAuthenticated])
 def file_preview(request, file_id):
     """
-    文件预览API
-    返回文件的预览内容
+    Return a preview payload for the requested file
     """
     try:
         file_obj = File.objects.get(id=file_id, user=request.user)
@@ -221,7 +217,7 @@ def file_preview(request, file_id):
             'metadata': file_obj.extracted_metadata,
         }
         
-        # 根据文件格式生成预览内容
+        # Build preview content per file format
         if file_obj.file_format in ['txt', 'CSV', 'py']:
             preview_data['preview'] = get_text_preview(file_obj)
         elif file_obj.file_format in ['FASTA', 'FASTQ']:
@@ -231,33 +227,32 @@ def file_preview(request, file_id):
         else:
             preview_data['preview'] = {
                 'type': 'metadata_only',
-                'message': '此文件格式不支持预览，仅显示元数据信息'
+                'message': 'Preview is not supported for this format; metadata will be shown instead.'
             }
         
         return Response(preview_data)
         
     except File.DoesNotExist:
         return Response(
-            {'error': '文件不存在或无权限访问'},
+            {'error': 'File does not exist or cannot be accessed'},
             status=status.HTTP_404_NOT_FOUND
         )
     except Exception as e:
         return Response(
-            {'error': f'预览失败: {str(e)}'},
+            {'error': f'Preview failed: {str(e)}'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
 
 def apply_search_query(queryset, query: str):
     """
-    应用搜索查询条件
-    支持多种搜索模式
+    Apply search filters supporting several modes
     """
-    # 解析查询字符串，支持 field:value 格式
+    # Parse the query string, supporting field:value syntax
     field_queries = {}
     remaining_query = query
     
-    # 提取字段查询 (如 project:MyLab)
+    # Extract field-specific queries (e.g., project:MyLab)
     field_pattern = r'(\w+):([^\s]+)'
     matches = re.findall(field_pattern, query)
     
@@ -265,10 +260,10 @@ def apply_search_query(queryset, query: str):
         field_queries[field] = value
         remaining_query = re.sub(f'{field}:{value}', '', remaining_query)
     
-    # 清理剩余查询
+    # Clean up the remaining query
     remaining_query = remaining_query.strip()
     
-    # 应用字段查询
+    # Apply field-specific filters
     if 'project' in field_queries:
         queryset = queryset.filter(project__icontains=field_queries['project'])
     if 'organism' in field_queries:
@@ -278,7 +273,7 @@ def apply_search_query(queryset, query: str):
     if 'format' in field_queries:
         queryset = queryset.filter(file_format__icontains=field_queries['format'])
     
-    # 应用全文搜索
+    # Apply full-text search for the remaining tokens
     if remaining_query:
         search_q = Q()
         for term in remaining_query.split():
@@ -299,9 +294,7 @@ def apply_search_query(queryset, query: str):
 
 
 def get_facets_data(queryset) -> Dict[str, List[Dict[str, Any]]]:
-    """
-    获取筛选器数据
-    """
+    """Assemble facet counts for the supplied queryset"""
     facets = {}
     
     # Document Type facets
@@ -318,12 +311,12 @@ def get_facets_data(queryset) -> Dict[str, List[Dict[str, Any]]]:
         .order_by('-count')
     )
     
-    # Organism facets (过滤空值)
+    # Organism facets (skip blank values)
     facets['organism'] = list(
         queryset.exclude(organism='')
         .values('organism')
         .annotate(count=Count('id'))
-        .order_by('-count')[:20]  # 限制数量
+        .order_by('-count')[:20]  # Limit results
     )
     
     # Project facets
@@ -333,7 +326,7 @@ def get_facets_data(queryset) -> Dict[str, List[Dict[str, Any]]]:
         .order_by('-count')[:20]
     )
     
-    # Experiment Type facets (过滤空值)
+    # Experiment type facets (skip blank values)
     facets['experiment_type'] = list(
         queryset.exclude(experiment_type='')
         .values('experiment_type')
@@ -352,11 +345,11 @@ def get_facets_data(queryset) -> Dict[str, List[Dict[str, Any]]]:
 
 
 def get_text_preview(file_obj) -> Dict[str, Any]:
-    """获取文本文件预览"""
+    """Return a preview for plain-text files"""
     try:
         with open(file_obj.file.path, 'r', encoding='utf-8', errors='ignore') as f:
-            content = f.read(2000)  # 读取前2000字符
-            lines = content.split('\n')[:50]  # 前50行
+            content = f.read(2000)  # Read the first 2,000 characters
+            lines = content.split('\n')[:50]  # Only show the first 50 lines
             
         return {
             'type': 'text',
@@ -368,17 +361,17 @@ def get_text_preview(file_obj) -> Dict[str, Any]:
     except Exception as e:
         return {
             'type': 'error',
-            'message': f'无法预览文件: {str(e)}'
+            'message': f'Unable to preview file: {str(e)}'
         }
 
 
 def get_sequence_preview(file_obj) -> Dict[str, Any]:
-    """获取序列文件预览 (FASTA/FASTQ)"""
+    """Return a preview of sequence files (FASTA/FASTQ)"""
     try:
         with open(file_obj.file.path, 'r', encoding='utf-8', errors='ignore') as f:
             lines = []
             for i, line in enumerate(f):
-                if i >= 100:  # 只读前100行
+                if i >= 100:  # Read at most 100 lines
                     break
                 lines.append(line.rstrip())
         
@@ -391,14 +384,14 @@ def get_sequence_preview(file_obj) -> Dict[str, Any]:
     except Exception as e:
         return {
             'type': 'error',
-            'message': f'无法预览序列文件: {str(e)}'
+            'message': f'Unable to preview sequence file: {str(e)}'
         }
 
 
 def get_pdf_preview(file_obj) -> Dict[str, Any]:
-    """获取PDF文件预览"""
+    """Return a preview payload for PDFs"""
     try:
-        # 如果有提取的元数据，使用其中的文本预览
+        # Use extracted text preview when available
         if file_obj.extracted_metadata and 'text_preview' in file_obj.extracted_metadata:
             return {
                 'type': 'pdf_text',
@@ -409,12 +402,12 @@ def get_pdf_preview(file_obj) -> Dict[str, Any]:
         else:
             return {
                 'type': 'pdf_info',
-                'message': 'PDF文件预览需要安装额外的依赖包',
+                'message': 'PDF preview requires optional dependencies to be installed.',
                 'metadata': file_obj.extracted_metadata,
                 'download_url': f'/api/files/{file_obj.id}/download/'
             }
     except Exception as e:
         return {
             'type': 'error',
-            'message': f'无法预览PDF文件: {str(e)}'
+            'message': f'Unable to preview PDF file: {str(e)}'
         }

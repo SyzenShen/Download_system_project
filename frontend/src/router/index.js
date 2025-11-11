@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
-// 导入页面组件
+// Import view components
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
@@ -64,7 +64,7 @@ const routes = [
     path: '/cellxgene-app',
     name: 'CellxgeneWrapper',
     component: CellxgeneWrapper,
-    // Cellxgene 包装页对所有用户开放，避免登录状态阻塞查看
+    // Allow all users to open the Cellxgene wrapper to avoid blocking viewers without a session
     meta: {}
   }
 ]
@@ -74,7 +74,7 @@ const router = createRouter({
   routes
 })
 
-// 路由守卫
+// Router guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   

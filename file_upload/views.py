@@ -25,7 +25,7 @@ def file_upload(request):
             raw_file = form.cleaned_data.get("file")
             new_file = File()
             new_file.file = handle_uploaded_file(raw_file)
-            # 记录原始文件名，避免列表页显示乱码（存储名为UUID）
+            # Persist original name so the list view doesn't show a UUID
             try:
                 new_file.original_filename = raw_file.name
             except Exception:

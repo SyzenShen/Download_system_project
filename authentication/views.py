@@ -15,7 +15,7 @@ from .serializers import UserRegistrationSerializer, UserLoginSerializer, UserSe
 @permission_classes([AllowAny])
 @authentication_classes([])
 def register(request):
-    """用户注册"""
+    """Register a new user account"""
     serializer = UserRegistrationSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
@@ -33,7 +33,7 @@ def register(request):
 @permission_classes([AllowAny])
 @authentication_classes([])
 def login_view(request):
-    """用户登录"""
+    """Authenticate a user and return a token"""
     serializer = UserLoginSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.validated_data['user']
@@ -51,9 +51,9 @@ def login_view(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def logout_view(request):
-    """用户登出"""
+    """Log out the current user and revoke their token"""
     try:
-        # 删除用户的token
+        # Remove the user's token
         request.user.auth_token.delete()
     except:
         pass
@@ -65,7 +65,7 @@ def logout_view(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def user_profile(request):
-    """获取用户信息"""
+    """Return details about the authenticated user"""
     serializer = UserSerializer(request.user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -74,7 +74,7 @@ def user_profile(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([TokenAuthentication])
 def update_profile(request):
-    """更新用户信息"""
+    """Update fields on the authenticated user's profile"""
     serializer = UserSerializer(request.user, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()

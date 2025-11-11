@@ -1,6 +1,6 @@
-这是一个测试文件，用于验证文件上传功能是否正常工作。
+This is a test file used to validate that the upload feature works as expected.
 
-文件创建时间：2025年10月17日
-测试内容：文件上传功能测试
+File created: 17 Oct 2025
+Test scenario: file upload verification
 
-如果您能看到这个文件被成功上传到系统中，说明上传功能工作正常。
+If you can see this file in the system after running the suite, the upload path is functioning correctly.

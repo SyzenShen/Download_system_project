@@ -111,9 +111,9 @@ def parse_ncbi_url(url: str) -> Tuple[str, str]:
           break
 
   if not resource:
-    raise NCBIDownloadError("无法识别 NCBI 链接类型")
+    raise NCBIDownloadError("Unable to determine the NCBI resource type from the URL")
   if not accession:
-    raise NCBIDownloadError("无法从链接中解析出 accession/ID")
+    raise NCBIDownloadError("Unable to extract an accession/ID from the URL")
 
   resource = resource.lower()
   return resource, accession
@@ -122,12 +122,12 @@ def parse_ncbi_url(url: str) -> Tuple[str, str]:
 def _download_streaming(url: str, params: Optional[Dict[str, str]], suffix: str, max_bytes: int) -> Tuple[str, int, Dict[str, str]]:
   with requests.get(url, params=params, stream=True, timeout=DEFAULT_TIMEOUT) as resp:
     if resp.status_code != 200:
-      raise NCBIDownloadError(f"NCBI 返回错误状态码 {resp.status_code}")
+      raise NCBIDownloadError(f"NCBI returned HTTP {resp.status_code}")
     total_bytes = 0
     headers = resp.headers
     content_length = headers.get("Content-Length")
     if content_length and int(content_length) > max_bytes:
-      raise NCBIDownloadTooLarge(f"文件大小 {content_length} 超过限制 {max_bytes}")
+      raise NCBIDownloadTooLarge(f"Content length {content_length} exceeds limit {max_bytes}")
 
     handle, file_path = tempfile.mkstemp(suffix=f".{suffix}")
     with os.fdopen(handle, "wb") as tmp:
@@ -138,7 +138,7 @@ def _download_streaming(url: str, params: Optional[Dict[str, str]], suffix: str,
         if total_bytes > max_bytes:
           tmp.close()
           os.remove(file_path)
-          raise NCBIDownloadTooLarge(f"文件大小超过限制 {max_bytes} 字节")
+          raise NCBIDownloadTooLarge(f"Download size exceeds limit {max_bytes} bytes")
         tmp.write(chunk)
     return file_path, total_bytes, headers
 
@@ -182,7 +182,7 @@ def download_ncbi_resource(url: str, max_bytes: Optional[int] = None) -> NCBIDow
   config = RESOURCE_MAP.get(resource)
 
   if not config:
-    raise NCBIDownloadError(f"暂不支持的 NCBI 资源类型：{resource}")
+    raise NCBIDownloadError(f"Unsupported NCBI resource type: {resource}")
 
   max_allowed = max_bytes or DEFAULT_MAX_BYTES
   strategy = config.get("strategy")
